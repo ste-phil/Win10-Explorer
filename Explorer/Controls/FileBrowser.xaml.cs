@@ -1,6 +1,4 @@
-﻿using Explorer.Entities;
-using Explorer.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,24 +12,19 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Explorer.Entities;
+using Explorer.Models;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
-namespace Explorer
+namespace Explorer.Controls
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class FileBrowser : UserControl
     {
-        public MainPageModel ViewModel { get; set; }
+        public FileBrowserModel ViewModel { get; set; }
 
-        public MainPage()
+        public FileBrowser()
         {
-            this.ViewModel = new MainPageModel();
-
             this.InitializeComponent();
-            TextBoxPath.PreviewKeyDown += TextBoxPath_PreviewKeyDown;
+            ViewModel = new FileBrowserModel();
         }
 
         private void TextBoxPath_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
