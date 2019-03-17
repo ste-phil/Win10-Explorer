@@ -15,13 +15,11 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <!--Spacer for title bar-->
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -35,7 +33,7 @@
             <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" KeyDown="TextBoxPath_PreviewKeyDown"></TextBox>
+            <TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" PreviewKeyDown="TextBoxPath_PreviewKeyDown"></TextBox>
             <Button Grid.Column="3">
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">
@@ -78,7 +76,7 @@
                 </ListView.ItemTemplate>
             </ListView>-->
 
-        <local:TableView Grid.Row="2" 
+        <local:TableView Grid.Row="1" 
                           ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
                           ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
             <local:TableView.ItemFlyout>

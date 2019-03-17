@@ -119,12 +119,14 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DataGrid.cs" />
     <Compile Include="Controls\FileBrowser.xaml.cs">
       <DependentUpon>FileBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TableView.xaml.cs">
       <DependentUpon>TableView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TabView.xaml.cs">
+      <DependentUpon>TabView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Entities\FileSystemElement.cs" />
     <Compile Include="Helper\Command.cs" />
@@ -163,6 +165,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TableView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TabView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

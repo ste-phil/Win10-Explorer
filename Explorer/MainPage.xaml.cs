@@ -31,18 +31,6 @@ namespace Explorer
             this.ViewModel = new MainPageModel();
 
             this.InitializeComponent();
-            TextBoxPath.PreviewKeyDown += TextBoxPath_PreviewKeyDown;
-        }
-
-        private void TextBoxPath_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-                ViewModel.NavigateTo(new FileSystemElement { Path = TextBoxPath.Text });
-        }
-
-        private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)
-        {
-            ViewModel.LaunchExe("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", $"-noexit -command \"cd {ViewModel.Path}\"");
         }
     }
 }
