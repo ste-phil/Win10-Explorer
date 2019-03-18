@@ -7,7 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.System;
+using Windows.UI.Xaml.Media.Animation;
 using File = Explorer.Entities.File;
+using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace Explorer.Logic
 {
@@ -17,6 +21,54 @@ namespace Explorer.Logic
         {
             return DriveInfo.GetDrives();
         }
+
+        public static async void OpenFileWithDefaultApp(string path)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            await Launcher.LaunchFileAsync(file);
+        }
+
+        public static async void OpenFileWith(string path)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            await Launcher.LaunchFileAsync(file, new LauncherOptions{DisplayApplicationPicker = true});
+        }
+
+        public static async void DeleteStorageItem(FileSystemElement fse)
+        {
+            var storageItem = await GetStorageItemAsync(fse);
+            await storageItem.DeleteAsync();
+        }
+
+        public static async void RenameStorageItem(FileSystemElement fse, string newName)
+        {
+            var file = await GetStorageItemAsync(fse);
+            await file.RenameAsync(newName);
+        }
+
+        public static async Task<BasicProperties> GetPropertiesOfFile(string path)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            return await file.GetBasicPropertiesAsync();
+        }
+
+        public static async Task<IStorageItem> GetFileAsync(FileSystemElement fse)
+        {
+            return await StorageFile.GetFileFromPathAsync(fse.Path);
+        }
+
+        public static async Task<IStorageItem> GetFolderAsync(FileSystemElement fse)
+        {
+            return await StorageFolder.GetFolderFromPathAsync(fse.Path);
+        }
+
+        public static async Task<IStorageItem> GetStorageItemAsync(FileSystemElement fse)
+        {
+            if (fse.Type.HasFlag(FileAttributes.Directory))
+                return await GetFolderAsync(fse);
+            return await GetFileAsync(fse);
+        }
+
 
         public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path)
         {

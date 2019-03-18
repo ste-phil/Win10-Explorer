@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -18,6 +19,7 @@ namespace Explorer.Controls
         {
             public Rectangle Hitbox { get; set; }
             public Border Background { get; set; }
+            public List<UIElement> RowElements { get; set; } = new List<UIElement>();
 
             public void SetGridPos(int row, int column, int columnSpan = 1)
             {
@@ -54,9 +56,9 @@ namespace Explorer.Controls
 
                 SetValue(ItemsSourceProperty, value); 
                 ItemsSource_Changed();
-
             }
         }
+
 
         public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(nameof(ItemsSource), typeof(ObservableCollection<FileSystemElement>),
         typeof(TableView), new PropertyMetadata(DependencyProperty.UnsetValue));
@@ -66,6 +68,14 @@ namespace Explorer.Controls
         public static readonly DependencyProperty ItemFlyoutProperty = DependencyProperty.Register(nameof(ItemFlyout), typeof(MenuFlyout),
        typeof(TableView), new PropertyMetadata(DependencyProperty.UnsetValue));
 
+        public FileSystemElement SelectedItem
+        {
+            get { return (FileSystemElement) GetValue(SelectedItemProperty); }
+            set { SetValue(SelectedItemProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register(nameof(SelectedItem), typeof(FileSystemElement),
+            typeof(TableView), new PropertyMetadata(DependencyProperty.UnsetValue));
 
         public TableView()
         {
@@ -99,9 +109,9 @@ namespace Explorer.Controls
             ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
         }
 
-        private void ItemsSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void ItemsSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems == null)  //List has been cleared
+            if (e.Action == NotifyCollectionChangedAction.Reset)  //List has been cleared
             {
                 TableGrid.Children.Clear();
                 TableGrid.RowDefinitions.Clear();
@@ -110,7 +120,26 @@ namespace Explorer.Controls
                 TableGrid.Children.Add(textBlockNoContent);
                 return;
             }
-            
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                for (int i = 0; i < e.OldItems.Count; i++)
+                {
+                    var row = Rows[e.OldStartingIndex + i];
+                    var rowElements = row.RowElements;
+                    foreach (var elem in rowElements)
+                    {
+                        TableGrid.Children.Remove(elem);
+                    }
+
+                    TableGrid.Children.Remove(row.Background);
+                    TableGrid.Children.Remove(row.Hitbox);
+                    TableGrid.RowDefinitions.RemoveAt(i);
+                }
+
+                return;
+            }
+
             TableGrid.Children.Remove(textBlockNoContent);
 
             for (int i = 0; i < e.NewItems.Count; i++)
@@ -139,41 +168,44 @@ namespace Explorer.Controls
 
             TableGrid.Children.Add(rh.Background);
 
-            AddSymbolCell(row, 0, ItemsSource[row].Type.HasFlag(FileAttributes.Directory) ? Symbol.Folder : Symbol.Document);
-            AddCell(row, 1, ItemsSource[row].Name);
-            AddCell(row, 2, ItemsSource[row].Size.ToString());
-            AddCell(row, 3, ItemsSource[row].DateModifiedString);
-            AddCell(row, 4, ItemsSource[row].Type.ToString());
+            AddSymbolCell(rh, row, 0, ItemsSource[row].Type.HasFlag(FileAttributes.Directory) ? Symbol.Folder : Symbol.Document);
+            AddCell(rh, row, 1, ItemsSource[row].Name);
+            AddCell(rh, row, 2, ItemsSource[row].Size.ToString());
+            AddCell(rh, row, 3, ItemsSource[row].DateModifiedString);
+            AddCell(rh, row, 4, ItemsSource[row].Type.ToString());
 
             TableGrid.Children.Add(rh.Hitbox);
             Rows.Add(rh);
         }
 
         
-
-
         private void AddRowDefinition()
         {
             var rd = new RowDefinition { Height = GridLength.Auto };
             TableGrid.RowDefinitions.Add(rd);
         }
 
-        private void AddCell(int row, int column, string content)
+        private void AddCell(RowHolder rh, int row, int column, string text)
         {
-            var tb = new TextBlock();
-            tb.Text = content;
-            tb.Margin = new Thickness(0, 5, 0, 5);
+            var content = new TextBlock();
+            content.Text = text;
+            content.Margin = new Thickness(0, 5, 0, 5);
 
-            Grid.SetRow(tb, row);
-            Grid.SetColumn(tb, column);
-            TableGrid.Children.Add(tb);
+            Grid.SetRow(content, row);
+            Grid.SetColumn(content, column);
+            
+            rh.RowElements.Add(content);
+            TableGrid.Children.Add(content);
         }
-        private void AddSymbolCell(int row, int column, Symbol symbol)
+
+        private void AddSymbolCell(RowHolder rh, int row, int column, Symbol symbol)
         {
             var content = new SymbolIcon();
             content.Symbol = symbol;
             Grid.SetRow(content, row);
             Grid.SetColumn(content, column);
+
+            rh.RowElements.Add(content);
             TableGrid.Children.Add(content);
         }
 
@@ -184,6 +216,7 @@ namespace Explorer.Controls
             if (i != selectedRow) //Unhighlight old row
             {
                 if (selectedRow != -1 && selectedRow < Rows.Count) Rows[selectedRow].Background.Style = null;
+                SelectedItem = ItemsSource[i];
                 ItemSelected?.Invoke(sender, ItemsSource[i]);
             }
 
@@ -194,39 +227,16 @@ namespace Explorer.Controls
         {
             ItemDoubleClicked?.Invoke(sender, ItemsSource[selectedRow]);
         }
-
-        private void Row_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            var i = FindSelectedIndex((Rectangle)sender);
-
-            if (i != selectedRow) //Unhighlight old row
-            {
-                if (selectedRow != -1 && selectedRow < Rows.Count) Rows[selectedRow].Background.Style = null;
-                ItemSelected?.Invoke(sender, ItemsSource[i]);
-                clickCount = 0;
-            }
-
-            //Highlight new row
-            Rows[i].Background.Style = (Style)Resources["RowSelectedHighlight"];
-
-            if (DateTime.Now > clickTime.AddSeconds(1))
-            {
-                clickCount = 0;
-            }
-
-            selectedRow = i;
-            clickCount++;
-            clickTime = DateTime.Now;
-
-            if (clickCount == 2)
-                ItemDoubleClicked?.Invoke(sender, ItemsSource[i]);
-        }
-
+        
         private void Row_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
+            var i = FindSelectedIndex((Rectangle)sender);
             var tappedItem = (UIElement)e.OriginalSource;
 
             ItemFlyout.ShowAt(tappedItem, e.GetPosition(tappedItem));
+
+            SelectedItem = ItemsSource[i];
+            ItemSelected?.Invoke(sender, ItemsSource[i]);
         }
 
         private int FindSelectedIndex(Rectangle hitbox)

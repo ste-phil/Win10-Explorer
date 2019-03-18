@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Explorer.Logic;
 
 namespace Explorer.Entities
 {

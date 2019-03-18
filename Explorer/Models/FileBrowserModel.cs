@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
+using Windows.Storage;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
+using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace Explorer.Models
 {
     public class FileBrowserModel : BaseModel
     {
+        private static DataTransferManager dataTransferManager;
+        private static DataPackage sharedData;
+
         private string path;
         private FileSystemElement currentFolder;
 
@@ -21,6 +30,8 @@ namespace Explorer.Models
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public List<FileSystemElement> History { get; set; }
+        public FileSystemElement SelectedElement { get; set; }
+
 
         public FileBrowserModel()
         {
@@ -32,6 +43,13 @@ namespace Explorer.Models
 
             History = new List<FileSystemElement>();
             HistoryPosition = -1;
+
+            //For sharing files, only one object for all fileBrowsers
+            if (dataTransferManager == null)
+            {
+                dataTransferManager = DataTransferManager.GetForCurrentView();
+                dataTransferManager.DataRequested += OnShareRequested;
+            }
 
             NavigateTo(CurrentFolder);
         }
@@ -141,6 +159,58 @@ namespace Explorer.Models
             var path = args.InvokedItemContainer.Tag.ToString();
 
             NavigateTo(new FileSystemElement { Path = path });
+        }
+
+        /// <summary>
+        /// Called from system when DataTransferManager.ShowShareUI has been called
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnShareRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            sharedData.Properties.Title = "Share Text Example";
+            sharedData.Properties.Description = "A demonstration that shows how to share text.";
+            args.Request.Data = sharedData;
+        }
+
+        public void OpenFile()
+        {
+            if (SelectedElement.Type.HasFlag(FileAttributes.Directory)) NavigateTo(SelectedElement);
+            else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
+        }
+
+        public void OpenFileWith()
+        {
+            if (!SelectedElement.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(SelectedElement.Path);
+        }
+
+        public async void ShareFile()
+        {
+            DataTransferManager.ShowShareUI();
+            sharedData = new DataPackage();
+            sharedData.SetStorageItems(new List<IStorageItem> { await FileSystem.GetStorageItemAsync(SelectedElement) });
+        }
+
+        public void RenameFile()
+        {
+            FileSystem.RenameStorageItem(SelectedElement, "sad");
+        }
+
+        public void DeleteStorageItem()
+        {
+            FileSystem.DeleteStorageItem(SelectedElement);
+            FileSystemElements.Remove(SelectedElement);
+            SelectedElement = null;
+        }
+
+        public async void ShowPropertiesOfFile()
+        {
+            var props = await FileSystem.GetPropertiesOfFile(SelectedElement.Path);
+        }
+
+        public void Refresh()
+        {
+            LoadFolderAsync(CurrentFolder);
         }
     }
 }

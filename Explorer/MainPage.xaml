@@ -43,12 +43,6 @@
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
                     >
-        <NavigationView.Resources>
-            <ResourceDictionary>
-                <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
-                              BackgroundSource="Backdrop" TintColor="Blue" TintOpacity=".3"/>
-            </ResourceDictionary>
-        </NavigationView.Resources>
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -92,7 +86,6 @@
                               CanDragItems="True" CanReorderItems="True" AllowDrop="True">
                 <controls:TabView.Resources>
                     <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
-                    <!--<x:Double x:Key="TabViewItemHeaderMinWidth">90</x:Double>-->
                 </controls:TabView.Resources>
                     
                 <controls:TabView.ItemTemplate>
