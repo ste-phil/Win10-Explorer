@@ -12,13 +12,13 @@
     d:DesignWidth="400">
     <UserControl.Resources>
         <ResourceDictionary>
-            <!--<Style x:Key="RowSelectedHighlight" TargetType="Rectangle">
+            <Style x:Key="RowSelectedHighlight" TargetType="Rectangle">
                 <Setter Property="StrokeThickness" Value="0"></Setter>
                 <Setter Property="Fill" Value="{ThemeResource SystemAccentColor}"></Setter>
-            </Style>-->
-            <Style x:Key="RowSelectedHighlight" TargetType="Border">
-                <Setter Property="BorderBrush" Value="{ThemeResource SystemAccentColor}"></Setter>
             </Style>
+            <!--<Style x:Key="RowSelectedHighlight" TargetType="Border">
+                <Setter Property="BorderBrush" Value="{ThemeResource SystemAccentColor}"></Setter>
+            </Style>-->
         </ResourceDictionary>
     </UserControl.Resources>
     

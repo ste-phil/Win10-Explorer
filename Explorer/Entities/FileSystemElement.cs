@@ -18,6 +18,7 @@ namespace Explorer.Entities
         public string Path { get; set; }
 
         public string DateModifiedString => DateModified.ToString("dd.MM.yyyy HH:MM");
+        public bool IsFolder => Type.HasFlag(FileAttributes.Directory);
     }
 
     public class Folder : FileSystemElement

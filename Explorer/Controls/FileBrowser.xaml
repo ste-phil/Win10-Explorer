@@ -60,14 +60,14 @@
                 ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
                 <local:TableView.ItemFlyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.OpenFile}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.OpenOrNavigate}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWith}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareFile}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameFile}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesOfFile}">
+                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItem}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE946;"/>
                             </MenuFlyoutItem.Icon>

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -18,7 +19,7 @@ namespace Explorer.Controls
         private class RowHolder
         {
             public Rectangle Hitbox { get; set; }
-            public Border Background { get; set; }
+            public Rectangle Background { get; set; }
             public List<UIElement> RowElements { get; set; } = new List<UIElement>();
 
             public void SetGridPos(int row, int column, int columnSpan = 1)
@@ -71,7 +72,7 @@ namespace Explorer.Controls
         public FileSystemElement SelectedItem
         {
             get { return (FileSystemElement) GetValue(SelectedItemProperty); }
-            set { SetValue(SelectedItemProperty, value); }
+            set { SetValue(SelectedItemProperty, value);}
         }
 
         public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register(nameof(SelectedItem), typeof(FileSystemElement),
@@ -105,6 +106,8 @@ namespace Explorer.Controls
                 AddRowDefinition();
                 AddRow(i);
             }
+
+            if (SelectedItem != null) HighlightRow(ItemsSource.IndexOf(SelectedItem));
 
             ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
         }
@@ -147,6 +150,7 @@ namespace Explorer.Controls
                 AddRowDefinition();
                 AddRow(e.NewStartingIndex + i);
             }
+
         }
 
         private void AddRow(int row)
@@ -156,7 +160,7 @@ namespace Explorer.Controls
 
             var rh = new RowHolder
             {
-                Background = new Border { Margin = new Thickness(1), BorderBrush = revealBrush, BorderThickness = new Thickness(1) },
+                Background = new Rectangle { Margin = new Thickness(1), Stroke = revealBrush, StrokeThickness = 1 },
                 Hitbox = new Rectangle { Fill = brush }
             };
 
@@ -212,15 +216,7 @@ namespace Explorer.Controls
         private void Row_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var i = FindSelectedIndex((Rectangle)sender);
-
-            if (i != selectedRow) //Unhighlight old row
-            {
-                if (selectedRow != -1 && selectedRow < Rows.Count) Rows[selectedRow].Background.Style = null;
-                SelectedItem = ItemsSource[i];
-                ItemSelected?.Invoke(sender, ItemsSource[i]);
-            }
-
-            selectedRow = i;
+            SelectRow(i);
         }
 
         private void Row_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -233,11 +229,31 @@ namespace Explorer.Controls
             var i = FindSelectedIndex((Rectangle)sender);
             var tappedItem = (UIElement)e.OriginalSource;
 
+            SelectRow(i);
             ItemFlyout.ShowAt(tappedItem, e.GetPosition(tappedItem));
-
-            SelectedItem = ItemsSource[i];
-            ItemSelected?.Invoke(sender, ItemsSource[i]);
         }
+
+       
+        private void SelectRow(int index)
+        {
+            if (index == selectedRow) return;   //Only select if row changed
+
+            //Unhighlight old row if there is one highlighted
+            if (selectedRow != -1 && selectedRow < Rows.Count) Rows[selectedRow].Background.Style = null;
+
+            selectedRow = index;
+            SelectedItem = ItemsSource[index];
+            ItemSelected?.Invoke(this, ItemsSource[index]);
+            HighlightRow(index);
+        }
+        
+        private void HighlightRow(int index)
+        {
+            if (index < 0 || index >= Rows.Count) return;
+
+            Rows[index].Background.Style = (Style)Resources["RowSelectedHighlight"];
+        }
+
 
         private int FindSelectedIndex(Rectangle hitbox)
         {

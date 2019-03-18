@@ -82,7 +82,6 @@ namespace Explorer.Models
 
         public Command NavigateForward { get; }
 
-
         /// <summary>
         /// Navigate to the passed Folder
         /// </summary>
@@ -147,50 +146,26 @@ namespace Explorer.Models
         }
 
         /// <summary>
-        /// Event called in UI that navigates to the passed FileSystemElement
-        /// </summary>
-        public void NavigateNextFSE(object sender, FileSystemElement fileSystemElement)
-        {
-            NavigateTo(fileSystemElement);
-        }
-
-        /// <summary>
-        /// Event called when an element in the NavigationView has been clicked
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-            var path = args.InvokedItemContainer.Tag.ToString();
-
-            NavigateTo(new FileSystemElement { Path = path });
-        }
-
-        /// <summary>
         /// Called from system when DataTransferManager.ShowShareUI has been called
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
         private void OnShareRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
-            sharedData.Properties.Title = "Share Text Example";
-            sharedData.Properties.Description = "A demonstration that shows how to share text.";
             args.Request.Data = sharedData;
         }
-
 
         /// <summary>
         /// Opens the currently selected file system element
         /// </summary>
-        public void OpenFile()
+        public void OpenOrNavigate()
         {
-            if (SelectedElement.Type.HasFlag(FileAttributes.Directory)) NavigateTo(SelectedElement);
+            if (SelectedElement.IsFolder) NavigateTo(SelectedElement);
             else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
         }
 
-
         /// <summary>
-        /// Brings up the application picker for te currently selected file system element
+        /// Brings up the application picker to open the selected file system element
         /// </summary>
         public void OpenFileWith()
         {
@@ -200,17 +175,19 @@ namespace Explorer.Models
         /// <summary>
         /// Shares the currently selected file system Element via the new Windows share feature
         /// </summary>
-        public async void ShareFile()
+        public async void ShareStorageItem()
         {
             DataTransferManager.ShowShareUI();
             sharedData = new DataPackage();
+            sharedData.Properties.Title = SelectedElement.Name;
+            sharedData.Properties.Description = "This element will be shared";
             sharedData.SetStorageItems(new List<IStorageItem> { await FileSystem.GetStorageItemAsync(SelectedElement) });
         }
 
         /// <summary>
         /// Renames the currently selected file system element
         /// </summary>
-        public void RenameFile()
+        public void RenameStorageItem()
         {
             FileSystem.RenameStorageItem(SelectedElement, "sad");
         }
@@ -228,7 +205,7 @@ namespace Explorer.Models
         /// <summary>
         /// Shows a popup with the properties of the selected file system element
         /// </summary>
-        public async void ShowPropertiesOfFile()
+        public async void ShowPropertiesStorageItem()
         {
             var props = await FileSystem.GetPropertiesOfFile(SelectedElement.Path);
         }
@@ -239,6 +216,27 @@ namespace Explorer.Models
         public void Refresh()
         {
             LoadFolderAsync(CurrentFolder);
+        }
+
+        /// <summary>
+        /// Event called in UI that navigates to the passed FileSystemElement
+        /// </summary>
+        public void NavigateNextFSE(object sender, FileSystemElement fileSystemElement)
+        {
+            if (fileSystemElement.IsFolder) NavigateTo(fileSystemElement);
+            else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
+        }
+
+        /// <summary>
+        /// Event called when an element in the NavigationView has been clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        {
+            var path = args.InvokedItemContainer.Tag.ToString();
+
+            NavigateTo(new FileSystemElement { Path = path });
         }
     }
 }
