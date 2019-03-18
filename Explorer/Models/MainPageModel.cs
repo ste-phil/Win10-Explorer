@@ -19,6 +19,8 @@ namespace Explorer.Models
 {
     public class MainPageModel : BaseModel
     {
+        private Command addTabCmd;
+
         public FileBrowserModel currentFileBrowser;
 
         public ObservableCollection<NavigationViewItemBase> NavigationItems { get; set; }
@@ -29,6 +31,8 @@ namespace Explorer.Models
             NavigationItems = new ObservableCollection<NavigationViewItemBase>();
             FileBrowserModels = new ObservableCollection<FileBrowserModel> { new FileBrowserModel(), new FileBrowserModel()};
             //CurrentFileBrowser = FileBrowserModels[1];
+
+            addTabCmd = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
 
             AddDrivesToNavigation();
         }
@@ -44,6 +48,8 @@ namespace Explorer.Models
             get { return CurrentFileBrowser; }
             set { CurrentFileBrowser = value; }
         }
+
+        public Command AddTabCommand => addTabCmd;
 
         private void AddDrivesToNavigation()
         {

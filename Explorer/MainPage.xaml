@@ -60,7 +60,7 @@
                               CanDragItems="True" CanReorderItems="True" AllowDrop="True">
                 <controls:TabView.Resources>
                     <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
-                    <x:Double x:Key="TabViewItemHeaderMinWidth">90</x:Double>
+                    <!--<x:Double x:Key="TabViewItemHeaderMinWidth">90</x:Double>-->
                 </controls:TabView.Resources>
                     
                 <controls:TabView.ItemTemplate>
@@ -91,9 +91,10 @@
                             Margin="-1,0,0,0"
                             BorderThickness="1"
                             Background="Transparent"
-                            Style="{StaticResource ButtonRevealStyle}">
+                            Style="{StaticResource ButtonRevealStyle}"
+                            Command="{x:Bind ViewModel.AddTabCommand}">
                         <Viewbox MaxWidth="16" MaxHeight="16">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE710;" />
+                            <FontIcon Glyph="&#xE710;" />
                         </Viewbox>
                     </Button>
 
