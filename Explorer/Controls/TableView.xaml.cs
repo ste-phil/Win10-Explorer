@@ -47,8 +47,15 @@ namespace Explorer.Controls
 
         public ObservableCollection<FileSystemElement> ItemsSource
         {
-            get { return itemSource; }
-            set { itemSource = value; itemSource.CollectionChanged += ItemsSource_CollectionChanged; }
+            get { return (ObservableCollection<FileSystemElement>) GetValue(ItemsSourceProperty); }
+            set { 
+                if (ItemsSource != null)
+                    ItemsSource.CollectionChanged -= ItemsSource_CollectionChanged; 
+
+                SetValue(ItemsSourceProperty, value); 
+                ItemsSource_Changed();
+
+            }
         }
 
         public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(nameof(ItemsSource), typeof(ObservableCollection<FileSystemElement>),
@@ -75,6 +82,21 @@ namespace Explorer.Controls
             Grid.SetColumn(textBlockNoContent, 0);
 
             Rows = new List<RowHolder>();
+        }
+
+        private void ItemsSource_Changed()
+        {
+            TableGrid.Children.Clear();
+            TableGrid.RowDefinitions.Clear();
+            Rows.Clear();
+
+            for (int i = 0; i < ItemsSource.Count; i++)
+            {
+                AddRowDefinition();
+                AddRow(i);
+            }
+
+            ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
         }
 
         private void ItemsSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

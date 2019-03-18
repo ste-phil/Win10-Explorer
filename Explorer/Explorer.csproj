@@ -125,9 +125,6 @@
     <Compile Include="Controls\TableView.xaml.cs">
       <DependentUpon>TableView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TabView.xaml.cs">
-      <DependentUpon>TabView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Entities\FileSystemElement.cs" />
     <Compile Include="Helper\Command.cs" />
     <Compile Include="Logic\FileSystem.cs" />
@@ -168,10 +165,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\TabView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -181,8 +174,11 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.3</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls.DataGrid">
-      <Version>5.1.0</Version>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
+      <Version>5.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <Version>5.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

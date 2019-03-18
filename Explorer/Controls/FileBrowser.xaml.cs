@@ -19,12 +19,20 @@ namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
-        public FileBrowserModel ViewModel { get; set; }
+        public FileBrowserModel ViewModel
+        {
+            get { return (FileBrowserModel) GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); Bindings.Update(); }
+        }
+
+        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
+            "ViewModel", typeof (FileBrowserModel), typeof (FileBrowser), new PropertyMetadata(null));
+
 
         public FileBrowser()
         {
             this.InitializeComponent();
-            ViewModel = new FileBrowserModel();
+            ((FrameworkElement) this.Content).DataContext = this;
         }
 
         private void TextBoxPath_PreviewKeyDown(object sender, KeyRoutedEventArgs e)

@@ -8,10 +8,8 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-
-
-    <Grid Background="{ThemeResource SystemAltMediumColor }">
-        <Grid.ColumnDefinitions>
+    <Grid >
+        <Grid.ColumnDefinitions> <!--Background="{ThemeResource SystemAltMediumColor }"-->
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -34,7 +32,7 @@
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
             <TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" PreviewKeyDown="TextBoxPath_PreviewKeyDown"></TextBox>
-            <Button Grid.Column="3">
+            <Button Grid.Column="3" Background="Transparent">
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">
                         <MenuFlyoutItem Text="Open in Powershell" Click="OpenPowershell_Clicked">
@@ -53,32 +51,9 @@
             </Button>
         </Grid>
 
-        <!--<ListView Grid.Row="2" ItemsSource="{x:Bind ViewModel.FileSystemElements}"
-                      IsItemClickEnabled="True"
-                      IsSwipeEnabled="true"
-                      SelectionMode="Single">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="300*"/>
-                                <ColumnDefinition Width="300*"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="100"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0" Text="{Binding Name}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding DateModifiedString}"/>
-                            <TextBlock Grid.Column="2" Text="{Binding Type}"/>
-                            <TextBlock Grid.Column="3" Text="{Binding Size}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
-
         <local:TableView Grid.Row="1" 
-                          ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
-                          ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
+                         ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
+                         ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
             <local:TableView.ItemFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Text="Open" Icon="OpenFile"></MenuFlyoutItem>

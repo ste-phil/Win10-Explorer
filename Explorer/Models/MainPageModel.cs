@@ -12,18 +12,37 @@ using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
+using Explorer.Controls;
 
 namespace Explorer.Models
 {
     public class MainPageModel : BaseModel
     {
+        public FileBrowserModel currentFileBrowser;
+
         public ObservableCollection<NavigationViewItemBase> NavigationItems { get; set; }
+        public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
 
         public MainPageModel()
         {
             NavigationItems = new ObservableCollection<NavigationViewItemBase>();
+            FileBrowserModels = new ObservableCollection<FileBrowserModel> { new FileBrowserModel(), new FileBrowserModel()};
+            //CurrentFileBrowser = FileBrowserModels[1];
 
             AddDrivesToNavigation();
+        }
+
+        public FileBrowserModel CurrentFileBrowser
+        {
+            get { return currentFileBrowser; }
+            set { currentFileBrowser = value; OnPropertyChanged();}
+        }
+
+        public FileBrowserModel SelectedTab
+        {
+            get { return CurrentFileBrowser; }
+            set { CurrentFileBrowser = value; }
         }
 
         private void AddDrivesToNavigation()
@@ -62,7 +81,7 @@ namespace Explorer.Models
         {
             var path = args.InvokedItemContainer.Tag.ToString();
 
-            //NavigateTo(new FileSystemElement {Path = path});
+            CurrentFileBrowser.NavigateTo(new FileSystemElement {Path = path});
         }
     }
 }

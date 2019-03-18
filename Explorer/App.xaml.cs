@@ -74,7 +74,7 @@ namespace Explorer
                 Window.Current.Activate();
 
                 // Extend acrylic
-                ExtendAcrylicIntoTitleBar();
+                //ExtendAcrylicIntoTitleBar();
             }
         }
 

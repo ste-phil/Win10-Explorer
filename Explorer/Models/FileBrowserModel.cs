@@ -25,7 +25,7 @@ namespace Explorer.Models
         public FileBrowserModel()
         {
             FileSystemElements = new ObservableCollection<FileSystemElement>();
-            CurrentFolder = new FileSystemElement { Path = "C:" };
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Local Disk"};
 
             NavigateBack = new Command(x => NavigateToNoHistory(History[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(x => NavigateToNoHistory(History[++HistoryPosition]), () => HistoryPosition < History.Count - 1);
@@ -39,7 +39,13 @@ namespace Explorer.Models
         public FileSystemElement CurrentFolder
         {
             get { return currentFolder; }
-            private set { currentFolder = value; OnPropertyChanged(); OnPropertyChanged("Path"); }
+            private set { currentFolder = value; OnPropertyChanged(); OnPropertyChanged("Path"); OnPropertyChanged("Name"); }
+        }
+
+        public string Name
+        {
+            get { return currentFolder.Name; }
+            set { currentFolder.Name = value; OnPropertyChanged(); }
         }
 
         public string Path
