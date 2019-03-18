@@ -42,6 +42,7 @@
     <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
+                    OpenPaneLength="200"
                     >
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>

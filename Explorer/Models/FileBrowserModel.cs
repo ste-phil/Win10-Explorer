@@ -154,6 +154,11 @@ namespace Explorer.Models
             NavigateTo(fileSystemElement);
         }
 
+        /// <summary>
+        /// Event called when an element in the NavigationView has been clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             var path = args.InvokedItemContainer.Tag.ToString();
@@ -173,17 +178,28 @@ namespace Explorer.Models
             args.Request.Data = sharedData;
         }
 
+
+        /// <summary>
+        /// Opens the currently selected file system element
+        /// </summary>
         public void OpenFile()
         {
             if (SelectedElement.Type.HasFlag(FileAttributes.Directory)) NavigateTo(SelectedElement);
             else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
         }
 
+
+        /// <summary>
+        /// Brings up the application picker for te currently selected file system element
+        /// </summary>
         public void OpenFileWith()
         {
             if (!SelectedElement.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(SelectedElement.Path);
         }
 
+        /// <summary>
+        /// Shares the currently selected file system Element via the new Windows share feature
+        /// </summary>
         public async void ShareFile()
         {
             DataTransferManager.ShowShareUI();
@@ -191,11 +207,17 @@ namespace Explorer.Models
             sharedData.SetStorageItems(new List<IStorageItem> { await FileSystem.GetStorageItemAsync(SelectedElement) });
         }
 
+        /// <summary>
+        /// Renames the currently selected file system element
+        /// </summary>
         public void RenameFile()
         {
             FileSystem.RenameStorageItem(SelectedElement, "sad");
         }
 
+        /// <summary>
+        /// Deletes the currently selected file system element
+        /// </summary>
         public void DeleteStorageItem()
         {
             FileSystem.DeleteStorageItem(SelectedElement);
@@ -203,11 +225,17 @@ namespace Explorer.Models
             SelectedElement = null;
         }
 
+        /// <summary>
+        /// Shows a popup with the properties of the selected file system element
+        /// </summary>
         public async void ShowPropertiesOfFile()
         {
             var props = await FileSystem.GetPropertiesOfFile(SelectedElement.Path);
         }
 
+        /// <summary>
+        /// Reloads the currently selected Folder
+        /// </summary>
         public void Refresh()
         {
             LoadFolderAsync(CurrentFolder);
