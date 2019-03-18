@@ -10,14 +10,46 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     mc:Ignorable="d" >
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <AcrylicBrush x:Key="AppBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.8"
+                                  FallbackColor="#363636"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="AppBackgroundBrush"
+                                     Color="{ThemeResource SystemColorWindowColor}"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Light">
+                    <AcrylicBrush x:Key="AppBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.8"
+                                  FallbackColor="#EAEAEA"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <Page.DataContext>
         <models:MainPageModel x:Name="ViewModel" />
     </Page.DataContext>
-    <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" Background="Transparent"
+    <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
                     >
-        <Grid>
+        <NavigationView.Resources>
+            <ResourceDictionary>
+                <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
+                              BackgroundSource="Backdrop" TintColor="Blue" TintOpacity=".3"/>
+            </ResourceDictionary>
+        </NavigationView.Resources>
+        <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
