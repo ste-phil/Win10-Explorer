@@ -1,36 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
 using Windows.Storage;
-using Windows.System;
 using Windows.UI.Xaml.Controls;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
+using System.Diagnostics;
+using System.Text;
+using System.Linq;
 
 namespace Explorer.Models
 {
     public class FileBrowserModel : BaseModel
     {
+        //Used for windows share
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
 
         private string path;
+        private bool pathIncreased;
         private FileSystemElement currentFolder;
 
+        //Tracks the history position
         private int historyPosition;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public List<FileSystemElement> History { get; set; }
         public FileSystemElement SelectedElement { get; set; }
+        public ObservableCollection<string> PathSuggestions { get; set; }
 
 
         public FileBrowserModel()
@@ -43,6 +44,8 @@ namespace Explorer.Models
 
             History = new List<FileSystemElement>();
             HistoryPosition = -1;
+
+            PathSuggestions = new ObservableCollection<string>();
 
             //For sharing files, only one object for all fileBrowsers
             if (dataTransferManager == null)
@@ -69,7 +72,15 @@ namespace Explorer.Models
         public string Path
         {
             get { return path; }
-            set { path = value; OnPropertyChanged(); }
+            set
+            {
+                //Check if path got longer
+                pathIncreased = (path == null && value != null) || value.Length > path.Length;
+
+                path = value;
+                OnPropertyChanged();
+                UpdatePathSuggestions();
+            }
         }
 
         public int HistoryPosition
@@ -237,6 +248,25 @@ namespace Explorer.Models
             var path = args.InvokedItemContainer.Tag.ToString();
 
             NavigateTo(new FileSystemElement { Path = path });
+        }
+
+
+        public void UpdatePathSuggestions()
+        {
+            var folders = Path.Split('\\');
+            var searchString = folders[folders.Length - 1];
+            
+            PathSuggestions.Clear();
+            foreach (FileSystemElement fse in FileSystemElements)
+            {
+                if (fse.Name.Contains(searchString))
+                    PathSuggestions.Add(fse.Name);
+            }
+        }
+
+        public void PathSuggestBox_QuerySubmitted()
+        {
+
         }
     }
 }

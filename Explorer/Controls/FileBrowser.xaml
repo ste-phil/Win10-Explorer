@@ -31,7 +31,18 @@
             <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" PreviewKeyDown="TextBoxPath_PreviewKeyDown"></TextBox>
+            <AutoSuggestBox Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch"
+                            Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
+                            PreviewKeyDown="TextBoxPath_PreviewKeyDown"
+            >
+                <AutoSuggestBox.TextBoxStyle>
+                    <Style TargetType="TextBox">
+                        <Setter Property="FontSize" Value="30"></Setter>
+                    </Style>
+                </AutoSuggestBox.TextBoxStyle>
+            </AutoSuggestBox>
+            <!--QuerySubmitted="{x:Bind ViewModel.Searched}"-->
+            <!--<TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" PreviewKeyDown="TextBoxPath_PreviewKeyDown"></TextBox>-->
             <Button Grid.Column="3" Background="Transparent">
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">

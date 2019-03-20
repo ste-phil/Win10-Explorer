@@ -42,8 +42,10 @@
     <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
-                    OpenPaneLength="200"
-                    >
+                    OpenPaneLength="200">
+        <NavigationView.AutoSuggestBox>
+            <AutoSuggestBox></AutoSuggestBox>
+        </NavigationView.AutoSuggestBox>
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -55,15 +57,15 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="{Binding Width, ElementName=RightPaddingColumn}"/>
             </Grid.ColumnDefinitions>
-            
+
 
             <!-- Content First -->
-            <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" Grid.ColumnSpan="3"> 
-                <ContentPresenter.ContentTemplate>                     
-                    <DataTemplate x:DataType="models:MainPageModel">                                             
-                        <local:FileBrowser ViewModel="{x:Bind CurrentFileBrowser, Mode=OneWay}"></local:FileBrowser>  
-                    </DataTemplate>                
-                </ContentPresenter.ContentTemplate>        
+            <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" Grid.ColumnSpan="3">
+                <ContentPresenter.ContentTemplate>
+                    <DataTemplate x:DataType="models:MainPageModel">
+                        <local:FileBrowser ViewModel="{x:Bind CurrentFileBrowser, Mode=OneWay}"></local:FileBrowser>
+                    </DataTemplate>
+                </ContentPresenter.ContentTemplate>
             </ContentPresenter>
 
             <!-- Then our Placeholder TitleBar -->
@@ -88,7 +90,7 @@
                 <controls:TabView.Resources>
                     <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
                 </controls:TabView.Resources>
-                    
+
                 <controls:TabView.ItemTemplate>
                     <DataTemplate />
                 </controls:TabView.ItemTemplate>
@@ -130,93 +132,4 @@
             </controls:TabView>
         </Grid>
     </NavigationView>
-   
-    <!--<controls:TabView x:Name="Tabs">
-        <controls:TabView.Resources>
-            <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
-            <x:Double x:Key="TabViewItemHeaderMinWidth">90</x:Double>
-            <x:Double x:Key="TabViewItemHeaderMaxWidth">200</x:Double>
-        </controls:TabView.Resources>
-        <controls:TabViewItem Header="Home">
-            <TextBlock Padding="16">The TabView control has multiple uses.</TextBlock>
-        </controls:TabViewItem>
-        <controls:TabViewItem Header="Tab 2">
-            <TextBlock Padding="16">A 2nd Tab.</TextBlock>
-        </controls:TabViewItem>
-    </controls:TabView>-->
-    <!--<NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" Background="Transparent"
-                    IsBackButtonVisible="Collapsed" IsBackEnabled="False"
-                    ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}">
-
-        <Grid x:Name="AppTitleBar"
-              Background="Transparent"
-              Grid.ColumnSpan="3"
-              animations:Implicit.ShowAnimations="{StaticResource TitleShowAnimation}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
-                <ColumnDefinition/>
-                <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
-            </Grid.ColumnDefinitions>
-            <controls:TabView x:Name="Tabs" Grid.Column="1">
-                <controls:TabView.Resources>
-                    <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
-                </controls:TabView.Resources>
-                
-                <controls:TabViewItem Header="Home">
-                    <TextBlock Padding="16">The TabView control has multiple uses.</TextBlock>
-                </controls:TabViewItem>
-                <controls:TabViewItem Header="Tab 2">
-                    <TextBlock Padding="16">A 2nd Tab.</TextBlock>
-                </controls:TabViewItem>
-            </controls:TabView>
-        </Grid>
-
-            
-            --><!--<controls:TabView Grid.Row="0" ItemsSource="{x:Bind ViewModel.FileBrowserModels}" CanCloseTabs="True">
-                <controls:TabView.ItemHeaderTemplate>
-                    <DataTemplate x:DataType="models:FileBrowserModel">
-                        <TextBlock Text="{x:Bind CurrentFolder.Name}"></TextBlock>
-                    </DataTemplate>
-                </controls:TabView.ItemHeaderTemplate>
-                <controls:TabView.ItemTemplate>
-                    <DataTemplate x:DataType="models:FileBrowserModel">
-                        <local:FileBrowser ViewModel="{x:Bind}"></local:FileBrowser>
-                    </DataTemplate>
-                </controls:TabView.ItemTemplate>
-            </controls:TabView>-->
-
-            <!--<controls:TabView Grid.Row="0" CanCloseTabs="True">
-                <controls:TabViewItem Header="dsa">
-                    
-                </controls:TabViewItem>
-                <controls:TabViewItem Header="dsa">
-                </controls:TabViewItem>
-                <controls:TabViewItem Header="dsa">
-                    
-                </controls:TabViewItem>
-            </controls:TabView>-->
-
-            <!--<NavigationView Grid.Row="0" PaneDisplayMode="Top" IsBackEnabled="False" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
-                
-                <NavigationView.MenuItems>
-                    <NavigationViewItem Content="asd"></NavigationViewItem>
-                    <NavigationViewItem Content="asd"></NavigationViewItem>
-                    <NavigationViewItem>
-                        <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE710;"></FontIcon>
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                </NavigationView.MenuItems>
-                <Frame Name="TabFrame">
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.FileBrowserModels}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:FileBrowserModel">
-                                <local:FileBrowser ViewModel="{x:Bind}"></local:FileBrowser>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Frame>-->
-            <!--</NavigationView>--><!--
-        </Grid>--><!--
-    </NavigationView>-->
 </Page>
