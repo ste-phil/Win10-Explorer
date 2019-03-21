@@ -22,6 +22,11 @@ namespace Explorer.Logic
             return DriveInfo.GetDrives();
         }
 
+        public static bool DirectoryExists(string path)
+        {
+            return Directory.Exists(path);
+        }
+
         public static async void OpenFileWithDefaultApp(string path)
         {
             var file = await StorageFile.GetFileFromPathAsync(path);

@@ -31,7 +31,7 @@ namespace Explorer.Models
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public List<FileSystemElement> History { get; set; }
         public FileSystemElement SelectedElement { get; set; }
-        public ObservableCollection<string> PathSuggestions { get; set; }
+        public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
 
 
         public FileBrowserModel()
@@ -45,7 +45,7 @@ namespace Explorer.Models
             History = new List<FileSystemElement>();
             HistoryPosition = -1;
 
-            PathSuggestions = new ObservableCollection<string>();
+            PathSuggestions = new ObservableCollection<FileSystemElement>();
 
             //For sharing files, only one object for all fileBrowsers
             if (dataTransferManager == null)
@@ -60,7 +60,14 @@ namespace Explorer.Models
         public FileSystemElement CurrentFolder
         {
             get { return currentFolder; }
-            private set { currentFolder = value; OnPropertyChanged(); OnPropertyChanged("Path"); OnPropertyChanged("Name"); }
+            private set 
+            { 
+                currentFolder = value; 
+                OnPropertyChanged(); 
+                OnPropertyChanged("Path"); 
+                OnPropertyChanged("Name"); 
+                UpdatePathSuggestions();
+            }
         }
 
         public string Name
@@ -108,6 +115,14 @@ namespace Explorer.Models
             LoadFolderAsync(fse);
         }
 
+        /// <summary>
+        /// Opens or navigates to the passed file system element
+        /// </summary>
+        public void NavigateOrOpen(FileSystemElement fse)
+        {
+            if (fse.IsFolder) NavigateTo(fse);
+            else FileSystem.OpenFileWithDefaultApp(fse.Path);
+        }
 
         /// <summary>
         /// Navigate without history to the passed Folder (internal use e.g. nav buttons)
@@ -167,9 +182,9 @@ namespace Explorer.Models
         }
 
         /// <summary>
-        /// Opens the currently selected file system element
+        /// Opens or navigates to the currently selected file system element
         /// </summary>
-        public void OpenOrNavigate()
+        public void NavigateOrOpenSelected()
         {
             if (SelectedElement.IsFolder) NavigateTo(SelectedElement);
             else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
@@ -178,7 +193,7 @@ namespace Explorer.Models
         /// <summary>
         /// Brings up the application picker to open the selected file system element
         /// </summary>
-        public void OpenFileWith()
+        public void OpenFileWithSelected()
         {
             if (!SelectedElement.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(SelectedElement.Path);
         }
@@ -198,7 +213,7 @@ namespace Explorer.Models
         /// <summary>
         /// Renames the currently selected file system element
         /// </summary>
-        public void RenameStorageItem()
+        public void RenameStorageItemSelected()
         {
             FileSystem.RenameStorageItem(SelectedElement, "sad");
         }
@@ -206,7 +221,7 @@ namespace Explorer.Models
         /// <summary>
         /// Deletes the currently selected file system element
         /// </summary>
-        public void DeleteStorageItem()
+        public void DeleteStorageItemSelected()
         {
             FileSystem.DeleteStorageItem(SelectedElement);
             FileSystemElements.Remove(SelectedElement);
@@ -216,7 +231,7 @@ namespace Explorer.Models
         /// <summary>
         /// Shows a popup with the properties of the selected file system element
         /// </summary>
-        public async void ShowPropertiesStorageItem()
+        public async void ShowPropertiesStorageItemSelected()
         {
             var props = await FileSystem.GetPropertiesOfFile(SelectedElement.Path);
         }
@@ -251,22 +266,31 @@ namespace Explorer.Models
         }
 
 
-        public void UpdatePathSuggestions()
+        public async void UpdatePathSuggestions()
         {
+            //Skip if Path has not been initialized
+            if (Path == null || Path == "") return;
+            
             var folders = Path.Split('\\');
             var searchString = folders[folders.Length - 1];
             
-            PathSuggestions.Clear();
-            foreach (FileSystemElement fse in FileSystemElements)
+            string path = Path;
+            if (!FileSystem.DirectoryExists(path)) path = Path.Substring(0, Path.LastIndexOf("\\"));
+            
+            try
             {
-                if (fse.Name.Contains(searchString))
-                    PathSuggestions.Add(fse.Name);
+                var folderContent = await FileSystem.GetFolderContentSimple(path);
+                PathSuggestions.Clear();
+                foreach (FileSystemElement fse in folderContent)
+                {
+                    if (fse.Name.Contains(searchString))
+                        PathSuggestions.Add(fse);
+                }
             }
-        }
-
-        public void PathSuggestBox_QuerySubmitted()
-        {
-
+            catch (Exception) 
+            {
+                PathSuggestions.Clear();
+            }
         }
     }
 }

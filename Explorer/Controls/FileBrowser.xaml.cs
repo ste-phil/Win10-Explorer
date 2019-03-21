@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Explorer.Entities;
 using Explorer.Models;
+using Windows.System;
+using System.Diagnostics;
 
 namespace Explorer.Controls
 {
@@ -35,15 +37,18 @@ namespace Explorer.Controls
             ((FrameworkElement) this.Content).DataContext = this;
         }
 
-        private void TextBoxPath_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-                ViewModel.NavigateTo(new FileSystemElement { Path = TextBoxPath.Text });
-        }
-
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)
         {
             ViewModel.LaunchExe("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", $"-noexit -command \"cd {ViewModel.Path}\"");
+        }
+
+        private void TextBoxPath_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            var chosen = (FileSystemElement) args.ChosenSuggestion;
+            if (chosen != null)
+                ViewModel.NavigateOrOpen(chosen);
+            else
+                ViewModel.NavigateTo(new FileSystemElement { Path = args.QueryText });
         }
     }
 }

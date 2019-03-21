@@ -33,8 +33,12 @@
             </Button>
             <AutoSuggestBox Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch"
                             Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
-                            PreviewKeyDown="TextBoxPath_PreviewKeyDown"
+                            ItemsSource="{x:Bind ViewModel.PathSuggestions}"
+                            TextMemberPath="Path" DisplayMemberPath="Name"
+                            QuerySubmitted="TextBoxPath_QuerySubmitted"
+                            UpdateTextOnSelect="False"
             >
+                <!--TextMemberPath="Path"-->
                 <AutoSuggestBox.TextBoxStyle>
                     <Style TargetType="TextBox">
                         <Setter Property="FontSize" Value="30"></Setter>
@@ -71,14 +75,14 @@
                 ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
                 <local:TableView.ItemFlyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.OpenOrNavigate}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWith}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItem}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItem}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItem}">
+                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE946;"/>
                             </MenuFlyoutItem.Icon>
