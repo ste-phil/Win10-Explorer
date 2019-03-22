@@ -67,8 +67,19 @@ namespace Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter == "") ViewModel.FileBrowserModels.Add(new FileBrowserModel());
-            else ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FileBrowserModel>((e.Parameter as ViewLifetimeControl).Context));
+            if (e.Parameter == "") 
+            {
+                ViewModel.FileBrowserModels.Add(new FileBrowserModel()); 
+            }
+            else
+            {
+                var vlc = e.Parameter as ViewLifetimeControl;
+                if (vlc.Context != "") ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FileBrowserModel>(vlc.Context));
+                else ViewModel.FileBrowserModels.Add(new FileBrowserModel());
+
+                vlc.Released += (s, ev) => { };
+            }
+            
 
             base.OnNavigatedTo(e);
         }
@@ -77,11 +88,14 @@ namespace Explorer
         {
             var tabModel = (FileBrowserModel) e.Item;
 
-            //Remove tab from current window
-            ViewModel.FileBrowserModels.Remove(tabModel);
+            if (ViewModel.FileBrowserModels.Count > 1)
+            {
+                //Remove tab from current window
+                ViewModel.FileBrowserModels.Remove(tabModel);
 
-            // Need to serialize item to better provide transfer across window threads.
-            var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));
+                // Need to serialize item to better provide transfer across window threads.
+                var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));
+            }
         }
     }
 }

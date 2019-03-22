@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Explorer.Helper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -70,6 +71,11 @@ namespace Explorer
                     // parameter
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
+                else
+                {
+                    WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), e.Arguments);
+                }
+
                 // Ensure the current window is active
                 Window.Current.Activate();
 
