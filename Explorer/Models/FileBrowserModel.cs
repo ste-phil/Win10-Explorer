@@ -233,12 +233,17 @@ namespace Explorer.Models
             RenameName = SelectedElement.Name;
 
             var result = await RenameDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            if (result == ContentDialogResult.Primary && RenameName != SelectedElement.Name)
             {
-                FileSystem.RenameStorageItem(SelectedElement, RenameName);
-                SelectedElement.Name = RenameName;
-                SelectedElement.Path = SelectedElement.Path.Substring(0, SelectedElement.Path.LastIndexOf("\\") + 1) + RenameName;
-                OnPropertyChanged("FileSystemElements");
+                try
+                {
+                    await Task.Run(() => FileSystem.RenameStorageItemAsync(SelectedElement, RenameName));
+
+                    SelectedElement.Name = RenameName;
+                    SelectedElement.Path = SelectedElement.Path.Substring(0, SelectedElement.Path.LastIndexOf("\\") + 1) + RenameName;
+                    OnPropertyChanged("FileSystemElements");
+                }
+                catch (Exception) { }
             }
 
             RenameName = "";

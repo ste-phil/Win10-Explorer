@@ -9,7 +9,6 @@ using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
-using File = Explorer.Entities.FileSystemElement;
 using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace Explorer.Logic
@@ -77,7 +76,7 @@ namespace Explorer.Logic
             await storageItem.DeleteAsync();
         }
 
-        public static async void RenameStorageItem(FileSystemElement fse, string newName)
+        public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
         {
             var file = await GetStorageItemAsync(fse);
             await file.RenameAsync(newName);
