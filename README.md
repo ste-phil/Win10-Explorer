@@ -7,7 +7,7 @@ It uses the new Fluent Design from Microsoft to integrate seamlessly into the ne
 
 ## Usage:
   * Download or clone the repo
-  * Build it (should work for Windows 1809)
+  * Build it (should work for Windows 10 Version 1809)
   * Deploy it
   * Grant permission (Needs file system permission [Help link](https://support.microsoft.com/en-us/help/10557/windows-10-app-permissions))
   * Run it
