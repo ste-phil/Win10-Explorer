@@ -164,7 +164,7 @@ namespace Explorer.Models
                 CurrentFolder = fse;
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //await Windows.System.Launcher.LaunchUriAsync(new Uri(“ms-settings:privacy-broadfilesystemaccess”));
                 //Show error that path was not found
@@ -275,7 +275,7 @@ namespace Explorer.Models
             var searchString = folders[folders.Length - 1];
             
             string path = Path;
-            if (!FileSystem.DirectoryExists(path)) path = Path.Substring(0, Path.LastIndexOf("\\"));
+            if (!FileSystem.DirectoryExists(path) && folders.Length > 1) path = Path.Substring(0, Path.LastIndexOf("\\"));
             
             try
             {

@@ -14,27 +14,25 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Explorer.Controls;
+using System.Diagnostics;
 
 namespace Explorer.Models
 {
     public class MainPageModel : BaseModel
     {
-        private Command addTabCmd;
-
         public FileBrowserModel currentFileBrowser;
 
-        public ObservableCollection<NavigationViewItemBase> NavigationItems { get; set; }
+        public ObservableCollection<object> NavigationItems { get; set; }
         public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
 
         public MainPageModel()
         {
-            NavigationItems = new ObservableCollection<NavigationViewItemBase>();
-            FileBrowserModels = new ObservableCollection<FileBrowserModel> { new FileBrowserModel(), new FileBrowserModel()};
-            //CurrentFileBrowser = FileBrowserModels[1];
+            NavigationItems = new ObservableCollection<object>();
+            FileBrowserModels = new ObservableCollection<FileBrowserModel>();
 
-            addTabCmd = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            AddTabCommand = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
 
-            AddDrivesToNavigation();
+            AddDrivesToNavigationAsync();
         }
 
         public FileBrowserModel CurrentFileBrowser
@@ -49,45 +47,25 @@ namespace Explorer.Models
             set { CurrentFileBrowser = value; }
         }
 
-        public Command AddTabCommand => addTabCmd;
+        public Command AddTabCommand { get; }
 
-        private void AddDrivesToNavigation()
+        private async Task AddDrivesToNavigationAsync()
         {
-            var drives = FileSystem.GetDrives();
-
+            var drives = await FileSystem.GetDrives();
             for (int i = 0; i < drives.Length; i++)
             {
-                //Inaccesible due to UWP permission stuff
-                //var rootPath = $"{drives[i].VolumeLabel}:\\";
-                var displayName = $"{drives[i].Name}"; //  ({rootPath})
-
-                SymbolIcon icon;
-                switch (drives[i].DriveType)
-                {
-                    case DriveType.Removable:
-                        icon = new SymbolIcon((Symbol)0xE88E);
-                        break;
-                    case DriveType.CDRom:
-                        icon = new SymbolIcon((Symbol)0xE958);
-                        break;
-                    case DriveType.Network:
-                        icon = new SymbolIcon((Symbol)0xE969);
-                        break;
-                    default:
-                        icon = new SymbolIcon((Symbol)0xEDA2);
-                        break;
-                }
-
-                NavigationItems.Add(new NavigationViewItem { Tag = displayName, Content = displayName, Icon = icon});
+                NavigationItems.Add(drives[i]);
             }
         }
 
 
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            var path = args.InvokedItemContainer.Tag.ToString();
-
-            CurrentFileBrowser.NavigateTo(new FileSystemElement {Path = path});
+            var item = ((StackPanel)args.InvokedItem).Tag;
+            if (item is Drive drive)
+            {
+                CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = drive.RootDirectory, Name = drive.Name });
+            }
         }
     }
 }

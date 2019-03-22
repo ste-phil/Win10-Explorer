@@ -172,9 +172,9 @@ namespace Explorer.Controls
 
             TableGrid.Children.Add(rh.Background);
 
-            AddSymbolCell(rh, row, 0, ItemsSource[row].Type.HasFlag(FileAttributes.Directory) ? Symbol.Folder : Symbol.Document);
+            AddSymbolCell(rh, row, 0, ItemsSource[row].IsFolder ? Symbol.Folder : Symbol.Document);
             AddCell(rh, row, 1, ItemsSource[row].Name);
-            AddCell(rh, row, 2, ItemsSource[row].Size.ToString());
+            AddCell(rh, row, 2, ItemsSource[row].SizeString);
             AddCell(rh, row, 3, ItemsSource[row].DateModifiedString);
             AddCell(rh, row, 4, ItemsSource[row].Type.ToString());
 

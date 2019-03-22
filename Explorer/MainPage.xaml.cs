@@ -1,5 +1,7 @@
 ﻿using Explorer.Entities;
+using Explorer.Helper;
 using Explorer.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,7 +51,7 @@ namespace Explorer
 
         private void CoreTitleBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args)
         {
-            
+
         }
 
         private void CoreTitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
@@ -61,6 +63,25 @@ namespace Explorer
 
             // Update title bar control size as needed to account for system size changes.
             AppTitleBar.Height = sender.Height;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (e.Parameter == "") ViewModel.FileBrowserModels.Add(new FileBrowserModel());
+            else ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FileBrowserModel>((e.Parameter as ViewLifetimeControl).Context));
+
+            base.OnNavigatedTo(e);
+        }
+
+        private async void Tabs_TabDraggedOutsideAsync(object sender, Microsoft.Toolkit.Uwp.UI.Controls.TabDraggedOutsideEventArgs e)
+        {
+            var tabModel = (FileBrowserModel) e.Item;
+
+            //Remove tab from current window
+            ViewModel.FileBrowserModels.Remove(tabModel);
+
+            // Need to serialize item to better provide transfer across window threads.
+            var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));
         }
     }
 }

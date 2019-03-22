@@ -9,43 +9,57 @@
     xmlns:models="using:Explorer.Models"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
-    mc:Ignorable="d" >
+    xmlns:system="using:System"
+    mc:Ignorable="d">
     <Page.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Default">
-                    <AcrylicBrush x:Key="AppBackgroundBrush"
-                                  BackgroundSource="HostBackdrop"
-                                  TintColor="{ThemeResource SystemChromeMediumColor}"
-                                  TintOpacity="0.8"
-                                  FallbackColor="#363636"/>
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="HighContrast">
-                    <SolidColorBrush x:Key="AppBackgroundBrush"
-                                     Color="{ThemeResource SystemColorWindowColor}"/>
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="Light">
-                    <AcrylicBrush x:Key="AppBackgroundBrush"
-                                  BackgroundSource="HostBackdrop"
-                                  TintColor="{ThemeResource SystemChromeMediumColor}"
-                                  TintOpacity="0.8"
-                                  FallbackColor="#EAEAEA"/>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
+        <DataTemplate x:Key="FileSystemDataTemplate" x:DataType="entities:FileSystemElement">
+            <NavigationViewItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Bind Name}" />
+                </StackPanel>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="DriveDataTemplate" x:DataType="entities:Drive">
+            <NavigationViewItem>
+                <StackPanel Tag="{x:Bind}" Orientation="Horizontal" Margin="-5,0,0,0">
+                    <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
+                    <FontIcon Glyph="&#xED67;" Margin="-10,10,0,0" FontSize="13"></FontIcon>
+                    <TextBlock Text="{x:Bind DriveLetter}" Foreground="Black" Margin="-10,12,0,0" FontSize="10"></TextBlock>
+                    <StackPanel Orientation="Vertical" Margin="10,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="10">
+                                <Run Text="{x:Bind Name}"></Run>
+                                <Run Text="{x:Bind FreeSpaceString}"></Run>
+                                <Run Text="of"></Run>
+                                <Run Text="{x:Bind TotalSpaceString}"></Run>
+                            </TextBlock>
+                        </StackPanel>
+                        <ProgressBar Foreground="{x:Bind SpaceColorBrush}" Margin="3" Value="{x:Bind UsedSpacePercent}" Maximum="100" Width="130"></ProgressBar>
+                    </StackPanel>
+                </StackPanel>
+                
+            </NavigationViewItem>
+        </DataTemplate>
+        <entities:NavigationItemTemplateSelector x:Key="NVMenuItemsSelector" 
+                                                 DriveTemplate="{StaticResource DriveDataTemplate}" 
+                                                 PathTemplate="{StaticResource FileSystemDataTemplate}">
+        </entities:NavigationItemTemplateSelector>
     </Page.Resources>
     <Page.DataContext>
         <models:MainPageModel x:Name="ViewModel" />
     </Page.DataContext>
-    <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems}" 
+
+    <!--<ItemsControl ItemsSource="{x:Bind ViewModel.NavigationItems}" ItemTemplateSelector="{StaticResource NVMenuItemsSelector}"></ItemsControl>-->
+    
+    <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems, Mode=OneWay}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
-                    OpenPaneLength="200">
+                    OpenPaneLength="200"
+                    MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}">
         <NavigationView.AutoSuggestBox>
             <AutoSuggestBox></AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
+
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -59,7 +73,7 @@
             </Grid.ColumnDefinitions>
 
 
-            <!-- Content First -->
+             <!--Content First--> 
             <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" Grid.ColumnSpan="3">
                 <ContentPresenter.ContentTemplate>
                     <DataTemplate x:DataType="models:MainPageModel">
@@ -68,7 +82,7 @@
                 </ContentPresenter.ContentTemplate>
             </ContentPresenter>
 
-            <!-- Then our Placeholder TitleBar -->
+             <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"
                   Background="Transparent"
                   Grid.ColumnSpan="3"
@@ -81,12 +95,13 @@
             </Grid>
 
 
-            <!-- Then our TabView -->
-            <controls:TabView x:Name="Items" ItemsSource="{x:Bind ViewModel.FileBrowserModels}"
+             <!--Then our TabView--> 
+            <controls:TabView x:Name="Tabs" ItemsSource="{x:Bind ViewModel.FileBrowserModels}"
                               SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
                               Grid.Column="1"  Background="Transparent"
                               TabWidthBehavior="Actual" CanCloseTabs="True"
-                              CanDragItems="True" CanReorderItems="True" AllowDrop="True">
+                              CanDragItems="True" CanReorderItems="True" AllowDrop="True"
+                              TabDraggedOutside="Tabs_TabDraggedOutsideAsync">
                 <controls:TabView.Resources>
                     <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
                 </controls:TabView.Resources>
@@ -94,13 +109,6 @@
                 <controls:TabView.ItemTemplate>
                     <DataTemplate />
                 </controls:TabView.ItemTemplate>
-
-                <!--<controls:TabViewItem Header="Home">
-                    <TextBlock Padding="16">The TabView control has multiple uses.</TextBlock>
-                </controls:TabViewItem>
-                <controls:TabViewItem Header="Tab 2">
-                    <TextBlock Padding="16">A 2nd Tab.</TextBlock>
-                </controls:TabViewItem>-->
 
                 <!--<controls:TabView.TabStartHeader>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" IsHitTestVisible="False">
@@ -125,8 +133,8 @@
                             <FontIcon Glyph="&#xE710;" />
                         </Viewbox>
                     </Button>
-
                 </controls:TabView.TabActionHeader>
+                
                 <!--<controls:TabView.TabEndHeader>
                 </controls:TabView.TabEndHeader>-->
             </controls:TabView>

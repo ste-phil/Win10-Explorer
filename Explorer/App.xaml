@@ -11,6 +11,28 @@
                   BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
             <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
                   BackgroundSource="HostBackdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <AcrylicBrush x:Key="AppBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.8"
+                                  FallbackColor="#363636"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="AppBackgroundBrush"
+                                     Color="{ThemeResource SystemColorWindowColor}"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Light">
+                    <AcrylicBrush x:Key="AppBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.8"
+                                  FallbackColor="#EAEAEA"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

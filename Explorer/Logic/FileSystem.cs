@@ -9,17 +9,49 @@ using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
-using Windows.UI.Xaml.Media.Animation;
-using File = Explorer.Entities.File;
+using File = Explorer.Entities.FileSystemElement;
 using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace Explorer.Logic
 {
     public class FileSystem
     {
-        public static DriveInfo[] GetDrives()
+        public static async Task<Drive[]> GetDrives()
         {
-            return DriveInfo.GetDrives();
+            const string k_freeSpace = "System.FreeSpace";
+            const string k_totalSpace = "System.Capacity";
+            const string k_driveName = "System.FolderNameDisplay";
+
+            DriveInfo[] allDrives = DriveInfo.GetDrives();
+            var drives = new Drive[allDrives.Length];
+
+            for (int i = 0; i < allDrives.Length; i++)
+            {
+                DriveInfo d = allDrives[i];
+                try
+                {
+                    //Inaccesible due to UWP permission stuff
+                    //var rootPath = $"{drives[i].VolumeLabel}:\\";
+                    StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(d.RootDirectory.FullName);
+                    var props = await folder.Properties.RetrievePropertiesAsync(new string[] { k_freeSpace, k_totalSpace, k_driveName });
+                    
+                    drives[i] = new Drive
+                    {
+                        Name = (string)props[k_driveName],
+                        DriveLetter = Convert.ToString(d.Name[0]),
+                        RootDirectory = d.RootDirectory.FullName,
+                        DriveType = d.DriveType,
+                        FreeSpace = (ulong)props[k_freeSpace],
+                        TotalSpace = (ulong)props[k_totalSpace]
+                    };
+                }
+                catch (Exception)
+                {
+                    Debug.WriteLine(String.Format("Couldn't get info for drive {0}", d.Name));
+                }
+            }
+
+            return drives;
         }
 
         public static bool DirectoryExists(string path)
@@ -96,27 +128,6 @@ namespace Explorer.Logic
             }
 
             return resultList;
-        }
-
-        public static async Task<Folder[]> GetFoldersSimpleAsync(StorageFolder folder)
-        {
-            return (await folder.GetFoldersAsync()).Select(x => new Folder(x.Name)).ToArray();
-        }
-
-        public static async Task<File[]> GetFilesSimpleAsync(StorageFolder folder)
-        {
-            var storageFiles = await folder.GetFilesAsync();
-            var returnFiles = new File[storageFiles.Count];
-
-            uint i = 0;
-            foreach (var file in storageFiles)
-            {
-                var props = await file.GetBasicPropertiesAsync();
-                returnFiles[i] = new File(file.Name, props.Size, props.DateModified);
-                i++;
-            }
-
-            return returnFiles;
         }
 
         public static async void LaunchExeAsync(string appPath, string arguments)
