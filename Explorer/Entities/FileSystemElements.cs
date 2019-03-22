@@ -24,6 +24,7 @@ namespace Explorer.Entities
         public bool IsFolder => Type.HasFlag(Windows.Storage.FileAttributes.Directory);
         public string SizeString => GetReadableSize(Size);
 
+
         private string GetReadableSize(ulong bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };

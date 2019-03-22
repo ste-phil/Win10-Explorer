@@ -9,7 +9,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
     <Grid >
-        <Grid.ColumnDefinitions> <!--Background="{ThemeResource SystemAltMediumColor }"-->
+        <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -68,6 +68,16 @@
             </Button>
         </Grid>
 
+        <ContentDialog Name="RenameDialog" Grid.Row="1"  PrimaryButtonText="Rename" SecondaryButtonText="Cancel">
+            <ContentDialog.Title>
+                    <TextBlock>
+                        <Run Text="Rename"></Run>
+                        <Run Text="{x:Bind ViewModel.SelectedElement.Name, Mode=OneWay}"></Run>
+                    </TextBlock>
+            </ContentDialog.Title>
+            <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
+        </ContentDialog>
+        
         <RefreshContainer Grid.Row="1" Margin="10">
             <local:TableView 
                 SelectedItem="{x:Bind ViewModel.SelectedElement, Mode=TwoWay}"
@@ -79,7 +89,7 @@
                         <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">

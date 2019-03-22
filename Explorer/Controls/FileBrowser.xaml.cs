@@ -24,7 +24,14 @@ namespace Explorer.Controls
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
-            set { SetValue(ViewModelProperty, value); Bindings.Update(); }
+            set 
+            { 
+                SetValue(ViewModelProperty, value); 
+                Bindings.Update(); 
+
+                if (ViewModel != null)
+                    ViewModel.RenameDialog = RenameDialog; 
+            }
         }
 
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
@@ -35,6 +42,7 @@ namespace Explorer.Controls
         {
             this.InitializeComponent();
             ((FrameworkElement) this.Content).DataContext = this;
+
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

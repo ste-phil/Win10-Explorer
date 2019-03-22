@@ -28,16 +28,19 @@ namespace Explorer.Models
         //Tracks the history position
         private int historyPosition;
 
+        private FileSystemElement selectedElement;
+        private string renameName;
+
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public List<FileSystemElement> History { get; set; }
-        public FileSystemElement SelectedElement { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
+        public ContentDialog RenameDialog { get; set; }
 
 
         public FileBrowserModel()
         {
             FileSystemElements = new ObservableCollection<FileSystemElement>();
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Local Disk"};
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
 
             NavigateBack = new Command(x => NavigateToNoHistory(History[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(x => NavigateToNoHistory(History[++HistoryPosition]), () => HistoryPosition < History.Count - 1);
@@ -60,12 +63,12 @@ namespace Explorer.Models
         public FileSystemElement CurrentFolder
         {
             get { return currentFolder; }
-            private set 
-            { 
-                currentFolder = value; 
-                OnPropertyChanged(); 
-                OnPropertyChanged("Path"); 
-                OnPropertyChanged("Name"); 
+            private set
+            {
+                currentFolder = value;
+                OnPropertyChanged();
+                OnPropertyChanged("Path");
+                OnPropertyChanged("Name");
                 UpdatePathSuggestions();
             }
         }
@@ -96,6 +99,18 @@ namespace Explorer.Models
             set { historyPosition = value; OnPropertyChanged(); NavigateBack.CanExceuteChanged(); NavigateForward.CanExceuteChanged(); }
         }
 
+        public FileSystemElement SelectedElement
+        {
+            get { return selectedElement; }
+            set { selectedElement = value; OnPropertyChanged(); }
+        }
+
+        public string RenameName
+        {
+            get { return renameName; }
+            set { renameName = value; OnPropertyChanged(); }
+        }
+        
         public Command NavigateBack { get; }
 
         public Command NavigateForward { get; }
@@ -213,9 +228,20 @@ namespace Explorer.Models
         /// <summary>
         /// Renames the currently selected file system element
         /// </summary>
-        public void RenameStorageItemSelected()
+        public async Task RenameStorageItemSelectedAsync()
         {
-            FileSystem.RenameStorageItem(SelectedElement, "sad");
+            RenameName = SelectedElement.Name;
+
+            var result = await RenameDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                FileSystem.RenameStorageItem(SelectedElement, RenameName);
+                SelectedElement.Name = RenameName;
+                SelectedElement.Path = SelectedElement.Path.Substring(0, SelectedElement.Path.LastIndexOf("\\") + 1) + RenameName;
+                OnPropertyChanged("FileSystemElements");
+            }
+
+            RenameName = "";
         }
 
         /// <summary>
@@ -270,13 +296,13 @@ namespace Explorer.Models
         {
             //Skip if Path has not been initialized
             if (Path == null || Path == "") return;
-            
+
             var folders = Path.Split('\\');
             var searchString = folders[folders.Length - 1];
-            
+
             string path = Path;
             if (!FileSystem.DirectoryExists(path) && folders.Length > 1) path = Path.Substring(0, Path.LastIndexOf("\\"));
-            
+
             try
             {
                 var folderContent = await FileSystem.GetFolderContentSimple(path);
@@ -287,7 +313,7 @@ namespace Explorer.Models
                         PathSuggestions.Add(fse);
                 }
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 PathSuggestions.Clear();
             }

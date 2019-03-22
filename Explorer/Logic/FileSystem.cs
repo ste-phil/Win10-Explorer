@@ -123,7 +123,7 @@ namespace Explorer.Logic
                     Size = props.Size,
                     Type = element.Attributes,
                     DateModified = props.DateModified,
-                    Path = element.Path
+                    Path = element.Path,
                 });
             }
 
