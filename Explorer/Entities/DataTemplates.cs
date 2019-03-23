@@ -16,7 +16,7 @@ namespace Explorer.Entities
         protected override DataTemplate SelectTemplateCore(object item)
         {
             if (item is Drive) return DriveTemplate;
-            if (item is FileSystemElement) return PathTemplate;
+            if (item is NavigationLink) return PathTemplate;
 
             return base.SelectTemplateCore(item);
         }

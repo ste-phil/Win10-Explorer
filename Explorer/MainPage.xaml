@@ -12,16 +12,16 @@
     xmlns:system="using:System"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="FileSystemDataTemplate" x:DataType="entities:FileSystemElement">
-            <NavigationViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{x:Bind Name}" />
-                </StackPanel>
+        <DataTemplate x:Key="FileSystemLinkTemplate" x:DataType="entities:NavigationLink">
+            <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
+                </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
         <DataTemplate x:Key="DriveDataTemplate" x:DataType="entities:Drive">
-            <NavigationViewItem>
-                <StackPanel Tag="{x:Bind}" Orientation="Horizontal" Margin="-5,0,0,0">
+            <NavigationViewItem Tag="{x:Bind}">
+                <StackPanel  Orientation="Horizontal" Margin="-5,0,0,0">
                     <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
                     <FontIcon Glyph="&#xED67;" Margin="-10,10,0,0" FontSize="13"></FontIcon>
                     <TextBlock Text="{x:Bind DriveLetter}" Foreground="Black" Margin="-10,12,0,0" FontSize="10"></TextBlock>
@@ -37,12 +37,11 @@
                         <ProgressBar Foreground="{x:Bind SpaceColorBrush}" Margin="3" Value="{x:Bind UsedSpacePercent}" Maximum="100" Width="130"></ProgressBar>
                     </StackPanel>
                 </StackPanel>
-                
             </NavigationViewItem>
         </DataTemplate>
         <entities:NavigationItemTemplateSelector x:Key="NVMenuItemsSelector" 
                                                  DriveTemplate="{StaticResource DriveDataTemplate}" 
-                                                 PathTemplate="{StaticResource FileSystemDataTemplate}">
+                                                 PathTemplate="{StaticResource FileSystemLinkTemplate}">
         </entities:NavigationItemTemplateSelector>
     </Page.Resources>
     <Page.DataContext>
