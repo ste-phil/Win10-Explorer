@@ -129,6 +129,7 @@
     <Compile Include="Entities\FileSystemElements.cs" />
     <Compile Include="Helper\Command.cs" />
     <Compile Include="Helper\WindowManagerService.cs" />
+    <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystem.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

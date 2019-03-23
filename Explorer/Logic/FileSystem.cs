@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Devices.Enumeration;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -15,7 +15,21 @@ namespace Explorer.Logic
 {
     public class FileSystem
     {
-        public static async Task<Drive[]> GetDrives()
+//        List<string> fileTypeFilter = new List<string>();
+//        fileTypeFilter.Add(".txt");
+//fileTypeFilter.Add(".png");
+//var options = new Windows.Storage.Search.QueryOptions(Windows.Storage.Search.CommonFileQuery.OrderByName, fileTypeFilter);
+//        var query = ApplicationData.Current.LocalFolder.CreateFileQueryWithOptions(options);
+//        //subscribe on query's ContentsChanged event
+//        query.ContentsChanged += Query_ContentsChanged;
+//var files = await query.GetFilesAsync();
+
+//        private void Query_ContentsChanged(Windows.Storage.Search.IStorageQueryResultBase sender, object args)
+//        {
+//            //TODO:
+//        }
+
+        public static async Task<Drive[]> GetDrivesAsync()
         {
             const string k_freeSpace = "System.FreeSpace";
             const string k_totalSpace = "System.Capacity";

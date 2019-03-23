@@ -15,11 +15,17 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Explorer.Controls;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Windows.UI.Core;
 
 namespace Explorer.Models
 {
     public class MainPageModel : BaseModel
     {
+        private object addDriveLock = new object();
+        private CoreDispatcher dispatcher;
+        private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
         public FileBrowserModel currentFileBrowser;
 
         public ObservableCollection<object> NavigationItems { get; set; }
@@ -31,8 +37,12 @@ namespace Explorer.Models
             FileBrowserModels = new ObservableCollection<FileBrowserModel>();
 
             AddTabCommand = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            dispatcher = Window.Current.CoreWindow.Dispatcher;
 
             AddDrivesToNavigationAsync();
+
+            var dws = DeviceWatcherService.Instance;
+            dws.DeviceChanged += async (s, e) => await AddDrivesToNavigationAsync();
         }
 
         public FileBrowserModel CurrentFileBrowser
@@ -51,13 +61,19 @@ namespace Explorer.Models
 
         private async Task AddDrivesToNavigationAsync()
         {
-            var drives = await FileSystem.GetDrives();
-            for (int i = 0; i < drives.Length; i++)
-            {
-                NavigationItems.Add(drives[i]);
-            }
-        }
+            await semaphore.WaitAsync();
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+            { 
+                NavigationItems.Clear();
+                var drives = await FileSystem.GetDrivesAsync();
+                for (int i = 0; i < drives.Length; i++)
+                {
+                    NavigationItems.Add(drives[i]);
+                }
 
+                semaphore.Release();
+            });
+        }
 
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
