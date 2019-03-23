@@ -31,7 +31,7 @@
             <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <AutoSuggestBox Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch"
+            <AutoSuggestBox Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" IsFocusEngaged="{x:Bind ViewModel.TextBoxPathIsFocused, Mode=TwoWay}"
                             Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
                             ItemsSource="{x:Bind ViewModel.PathSuggestions}"
                             TextMemberPath="Path" DisplayMemberPath="Name"

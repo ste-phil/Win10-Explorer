@@ -35,7 +35,7 @@ namespace Explorer.Models
         public List<FileSystemElement> History { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
         public ContentDialog RenameDialog { get; set; }
-
+        public bool TextBoxPathIsFocused { get; set; }
 
         public FileBrowserModel()
         {
@@ -299,8 +299,8 @@ namespace Explorer.Models
 
         public async void UpdatePathSuggestions()
         {
-            //Skip if Path has not been initialized
-            if (Path == null || Path == "") return;
+            //Skip if Path has not been initialized or not focues
+            if (!TextBoxPathIsFocused || (Path == null || Path == "")) return;
 
             var folders = Path.Split('\\');
             var searchString = folders[folders.Length - 1];
