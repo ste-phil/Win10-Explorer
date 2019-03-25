@@ -11,6 +11,7 @@
                   BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
             <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
                   BackgroundSource="HostBackdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
+            <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Default">
                     <AcrylicBrush x:Key="AppBackgroundBrush"

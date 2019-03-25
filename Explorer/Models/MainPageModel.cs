@@ -106,7 +106,6 @@ namespace Explorer.Models
             else if (item is NavigationLink link)
             {
                 CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = link.Path, Name = link.Name });
-
             }
         }
     }

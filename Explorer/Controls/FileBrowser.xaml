@@ -72,18 +72,18 @@
             <ContentDialog.Title>
                     <TextBlock>
                         <Run Text="Rename"></Run>
-                        <Run Text="{x:Bind ViewModel.SelectedElement.Name, Mode=OneWay}"></Run>
+                        <!--<Run Text="{x:Bind ViewModel.SelectedItems.Name, Mode=OneWay}"></Run>-->
                     </TextBlock>
             </ContentDialog.Title>
             <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
         </ContentDialog>
         
         <RefreshContainer Grid.Row="1" Margin="10">
-            <local:TableView 
-                SelectedItem="{x:Bind ViewModel.SelectedElement, Mode=TwoWay}"
+            <local:StorageTableView 
                 ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
-                ItemDoubleClicked="{x:Bind ViewModel.NavigateNextFSE}">
-                <local:TableView.ItemFlyout>
+                SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
+                DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}">
+                <local:StorageTableView.ItemFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
@@ -98,8 +98,22 @@
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
                     </MenuFlyout>
-                </local:TableView.ItemFlyout>
-            </local:TableView>
+                </local:StorageTableView.ItemFlyout>
+                <local:StorageTableView.MultipleItemFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE946;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </local:StorageTableView.MultipleItemFlyout>
+            </local:StorageTableView>
         </RefreshContainer>
         
     </Grid>

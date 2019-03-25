@@ -28,7 +28,8 @@ namespace Explorer.Models
         //Tracks the history position
         private int historyPosition;
 
-        private FileSystemElement selectedElement;
+        private ObservableCollection<FileSystemElement> selectedItems;
+        private FileSystemElement doubleTappedItem;
         private string renameName;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
@@ -41,6 +42,7 @@ namespace Explorer.Models
         {
             FileSystemElements = new ObservableCollection<FileSystemElement>();
             CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
+            SelectedItems = new ObservableCollection<FileSystemElement>();
 
             NavigateBack = new Command(x => NavigateToNoHistory(History[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(x => NavigateToNoHistory(History[++HistoryPosition]), () => HistoryPosition < History.Count - 1);
@@ -99,10 +101,16 @@ namespace Explorer.Models
             set { historyPosition = value; OnPropertyChanged(); NavigateBack.CanExceuteChanged(); NavigateForward.CanExceuteChanged(); }
         }
 
-        public FileSystemElement SelectedElement
+        public ObservableCollection<FileSystemElement> SelectedItems
         {
-            get { return selectedElement; }
-            set { selectedElement = value; OnPropertyChanged(); }
+            get { return selectedItems; }
+            set { selectedItems = value; OnPropertyChanged(); }
+        }
+
+        public FileSystemElement DoubleTappedItem
+        {
+            get { return doubleTappedItem; }
+            set { doubleTappedItem = value; OnPropertyChanged(); NavigateOrOpen(doubleTappedItem); }
         }
 
         public string RenameName
@@ -201,8 +209,11 @@ namespace Explorer.Models
         /// </summary>
         public void NavigateOrOpenSelected()
         {
-            if (SelectedElement.IsFolder) NavigateTo(SelectedElement);
-            else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
+            if (SelectedItems.Count != 1) return;
+
+            var selectedItem = SelectedItems[0];
+            if (selectedItem.IsFolder) NavigateTo(selectedItem);
+            else FileSystem.OpenFileWithDefaultApp(selectedItem.Path);
         }
 
         /// <summary>
@@ -210,7 +221,10 @@ namespace Explorer.Models
         /// </summary>
         public void OpenFileWithSelected()
         {
-            if (!SelectedElement.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(SelectedElement.Path);
+            if (SelectedItems.Count != 1) return;
+
+            var selectedItem = SelectedItems[0];
+            if (!selectedItem.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(selectedItem.Path);
         }
 
         /// <summary>
@@ -220,9 +234,12 @@ namespace Explorer.Models
         {
             DataTransferManager.ShowShareUI();
             sharedData = new DataPackage();
-            sharedData.Properties.Title = SelectedElement.Name;
+
+            if (SelectedItems.Count == 1) sharedData.Properties.Title = SelectedItems[0].Name;
+            else sharedData.Properties.Title = "Sharing multiple items";
+
             sharedData.Properties.Description = "This element will be shared";
-            sharedData.SetStorageItems(new List<IStorageItem> { await FileSystem.GetStorageItemAsync(SelectedElement) });
+            sharedData.SetStorageItems(await FileSystem.GetStorageItemsAsync(SelectedItems));
         }
 
         /// <summary>
@@ -230,17 +247,25 @@ namespace Explorer.Models
         /// </summary>
         public async Task RenameStorageItemSelectedAsync()
         {
-            RenameName = SelectedElement.Name;
+            RenameName = SelectedItems[0].Name;
 
             var result = await RenameDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary && RenameName != SelectedElement.Name)
+            if (result == ContentDialogResult.Primary)
             {
                 try
                 {
-                    await Task.Run(() => FileSystem.RenameStorageItemAsync(SelectedElement, RenameName));
+                    await Task.Run(async () => {
+                        for (int i = 0; i < selectedItems.Count; i++)
+                        {
+                            var newName = selectedItems.Count == 1 ? RenameName : $"{RenameName}_{i + 1}";
 
-                    SelectedElement.Name = RenameName;
-                    SelectedElement.Path = SelectedElement.Path.Substring(0, SelectedElement.Path.LastIndexOf("\\") + 1) + RenameName;
+                            await FileSystem.RenameStorageItemAsync(SelectedItems[i], newName);
+
+                            SelectedItems[i].Name = newName;
+                            SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
+                        }
+                    });
+                    
                     OnPropertyChanged("FileSystemElements");
                 }
                 catch (Exception) { }
@@ -254,9 +279,9 @@ namespace Explorer.Models
         /// </summary>
         public void DeleteStorageItemSelected()
         {
-            FileSystem.DeleteStorageItem(SelectedElement);
-            FileSystemElements.Remove(SelectedElement);
-            SelectedElement = null;
+            FileSystem.DeleteStorageItemsAsync(SelectedItems);
+            FileSystemElements.RemoveRange(SelectedItems);
+            SelectedItems.Clear();
         }
 
         /// <summary>
@@ -264,7 +289,7 @@ namespace Explorer.Models
         /// </summary>
         public async void ShowPropertiesStorageItemSelected()
         {
-            var props = await FileSystem.GetPropertiesOfFile(SelectedElement.Path);
+            //var props = await FileSystem.GetPropertiesOfFile(SelectedItems.Path);
         }
 
         /// <summary>
@@ -280,22 +305,9 @@ namespace Explorer.Models
         /// </summary>
         public void NavigateNextFSE(object sender, FileSystemElement fileSystemElement)
         {
-            if (fileSystemElement.IsFolder) NavigateTo(fileSystemElement);
-            else FileSystem.OpenFileWithDefaultApp(SelectedElement.Path);
+            //if (fileSystemElement.IsFolder) NavigateTo(fileSystemElement);
+            //else FileSystem.OpenFileWithDefaultApp(SelectedItems.Path);
         }
-
-        /// <summary>
-        /// Event called when an element in the NavigationView has been clicked
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-            var path = args.InvokedItemContainer.Tag.ToString();
-
-            NavigateTo(new FileSystemElement { Path = path });
-        }
-
 
         public async void UpdatePathSuggestions()
         {

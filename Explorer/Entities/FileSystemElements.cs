@@ -23,7 +23,7 @@ namespace Explorer.Entities
         public string DateModifiedString => DateModified.ToString("dd.MM.yyyy HH:MM");
         public bool IsFolder => Type.HasFlag(Windows.Storage.FileAttributes.Directory);
         public string SizeString => GetReadableSize(Size);
-
+        public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
 
         private string GetReadableSize(ulong bytes)
         {

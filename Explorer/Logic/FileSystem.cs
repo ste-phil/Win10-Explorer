@@ -1,6 +1,7 @@
 ﻿using Explorer.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -84,10 +85,21 @@ namespace Explorer.Logic
             await Launcher.LaunchFileAsync(file, new LauncherOptions{DisplayApplicationPicker = true});
         }
 
-        public static async void DeleteStorageItem(FileSystemElement fse)
+        public static async void DeleteStorageItemAsync(FileSystemElement fse)
         {
             var storageItem = await GetStorageItemAsync(fse);
             await storageItem.DeleteAsync();
+        }
+
+        public static async void DeleteStorageItemsAsync(Collection<FileSystemElement> fses)
+        {
+            await Task.Run(() =>
+            {
+                for (int i = 0; i < fses.Count; i++)
+                {
+                    DeleteStorageItemAsync(fses[i]);
+                }
+            });
         }
 
         public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
@@ -119,6 +131,15 @@ namespace Explorer.Logic
             return await GetFileAsync(fse);
         }
 
+        public static async Task<IStorageItem[]> GetStorageItemsAsync(Collection<FileSystemElement> fses)
+        {
+            var sis = new IStorageItem[fses.Count];
+            for (int i = 0; i < fses.Count; i++)
+            {
+                sis[i] = await GetStorageItemAsync(fses[i]);
+            }
+            return sis;
+        }
 
         public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path)
         {
