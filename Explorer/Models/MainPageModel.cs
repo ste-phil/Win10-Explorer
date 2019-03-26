@@ -77,7 +77,7 @@ namespace Explorer.Models
         private async Task AddDrivesToNavigationAsync()
         {
             await semaphore.WaitAsync();
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 //Remove only drive navigation items
                 var staticNavigationIndices = 8;
@@ -90,6 +90,14 @@ namespace Explorer.Models
                 for (int i = 0; i < drives.Length; i++)
                 {
                     NavigationItems.Add(drives[i]);
+                }
+
+                //Redirect to first drive (mainly windows) when current drive is not available anymore
+                if (!Directory.Exists(CurrentFileBrowser.Path)) {
+                    var drive = drives[0];
+
+                    CurrentFileBrowser.ClearHistory();
+                    CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = drive.RootDirectory, Name = drive.Name });
                 }
 
                 semaphore.Release();
