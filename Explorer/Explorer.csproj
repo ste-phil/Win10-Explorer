@@ -143,6 +143,9 @@
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\FileBrowserModel.cs" />
     <Compile Include="Models\MainPageModel.cs" />
+    <Compile Include="PermissionPage.xaml.cs">
+      <DependentUpon>PermissionPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controls\StorageTableView.xaml.cs">
       <DependentUpon>StorageTableView.xaml</DependentUpon>
@@ -166,6 +169,7 @@
     <Content Include="Assets\LargeTile.scale-150.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
     <Content Include="Assets\LargeTile.scale-400.png" />
+    <Content Include="Assets\PermissionHelp.gif" />
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />
     <Content Include="Assets\SmallTile.scale-150.png" />
@@ -227,6 +231,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\StorageTableView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PermissionPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
