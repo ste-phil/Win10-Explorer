@@ -80,8 +80,8 @@ namespace Explorer.Models
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
             {
                 //Remove only drive navigation items
-                var staticNavigationIndices = 9;
-                for (int i = staticNavigationIndices; i < NavigationItems.Count; i++)
+                var staticNavigationIndices = 8;
+                while (staticNavigationIndices < NavigationItems.Count)
                 {
                     NavigationItems.RemoveAt(staticNavigationIndices);
                 }
