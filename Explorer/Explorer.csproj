@@ -134,7 +134,7 @@
     <Compile Include="Helper\Command.cs" />
     <Compile Include="Helper\EnvironmentPaths.cs" />
     <Compile Include="Helper\Extensions.cs" />
-    <Compile Include="Helper\WindowManagerService.cs" />
+    <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystem.cs" />
     <Compile Include="MainPage.xaml.cs">

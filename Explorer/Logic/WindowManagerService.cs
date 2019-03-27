@@ -9,7 +9,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace Explorer.Helper
+namespace Explorer.Logic
 {
     public delegate void ViewClosedHandler(ViewLifetimeControl viewControl, EventArgs e);
 

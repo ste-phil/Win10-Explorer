@@ -120,6 +120,17 @@ namespace Explorer.Controls
 
         private void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
+            var key = args.VirtualKey.ToString();
+            for (int i = 0; i < ItemsSource.Count; i++)
+            {
+                if (ItemsSource[i].Name.StartsWith(key))
+                {
+                    UnselectOldRows();
+                    SelectRow(ItemsSource[i]);
+                    break;
+                }
+            }
+            
             //TODO: Add focus field to store which item is currently focused
 
             //if (ItemsSource.Count == 0) return;

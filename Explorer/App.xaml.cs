@@ -1,5 +1,4 @@
-﻿using Explorer.Helper;
-using Explorer.Logic;
+﻿using Explorer.Logic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +17,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace Explorer
@@ -83,7 +83,7 @@ namespace Explorer
                         //Open PermissionPage if access has been denied
                         if (exception is UnauthorizedAccessException)
                         {
-                            rootFrame.Navigate(typeof(PermissionPage));
+                            rootFrame.Navigate(typeof(PermissionPage), e.Arguments, new EntranceNavigationTransitionInfo());
                         }
                     }
                 }
@@ -94,21 +94,7 @@ namespace Explorer
 
                 // Ensure the current window is active
                 Window.Current.Activate();
-
-                // Extend acrylic
-                //ExtendAcrylicIntoTitleBar();
             }
-        }
-
-        private void ExtendAcrylicIntoTitleBar()
-        {
-            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
-            coreTitleBar.ExtendViewIntoTitleBar = true;
-
-            ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
-            titleBar.ButtonBackgroundColor = Colors.Transparent;
-            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            titleBar.ButtonForegroundColor = Colors.Gray;
         }
 
         /// <summary>
