@@ -1,5 +1,5 @@
 ﻿using Explorer.Entities;
-using Explorer.Helper;
+using Explorer.Logic;
 using Explorer.Models;
 using Newtonsoft.Json;
 using System;

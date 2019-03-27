@@ -26,6 +26,7 @@ namespace Explorer.Models
         private FileSystemElement currentFolder;
 
         //Tracks the history position
+        private List<FileSystemElement> history;
         private int historyPosition;
 
         private ObservableCollection<FileSystemElement> selectedItems;
@@ -33,7 +34,6 @@ namespace Explorer.Models
         private string renameName;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
-        public List<FileSystemElement> History { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
         public ContentDialog RenameDialog { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
@@ -44,10 +44,10 @@ namespace Explorer.Models
             CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
             SelectedItems = new ObservableCollection<FileSystemElement>();
 
-            NavigateBack = new Command(x => NavigateToNoHistory(History[--HistoryPosition]), () => HistoryPosition > 0);
-            NavigateForward = new Command(x => NavigateToNoHistory(History[++HistoryPosition]), () => HistoryPosition < History.Count - 1);
+            NavigateBack = new Command(x => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
+            NavigateForward = new Command(x => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
 
-            History = new List<FileSystemElement>();
+            history = new List<FileSystemElement>();
             HistoryPosition = -1;
 
             PathSuggestions = new ObservableCollection<FileSystemElement>();
@@ -98,7 +98,7 @@ namespace Explorer.Models
         public int HistoryPosition
         {
             get { return historyPosition; }
-            set { historyPosition = value; OnPropertyChanged(); NavigateBack.CanExceuteChanged(); NavigateForward.CanExceuteChanged(); }
+            private set { historyPosition = value; OnPropertyChanged(); NavigateBack.CanExceuteChanged(); NavigateForward.CanExceuteChanged(); }
         }
 
         public ObservableCollection<FileSystemElement> SelectedItems
@@ -123,6 +123,16 @@ namespace Explorer.Models
 
         public Command NavigateForward { get; }
 
+
+        /// <summary>
+        /// Clears the navigation history
+        /// </summary>
+        public void ClearHistory()
+        {
+            history.Clear();
+            HistoryPosition = -1;
+        }
+
         /// <summary>
         /// Navigate to the passed Folder
         /// </summary>
@@ -131,8 +141,8 @@ namespace Explorer.Models
         {
             Path = fse.Path;
 
-            History.RemoveRange(HistoryPosition + 1, History.Count - (HistoryPosition + 1));
-            History.Insert(HistoryPosition + 1, fse);
+            history.RemoveRange(HistoryPosition + 1, history.Count - (HistoryPosition + 1));
+            history.Insert(HistoryPosition + 1, fse);
             HistoryPosition++;
 
             LoadFolderAsync(fse);

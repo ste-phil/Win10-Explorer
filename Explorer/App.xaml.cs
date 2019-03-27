@@ -1,4 +1,4 @@
-﻿using Explorer.Helper;
+﻿using Explorer.Logic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace Explorer
@@ -41,7 +42,7 @@ namespace Explorer
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
             // Do not repeat app initialization when the Window already has content,
@@ -66,10 +67,25 @@ namespace Explorer
             {
                 if (rootFrame.Content == null)
                 {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    //Test permissions
+                    try
+                    {
+                        var test = await FileSystem.GetFolderContentSimple("C:");
+                        //Permission check passed
+                        
+                        // When the navigation stack isn't restored navigate to the first page,
+                        // configuring the new page by passing required information as a navigation
+                        // parameter
+                        rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    }
+                    catch(Exception exception)
+                    {
+                        //Open PermissionPage if access has been denied
+                        if (exception is UnauthorizedAccessException)
+                        {
+                            rootFrame.Navigate(typeof(PermissionPage), e.Arguments, new EntranceNavigationTransitionInfo());
+                        }
+                    }
                 }
                 else
                 {
@@ -78,21 +94,7 @@ namespace Explorer
 
                 // Ensure the current window is active
                 Window.Current.Activate();
-
-                // Extend acrylic
-                //ExtendAcrylicIntoTitleBar();
             }
-        }
-
-        private void ExtendAcrylicIntoTitleBar()
-        {
-            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
-            coreTitleBar.ExtendViewIntoTitleBar = true;
-
-            ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
-            titleBar.ButtonBackgroundColor = Colors.Transparent;
-            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            titleBar.ButtonForegroundColor = Colors.Gray;
         }
 
         /// <summary>

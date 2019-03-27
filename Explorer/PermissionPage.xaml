@@ -1,0 +1,31 @@
+﻿<Page
+    x:Class="Explorer.PermissionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Explorer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Margin="100">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Grant Permissions" TextAlignment="Center" VerticalAlignment="Center" FontSize="40" TextWrapping="Wrap"></TextBlock>
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="In order to use Explorer you need to grant some permissions" TextAlignment="Center" VerticalAlignment="Center" FontSize="25" TextWrapping="Wrap"></TextBlock>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Text="You will be redirected to Windows Settings where you need to check the system wide file access" TextAlignment="Center" VerticalAlignment="Bottom" FontSize="20" TextWrapping="Wrap"></TextBlock>
+        <Image Grid.Row="3">
+            <Image.Source>
+                <BitmapImage UriSource="Assets/PermissionHelp.gif"/>
+            </Image.Source>
+        </Image>
+        <Button Grid.Row="4" Style="{ThemeResource ButtonRevealStyle}" Content="Close App &amp; Open Settings" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="30" Tapped="OpenSettings_Tapped" Background="Transparent"></Button>
+    </Grid>
+</Page>

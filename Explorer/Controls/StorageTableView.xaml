@@ -20,6 +20,23 @@
                 <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
                 <Setter Property="Background" Value="Transparent"></Setter>
             </Style>
+            <Style TargetType="ItemsControl">
+                <Setter Property="ItemContainerTransitions">
+                    <Setter.Value>
+                        <TransitionCollection>
+                            <EntranceThemeTransition/>
+                            <RepositionThemeTransition/>
+                        </TransitionCollection>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel></ItemsStackPanel>
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Page.Resources>
     <Grid>
