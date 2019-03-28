@@ -11,7 +11,8 @@
     <Page.Resources>
         <ResourceDictionary>
             <Style x:Key="RowSelectedStyle" TargetType="Border">
-                <Setter Property="BorderThickness" Value="0"></Setter>
+                <Setter Property="BorderThickness" Value="1"></Setter>
+                <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
                 <Setter Property="Background" Value="{ThemeResource SystemAccentColor}"></Setter>
             </Style>
             <Style x:Key="RowDefaultStyle" TargetType="Border">
