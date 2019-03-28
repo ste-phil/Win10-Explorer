@@ -92,6 +92,8 @@
                         <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE946;"/>

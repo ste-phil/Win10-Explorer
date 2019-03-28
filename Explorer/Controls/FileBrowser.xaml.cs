@@ -21,6 +21,8 @@ namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
+        public event FSEEventHandler FavoriteAdded;
+
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
@@ -30,7 +32,10 @@ namespace Explorer.Controls
                 Bindings.Update(); 
 
                 if (ViewModel != null)
-                    ViewModel.RenameDialog = RenameDialog; 
+                {
+                    ViewModel.RenameDialog = RenameDialog;
+                    ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
+                }
             }
         }
 
@@ -42,7 +47,6 @@ namespace Explorer.Controls
         {
             this.InitializeComponent();
             ((FrameworkElement) this.Content).DataContext = this;
-
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

@@ -130,10 +130,11 @@
     </Compile>
     <Compile Include="Entities\DataTemplates.cs" />
     <Compile Include="Entities\FileSystemElements.cs" />
-    <Compile Include="Entities\NavigationLink.cs" />
-    <Compile Include="Helper\Command.cs" />
+    <Compile Include="Entities\NavigationLinks.cs" />
+    <Compile Include="Helper\Commands.cs" />
     <Compile Include="Helper\EnvironmentPaths.cs" />
     <Compile Include="Helper\Extensions.cs" />
+    <Compile Include="Helper\ObservableRangeCollection.cs" />
     <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystem.cs" />

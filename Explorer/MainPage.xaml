@@ -19,6 +19,29 @@
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
+        <DataTemplate x:Key="FavoriteLinkTemplate" x:DataType="entities:FavoriteNavigationLink">
+            <NavigationViewItem Name="NavItem" Content="{x:Bind Name}" Tag="{x:Bind}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
+                </NavigationViewItem.Icon>
+                <NavigationViewItem.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="Up" Command="{x:Bind MoveUpCommand}" CommandParameter="{x:Bind}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70E;"></FontIcon>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Down" Command="{x:Bind MoveDownCommand}" CommandParameter="{x:Bind}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70D;"></FontIcon>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutSeparator></MenuFlyoutSeparator>
+                        <MenuFlyoutItem Text="Remove" Icon="Delete" Command="{x:Bind RemoveCommand}" CommandParameter="{x:Bind}"></MenuFlyoutItem>
+                    </MenuFlyout>
+                </NavigationViewItem.ContextFlyout>
+            </NavigationViewItem>
+        </DataTemplate>
         <DataTemplate x:Key="DriveDataTemplate" x:DataType="entities:Drive">
             <NavigationViewItem Tag="{x:Bind}">
                 <StackPanel  Orientation="Horizontal" Margin="-5,0,0,0">
@@ -41,6 +64,7 @@
         </DataTemplate>
         <entities:NavigationItemTemplateSelector x:Key="NVMenuItemsSelector" 
                                                  DriveTemplate="{StaticResource DriveDataTemplate}" 
+                                                 FavoriteTemplate="{StaticResource FavoriteLinkTemplate}"
                                                  PathTemplate="{StaticResource FileSystemLinkTemplate}">
         </entities:NavigationItemTemplateSelector>
     </Page.Resources>
@@ -72,16 +96,10 @@
             </Grid.ColumnDefinitions>
 
 
-             <!--Content First--> 
-            <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" Grid.ColumnSpan="3">
-                <ContentPresenter.ContentTemplate>
-                    <DataTemplate x:DataType="models:MainPageModel">
-                        <local:FileBrowser ViewModel="{x:Bind CurrentFileBrowser, Mode=OneWay}"></local:FileBrowser>
-                    </DataTemplate>
-                </ContentPresenter.ContentTemplate>
-            </ContentPresenter>
+             <!--Content First-->
+            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}"></local:FileBrowser>
 
-             <!--Then our Placeholder TitleBar--> 
+            <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"
                   Background="Transparent"
                   Grid.ColumnSpan="3"
@@ -127,7 +145,7 @@
                             BorderThickness="1"
                             Background="Transparent"
                             Style="{StaticResource ButtonRevealStyle}"
-                            Command="{x:Bind ViewModel.AddTabCommand}">
+                            Command="{x:Bind ViewModel.AddTabCmd}">
                         <Viewbox MaxWidth="16" MaxHeight="16">
                             <FontIcon Glyph="&#xE710;" />
                         </Viewbox>

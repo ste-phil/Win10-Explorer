@@ -1,6 +1,7 @@
 ﻿using Explorer.Logic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -37,6 +38,8 @@ namespace Explorer
             this.Suspending += OnSuspending;
         }
 
+
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
@@ -44,6 +47,7 @@ namespace Explorer
         /// <param name="e">Details about the launch request and process.</param>
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
+
             Frame rootFrame = Window.Current.Content as Frame;
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -65,14 +69,21 @@ namespace Explorer
 
             if (e.PrelaunchActivated == false)
             {
+                //TryEnablePrelaunch();
+
                 if (rootFrame.Content == null)
                 {
                     //Test permissions
                     try
                     {
+                        var s = new Stopwatch();
+                        s.Start();
                         var test = await FileSystem.GetFolderContentSimple("C:");
+                        s.Stop();
+
+                        Debug.WriteLine("StartTime: " + s.ElapsedMilliseconds);
                         //Permission check passed
-                        
+
                         // When the navigation stack isn't restored navigate to the first page,
                         // configuring the new page by passing required information as a navigation
                         // parameter
@@ -98,6 +109,18 @@ namespace Explorer
         }
 
         /// <summary>
+        /// Encapsulates the call to CoreApplication.EnablePrelaunch() so that the JIT
+        /// won't encounter that call (and prevent the app from running when it doesn't
+        /// find it), unless this method gets called. This method should only
+        /// be called when the caller determines that we are running on a system that
+        /// supports CoreApplication.EnablePrelaunch().
+        /// </summary>
+        private void TryEnablePrelaunch()
+        {
+            CoreApplication.EnablePrelaunch(true);
+        }
+
+        /// <summary>
         /// Invoked when Navigation to a certain page fails
         /// </summary>
         /// <param name="sender">The Frame which failed navigation</param>
@@ -117,6 +140,7 @@ namespace Explorer
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
+
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }

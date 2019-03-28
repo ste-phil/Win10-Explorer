@@ -1,56 +1,57 @@
-﻿using System;
-using Explorer.Entities;
+﻿using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Windows.Storage;
-using Windows.UI.Popups;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
-using Explorer.Controls;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Windows.UI.Core;
-using Windows.System.UserProfile;
 
 namespace Explorer.Models
 {
     public class MainPageModel : BaseModel
     {
-        private object addDriveLock = new object();
+        private const string FAVORITE_FILE_NAME = "favs";
+
         private CoreDispatcher dispatcher;
         private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-
-        public FileBrowserModel currentFileBrowser;
-
-        public ObservableCollection<object> NavigationItems { get; set; }
-        public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
+        private FileBrowserModel currentFileBrowser;
 
         public MainPageModel()
         {
             NavigationItems = new ObservableCollection<object>();
             FileBrowserModels = new ObservableCollection<FileBrowserModel>();
+            Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
+            Favorites.CollectionChanged += Favorites_CollectionChanged;
 
-            AddTabCommand = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            AddTabCmd = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
-            AddKnownFoldersToNavigation();
-            AddDrivesToNavigationAsync();
+            FavNavLinkUpCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveUpFavorite(x), x => Favorites.IndexOf(x) > 0);
+            FavNavLinkDownCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveDownFavorite(x), x => Favorites.IndexOf(x) < Favorites.Count - 1);
+            FavNavLinkRemoveCmd = new GenericCommand<FavoriteNavigationLink>(x => RemoveFavorite(x), x => true);
+
+            InitNavigationAsync();
 
             var dws = DeviceWatcherService.Instance;
-            dws.DeviceChanged += async (s, e) => await AddDrivesToNavigationAsync();
+            dws.DeviceChanged += (s, e) => AddDrivesToNavigation();
         }
+
+        #region Properties
+
+        public ObservableRangeCollection<FavoriteNavigationLink> Favorites { get; set; }
+        public ObservableCollection<object> NavigationItems { get; set; }
+        public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
 
         public FileBrowserModel CurrentFileBrowser
         {
             get { return currentFileBrowser; }
-            set { currentFileBrowser = value; OnPropertyChanged();}
+            set { currentFileBrowser = value; OnPropertyChanged(); }
         }
 
         public FileBrowserModel SelectedTab
@@ -59,7 +60,19 @@ namespace Explorer.Models
             set { CurrentFileBrowser = value; }
         }
 
-        public Command AddTabCommand { get; }
+        public Command AddTabCmd { get; }
+        public GenericCommand<FavoriteNavigationLink> FavNavLinkUpCmd { get; }
+        public GenericCommand<FavoriteNavigationLink> FavNavLinkDownCmd { get; }
+        public GenericCommand<FavoriteNavigationLink> FavNavLinkRemoveCmd { get; }
+
+        #endregion
+
+        private void InitNavigationAsync()
+        {
+            LoadFavoritesAsync();
+            AddKnownFoldersToNavigation();
+            AddDrivesToNavigation();
+        }
 
         private void AddKnownFoldersToNavigation()
         {
@@ -74,13 +87,16 @@ namespace Explorer.Models
             NavigationItems.Add(new NavigationViewItemSeparator());
         }
 
-        private async Task AddDrivesToNavigationAsync()
+        private async void AddDrivesToNavigation()
         {
             await semaphore.WaitAsync();
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                //Count favorites, if favorites are more than 0 add one for the seperator
+                var favoriteLinkCount = Favorites.Count != 0 ? Favorites.Count + 1 : 0;
+
                 //Remove only drive navigation items
-                var staticNavigationIndices = 8;
+                var staticNavigationIndices = 8 + favoriteLinkCount;
                 while (staticNavigationIndices < NavigationItems.Count)
                 {
                     NavigationItems.RemoveAt(staticNavigationIndices);
@@ -93,7 +109,8 @@ namespace Explorer.Models
                 }
 
                 //Redirect to first drive (mainly windows) when current drive is not available anymore
-                if (!Directory.Exists(CurrentFileBrowser.Path)) {
+                if (!Directory.Exists(CurrentFileBrowser.Path))
+                {
                     var drive = drives[0];
 
                     CurrentFileBrowser.ClearHistory();
@@ -103,6 +120,86 @@ namespace Explorer.Models
                 semaphore.Release();
             });
         }
+
+        private async Task LoadFavoritesAsync()
+        {
+            var favs = await FileSystem.DeserializeObject<List<FavoriteNavigationLink>>(FAVORITE_FILE_NAME) ?? new List<FavoriteNavigationLink>();
+            foreach (var fav in favs)
+            {
+                fav.MoveDownCommand = FavNavLinkDownCmd;
+                fav.MoveUpCommand = FavNavLinkUpCmd;
+                fav.RemoveCommand = FavNavLinkRemoveCmd;
+            }
+
+            for (int i = 0; i < favs.Count; i++)
+            {
+                NavigationItems.Insert(i, favs[i]);
+            }
+
+            Favorites.AddRange(favs);
+        }
+
+        #region Favorites
+
+        private void Favorites_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            StoreFavorites();
+            FavNavLinkUpCmd.CanExceuteChanged();
+            FavNavLinkDownCmd.CanExceuteChanged();
+
+            //If you change the Favorites Collection make sure you update the NavigationItems Collection first
+            if (e.Action == NotifyCollectionChangedAction.Remove && Favorites.Count == 0) NavigationItems.RemoveAt(0);
+            else if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex == 0) NavigationItems.Insert(Favorites.Count, new NavigationViewItemSeparator());
+        }
+
+        private void StoreFavorites()
+        {
+            FileSystem.SerializeObject(Favorites, FAVORITE_FILE_NAME);
+        }
+
+        public void AddFavorite(FileSystemElement fse)
+        {
+            var favLink = new FavoriteNavigationLink(Symbol.OutlineStar, fse.Name, fse.Path, FavNavLinkUpCmd, FavNavLinkDownCmd, FavNavLinkRemoveCmd);
+
+            NavigationItems.Insert(Favorites.Count, favLink);
+            Favorites.Add(favLink);
+        }
+
+        public void RemoveFavorite(FileSystemElement fse)
+        {
+            var index = Favorites.IndexOf(x => x.Path == fse.Path);
+
+            NavigationItems.RemoveAt(index);
+            Favorites.RemoveAt(index);
+        }
+
+        private void RemoveFavorite(FavoriteNavigationLink fnl)
+        {
+            NavigationItems.Remove(fnl);
+            Favorites.Remove(fnl);
+        }
+
+        private void MoveUpFavorite(FavoriteNavigationLink fnl)
+        {
+            var index = Favorites.IndexOf(fnl);
+
+            NavigationItems.Remove(fnl);
+            NavigationItems.Insert(index - 1, fnl);
+
+            Favorites.MoveUp(fnl);
+        }
+
+        private void MoveDownFavorite(FavoriteNavigationLink fnl)
+        {
+            var index = Favorites.IndexOf(fnl);
+
+            NavigationItems.Remove(fnl);
+            NavigationItems.Insert(index + 1, fnl);
+
+            Favorites.MoveDown(fnl);
+        }
+
+        #endregion
 
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
@@ -114,6 +211,10 @@ namespace Explorer.Models
             else if (item is NavigationLink link)
             {
                 CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = link.Path, Name = link.Name });
+            }
+            else if (item is FavoriteNavigationLink favLink)
+            {
+                CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = favLink.Path, Name = favLink.Name });
             }
         }
     }

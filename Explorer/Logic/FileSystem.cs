@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Devices.Enumeration;
+using Windows.Security.Cryptography;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -16,19 +17,47 @@ namespace Explorer.Logic
 {
     public class FileSystem
     {
-//        List<string> fileTypeFilter = new List<string>();
-//        fileTypeFilter.Add(".txt");
-//fileTypeFilter.Add(".png");
-//var options = new Windows.Storage.Search.QueryOptions(Windows.Storage.Search.CommonFileQuery.OrderByName, fileTypeFilter);
-//        var query = ApplicationData.Current.LocalFolder.CreateFileQueryWithOptions(options);
-//        //subscribe on query's ContentsChanged event
-//        query.ContentsChanged += Query_ContentsChanged;
-//var files = await query.GetFilesAsync();
+        //        List<string> fileTypeFilter = new List<string>();
+        //        fileTypeFilter.Add(".txt");
+        //fileTypeFilter.Add(".png");
+        //var options = new Windows.Storage.Search.QueryOptions(Windows.Storage.Search.CommonFileQuery.OrderByName, fileTypeFilter);
+        //        var query = ApplicationData.Current.LocalFolder.CreateFileQueryWithOptions(options);
+        //        //subscribe on query's ContentsChanged event
+        //        query.ContentsChanged += Query_ContentsChanged;
+        //var files = await query.GetFilesAsync();
 
-//        private void Query_ContentsChanged(Windows.Storage.Search.IStorageQueryResultBase sender, object args)
-//        {
-//            //TODO:
-//        }
+        //        private void Query_ContentsChanged(Windows.Storage.Search.IStorageQueryResultBase sender, object args)
+        //        {
+        //            //TODO:
+        //        }
+
+
+        public static StorageFolder AppDataFolder = ApplicationData.Current.LocalFolder;
+
+        public static async Task<StorageFile> CreateOrOpenFileAsync(StorageFolder folder, string name, CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
+        {
+            return await folder.CreateFileAsync(name, option);
+        }
+
+        public static async void SerializeObject(object data, string name)
+        {
+            var sData = JsonConvert.SerializeObject(data);
+            var buffer = CryptographicBuffer.ConvertStringToBinary(sData, BinaryStringEncoding.Utf8);
+
+            var file = await CreateOrOpenFileAsync(AppDataFolder, name, CreationCollisionOption.ReplaceExisting);
+            await FileIO.WriteBufferAsync(file, buffer);
+        }
+
+        public static async Task<T> DeserializeObject<T>(string name)
+        {
+            var file = await CreateOrOpenFileAsync(AppDataFolder, name);
+            var buffer = await FileIO.ReadBufferAsync(file);
+
+            var serializedObject = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, buffer);
+            return JsonConvert.DeserializeObject<T>(serializedObject);
+        }
+
+
 
         public static async Task<Drive[]> GetDrivesAsync()
         {

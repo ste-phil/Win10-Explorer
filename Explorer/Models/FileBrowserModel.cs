@@ -9,17 +9,20 @@ using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
-using System.Diagnostics;
-using System.Text;
-using System.Linq;
+using Explorer.Controls;
 
 namespace Explorer.Models
 {
+    public delegate void FSEEventHandler(FileSystemElement fse);
+
     public class FileBrowserModel : BaseModel
     {
+        public event FSEEventHandler FavoriteAddRequested;
+
         //Used for windows share
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
+
 
         private string path;
         private bool pathIncreased;
@@ -289,9 +292,12 @@ namespace Explorer.Models
         /// </summary>
         public void DeleteStorageItemSelected()
         {
-            FileSystem.DeleteStorageItemsAsync(SelectedItems);
-            FileSystemElements.RemoveRange(SelectedItems);
-            SelectedItems.Clear();
+            try
+            {
+                FileSystem.DeleteStorageItemsAsync(SelectedItems);
+                FileSystemElements.RemoveRange(SelectedItems);
+                SelectedItems.Clear();
+            } catch(Exception) { /*e.g. UnauthorizedAccessException*/}
         }
 
         /// <summary>
@@ -300,6 +306,14 @@ namespace Explorer.Models
         public async void ShowPropertiesStorageItemSelected()
         {
             //var props = await FileSystem.GetPropertiesOfFile(SelectedItems.Path);
+        }
+
+        /// <summary>
+        /// Invokes event to tell subscribers to add selected fse to favorites
+        /// </summary>
+        public void FavoriteItemSelected()
+        {
+            FavoriteAddRequested?.Invoke(SelectedItems[0]);
         }
 
         /// <summary>

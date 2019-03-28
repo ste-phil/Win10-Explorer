@@ -7,6 +7,7 @@ namespace Explorer.Entities
     {
         public DataTemplate DriveTemplate { get; set; }
         public DataTemplate PathTemplate { get; set; }
+        public DataTemplate FavoriteTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
@@ -17,6 +18,7 @@ namespace Explorer.Entities
         {
             if (item is Drive) return DriveTemplate;
             if (item is NavigationLink) return PathTemplate;
+            if (item is FavoriteNavigationLink) return FavoriteTemplate;
 
             return base.SelectTemplateCore(item);
         }
