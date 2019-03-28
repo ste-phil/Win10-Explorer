@@ -52,7 +52,7 @@
     
     <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems, Mode=OneWay}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
-                    ItemInvoked="{x:Bind ViewModel.NavigateNavigationFSE}"
+                    SelectionChanged="{x:Bind ViewModel.NavigateNavigationFSE}"
                     OpenPaneLength="200"
                     MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}">
         <NavigationView.AutoSuggestBox>

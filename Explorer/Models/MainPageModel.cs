@@ -104,9 +104,9 @@ namespace Explorer.Models
             });
         }
 
-        public void NavigateNavigationFSE(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        public void NavigateNavigationFSE(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            var item = ((NavigationViewItem)args.InvokedItemContainer).Tag;
+            var item = ((NavigationViewItem)args.SelectedItemContainer).Tag;
             if (item is Drive drive)
             {
                 CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = drive.RootDirectory, Name = drive.Name });
