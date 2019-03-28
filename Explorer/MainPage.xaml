@@ -82,7 +82,7 @@
         <NavigationView.AutoSuggestBox>
             <AutoSuggestBox></AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
-
+        
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

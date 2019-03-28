@@ -38,6 +38,7 @@ namespace Explorer.Controls
 
         public MenuFlyout ItemFlyout { get; set; }
         public MenuFlyout MultipleItemFlyout { get; set; }
+        public FileSystemElement FocusedItem { get; set; }
 
         public ObservableCollection<FileSystemElement> ItemsSource
         {
@@ -120,35 +121,72 @@ namespace Explorer.Controls
 
         private void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            var key = args.VirtualKey.ToString();
+            if (ItemsSource.Count == 0) return;
+
+            if (args.VirtualKey == VirtualKey.Enter)
+            {
+                DoubleTappedItem = FocusedItem;
+                return;
+            }
+
+            var shiftDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+            var lastItemIndex = FocusedItem == null ? 0 : ItemsSource.IndexOf(FocusedItem);
+            if (args.VirtualKey == VirtualKey.Down && lastItemIndex + 1 < ItemsSource.Count)
+            {
+                if (!shiftDown) UnselectOldRows();
+
+                SelectRow(ItemsSource[lastItemIndex + 1]);
+                FocusedItem = ItemsSource[lastItemIndex + 1];
+                return;
+            }
+            else if (args.VirtualKey == VirtualKey.Up && lastItemIndex - 1 >= 0)
+            {
+                if (!shiftDown) UnselectOldRows();
+
+                SelectRow(ItemsSource[lastItemIndex - 1]);
+                FocusedItem = ItemsSource[lastItemIndex - 1];
+                return;
+            }
+
+            var focusItemIndex = ItemsSource.IndexOf(FocusedItem);
+            var key = args.VirtualKey.ToString().ToLower();
+            var firstItemIndex = -1;
+            var foundNextItem = false;
             for (int i = 0; i < ItemsSource.Count; i++)
             {
-                if (ItemsSource[i].Name.StartsWith(key))
+                if (ItemsSource[i].Name.ToLower().StartsWith(key))
                 {
+                    //To begin from first item again if last item with the key was found
+                    if (firstItemIndex == -1) firstItemIndex = i;
+
+                    //Needs to be after currently focused item
+                    if (i <= focusItemIndex) continue;
+
                     UnselectOldRows();
                     SelectRow(ItemsSource[i]);
+                    FocusedItem = ItemsSource[i];
+                    foundNextItem = true;
                     break;
                 }
             }
-            
-            //TODO: Add focus field to store which item is currently focused
 
-            //if (ItemsSource.Count == 0) return;
+            if (!foundNextItem && firstItemIndex != -1)
+            {
+                UnselectOldRows();
+                SelectRow(ItemsSource[firstItemIndex]);
+                FocusedItem = ItemsSource[firstItemIndex];
+            }
 
-            //var lastItemIndex = SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last());
+           
 
-            //if (args.VirtualKey == VirtualKey.Down && lastItemIndex + 1 < ItemsSource.Count)
-            //    SelectRow(ItemsSource[lastItemIndex + 1]);
-            //else if (args.VirtualKey == VirtualKey.Up && lastItemIndex - 1 >= 0)
-            //    SelectRow(ItemsSource[lastItemIndex - 1]);
-
-            //args.Handled = true;
+            args.Handled = true;
         }
 
         private void Row_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var hitbox = (FrameworkElement)sender;
             var item = (FileSystemElement)hitbox.Tag;
+            var index = ItemsSource.IndexOf(item);
 
             var shiftDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
             var controlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
@@ -161,6 +199,8 @@ namespace Explorer.Controls
                 SelectRowsBetween(item);
             else
                 SelectRow(item, hitbox);
+
+            FocusedItem = ItemsSource[index];
         }
 
         private void Row_RightTapped(object sender, RightTappedRoutedEventArgs e)

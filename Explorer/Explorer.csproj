@@ -125,9 +125,6 @@
     <Compile Include="Controls\FileBrowser.xaml.cs">
       <DependentUpon>FileBrowser.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TableView.xaml.cs">
-      <DependentUpon>TableView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Entities\DataTemplates.cs" />
     <Compile Include="Entities\FileSystemElements.cs" />
     <Compile Include="Entities\NavigationLinks.cs" />
@@ -220,10 +217,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Controls\FileBrowser.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\TableView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
