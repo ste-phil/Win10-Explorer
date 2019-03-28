@@ -10,6 +10,7 @@ using Explorer.Helper;
 using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
 using Explorer.Controls;
+using Newtonsoft.Json;
 
 namespace Explorer.Models
 {
@@ -22,7 +23,6 @@ namespace Explorer.Models
         //Used for windows share
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
-
 
         private string path;
         private bool pathIncreased;
@@ -38,7 +38,7 @@ namespace Explorer.Models
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
-        public ContentDialog RenameDialog { get; set; }
+        [JsonIgnore] public ContentDialog RenameDialog { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
 
         public FileBrowserModel()
@@ -156,6 +156,8 @@ namespace Explorer.Models
         /// </summary>
         public void NavigateOrOpen(FileSystemElement fse)
         {
+            if (fse == null) return;
+
             if (fse.IsFolder) NavigateTo(fse);
             else FileSystem.OpenFileWithDefaultApp(fse.Path);
         }
