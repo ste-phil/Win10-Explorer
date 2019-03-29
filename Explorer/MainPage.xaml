@@ -72,8 +72,6 @@
         <models:MainPageModel x:Name="ViewModel" />
     </Page.DataContext>
 
-    <!--<ItemsControl ItemsSource="{x:Bind ViewModel.NavigationItems}" ItemTemplateSelector="{StaticResource NVMenuItemsSelector}"></ItemsControl>-->
-    
     <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationItems, Mode=OneWay}" 
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     SelectionChanged="{x:Bind ViewModel.NavigateNavigationFSE}"

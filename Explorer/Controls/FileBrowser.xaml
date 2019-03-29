@@ -92,6 +92,10 @@
                         <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
@@ -107,6 +111,10 @@
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                             <MenuFlyoutItem.Icon>

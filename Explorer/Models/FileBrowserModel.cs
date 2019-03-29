@@ -11,6 +11,7 @@ using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
 using Explorer.Controls;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Explorer.Models
 {
@@ -300,6 +301,43 @@ namespace Explorer.Models
                 FileSystemElements.RemoveRange(SelectedItems);
                 SelectedItems.Clear();
             } catch(Exception) { /*e.g. UnauthorizedAccessException*/}
+        }
+
+        public async void CopyStorageItemSelected()
+        {
+            var dataPackage = new DataPackage();
+
+            var itemsToCopy = await FileSystem.GetStorageItemsAsync(SelectedItems);
+            dataPackage.SetStorageItems(itemsToCopy);
+            dataPackage.RequestedOperation = DataPackageOperation.Copy;
+
+            Clipboard.SetContent(dataPackage);
+        }
+
+        public async void CutStorageItemSelected()
+        {
+            var dataPackage = new DataPackage();
+
+            var itemsToCopy = await FileSystem.GetStorageItemsAsync(SelectedItems);
+            dataPackage.SetStorageItems(itemsToCopy);
+            dataPackage.RequestedOperation = DataPackageOperation.Move;
+
+            Clipboard.SetContent(dataPackage);
+        }
+
+        public void PasteStorageItemSelected()
+        {
+            var data = Clipboard.GetContent();
+
+            if (data.Contains(StandardDataFormats.StorageItems))
+            {
+                if (data.RequestedOperation == DataPackageOperation.Copy)
+                {
+
+                }
+
+                var items = data.GetStorageItemsAsync();
+            }
         }
 
         /// <summary>

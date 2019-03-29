@@ -131,6 +131,28 @@ namespace Explorer.Logic
             });
         }
 
+        public static async void MoveStorageItemAsync(FileSystemElement folder, Collection<IStorageItem> storageItems)
+        {
+            var targetFolder = await GetFolderAsync(folder);
+            for (int i = 0; i < storageItems.Count; i++)
+            {
+                MoveStorageItemAsync(targetFolder, storageItems[i]);
+            }
+        }
+
+        public static async void MoveStorageItemAsync(IStorageFolder storageFolder, IStorageItem storageItem)
+        {
+            //if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
+            //    await ((StorageFile)storageItem).CopyAsync(storageFolder);
+            ////else
+            //await ((StorageFolder)storageItem).Copy(storageFolder);
+
+            //if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
+            //{
+            //    Directory.Move
+            //}
+        }
+
         public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
         {
             var file = await GetStorageItemAsync(fse);
@@ -143,12 +165,12 @@ namespace Explorer.Logic
             return await file.GetBasicPropertiesAsync();
         }
 
-        public static async Task<IStorageItem> GetFileAsync(FileSystemElement fse)
+        public static async Task<IStorageFile> GetFileAsync(FileSystemElement fse)
         {
             return await StorageFile.GetFileFromPathAsync(fse.Path);
         }
 
-        public static async Task<IStorageItem> GetFolderAsync(FileSystemElement fse)
+        public static async Task<IStorageFolder> GetFolderAsync(FileSystemElement fse)
         {
             return await StorageFolder.GetFolderFromPathAsync(fse.Path);
         }
