@@ -12,6 +12,7 @@ using FileAttributes = Windows.Storage.FileAttributes;
 using Explorer.Controls;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Explorer.Models
 {
@@ -270,18 +271,18 @@ namespace Explorer.Models
             {
                 try
                 {
-                    await Task.Run(async () => {
-                        for (int i = 0; i < selectedItems.Count; i++)
-                        {
-                            var newName = selectedItems.Count == 1 ? RenameName : $"{RenameName}_{i + 1}";
+                    var userInputName = RenameName;
+                    for (int i = 0; i < selectedItems.Count; i++)
+                    {
+                        var newName = selectedItems.Count == 1 ? userInputName : $"{userInputName}_{i + 1}";
 
-                            await FileSystem.RenameStorageItemAsync(SelectedItems[i], newName);
+                        await FileSystem.RenameStorageItemAsync(SelectedItems[i], newName);
 
-                            SelectedItems[i].Name = newName;
-                            SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
-                        }
-                    });
-                    
+                        SelectedItems[i].Name = newName;
+                        SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
+                    }
+
+
                     OnPropertyChanged("FileSystemElements");
                 }
                 catch (Exception) { }
@@ -312,6 +313,7 @@ namespace Explorer.Models
             dataPackage.RequestedOperation = DataPackageOperation.Copy;
 
             Clipboard.SetContent(dataPackage);
+            //Clipboard.Flush();
         }
 
         public async void CutStorageItemSelected()
@@ -323,21 +325,31 @@ namespace Explorer.Models
             dataPackage.RequestedOperation = DataPackageOperation.Move;
 
             Clipboard.SetContent(dataPackage);
+            //Clipboard.Flush();
         }
 
-        public void PasteStorageItemSelected()
+        public async void PasteStorageItemSelected()
         {
             var data = Clipboard.GetContent();
 
             if (data.Contains(StandardDataFormats.StorageItems))
             {
-                if (data.RequestedOperation == DataPackageOperation.Copy)
+                var items = await data.GetStorageItemsAsync();
+                if (data.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                 {
-
+                    await FileSystem.CopyStorageItemsAsync(CurrentFolder, items.ToList());
+                    data.ReportOperationCompleted(DataPackageOperation.Copy);
                 }
-
-                var items = data.GetStorageItemsAsync();
+                else if (data.RequestedOperation.HasFlag(DataPackageOperation.Move))
+                {
+                    await FileSystem.MoveStorageItemsAsync(CurrentFolder, items.ToList());
+                    data.ReportOperationCompleted(DataPackageOperation.Move);
+                }
             }
+
+            //var src = await FileSystem.GetFolderAsync(@"C:\Users\phste\Downloads\CopyTest");
+            //var dest = await FileSystem.GetFolderAsync(@"C:\Users\phste\Downloads\CopyTestResult");
+            //FileSystem.CopyStorageItemsAsync(new FileSystemElement { Path = @"C:\Users\phste\Downloads\CopyTestResult" }, new Collection<IStorageItem> { src });
         }
 
         /// <summary>

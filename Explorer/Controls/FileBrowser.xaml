@@ -78,7 +78,7 @@
             <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
         </ContentDialog>
         
-        <RefreshContainer Grid.Row="1" Margin="10">
+        <RefreshContainer Grid.Row="1">
             <local:StorageTableView 
                 ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
                 SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
@@ -92,9 +92,9 @@
                         <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
@@ -112,9 +112,9 @@
                         <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                             <MenuFlyoutItem.Icon>
@@ -123,6 +123,18 @@
                         </MenuFlyoutItem>
                     </MenuFlyout>
                 </local:StorageTableView.MultipleItemFlyout>
+                <local:StorageTableView.BackgroundFlyout>
+                    <MenuFlyout ShowMode="Standard">
+                        <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE946;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </local:StorageTableView.BackgroundFlyout>
             </local:StorageTableView>
         </RefreshContainer>
         

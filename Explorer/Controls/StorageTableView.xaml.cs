@@ -38,6 +38,7 @@ namespace Explorer.Controls
 
         public MenuFlyout ItemFlyout { get; set; }
         public MenuFlyout MultipleItemFlyout { get; set; }
+        public MenuFlyout BackgroundFlyout { get; set; }
         public FileSystemElement FocusedItem { get; set; }
 
         public ObservableCollection<FileSystemElement> ItemsSource
@@ -227,6 +228,12 @@ namespace Explorer.Controls
             var item = (FileSystemElement)hitbox.Tag;
 
             DoubleTappedItem = item;
+        }
+
+        private void OpenBackgroundFlyout(object sender, RightTappedRoutedEventArgs e)
+        {
+            var s = (FrameworkElement)sender;
+            BackgroundFlyout.ShowAt(s, e.GetPosition(s));
         }
 
         private void SelectRow(FileSystemElement fse, FrameworkElement hitbox)

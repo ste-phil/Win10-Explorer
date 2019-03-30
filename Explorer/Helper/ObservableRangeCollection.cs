@@ -550,8 +550,10 @@
             if (Equals(this[index], item))
                 return;
 
+            
             CheckReentrancy();
             T originalItem = this[index];
+
             base.SetItem(index, item);
 
             OnIndexerPropertyChanged();

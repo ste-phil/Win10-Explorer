@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using Windows.Foundation;
 using Windows.UI;
@@ -12,18 +13,48 @@ using Windows.UI.Xaml.Media;
 
 namespace Explorer.Entities
 {
-    public class FileSystemElement
+    public class FileSystemElement : ObservableEntity
     {
-        public Windows.Storage.FileAttributes Type { get; set; }
-        public string Name { get; set; }
-        public ulong Size { get; set; }
-        public DateTimeOffset DateModified { get; set; }
-        public string Path { get; set; }
+        private string name;
+        private string path;
+        private DateTimeOffset dateModified;
+        private ulong size;
+        private Windows.Storage.FileAttributes type;
+
+        public Windows.Storage.FileAttributes Type
+        {
+            get { return type; }
+            set { type = value; OnPropertyChanged(); }
+        }
+        public ulong Size
+        {
+            get { return size; }
+            set { size = value; OnPropertyChanged(); }
+        }
+
+        public DateTimeOffset DateModified
+        {
+            get { return dateModified; }
+            set { dateModified = value; OnPropertyChanged(); }
+        }
+
+        public string Path
+        {
+            get { return path; }
+            set { path = value; OnPropertyChanged(); }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; OnPropertyChanged(); }
+        }
 
         public string DateModifiedString => DateModified.ToString("dd.MM.yyyy HH:MM");
         public bool IsFolder => Type.HasFlag(Windows.Storage.FileAttributes.Directory);
         public string SizeString => GetReadableSize(Size);
         public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
+
 
         private string GetReadableSize(ulong bytes)
         {
