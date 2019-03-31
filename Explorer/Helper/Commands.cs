@@ -10,26 +10,32 @@ namespace Explorer.Helper
 {
     public class Command : ICommand
     {
-        private Action<object> action;
+        private Action action;
         private Func<bool> canExecute;
 
         public event EventHandler CanExecuteChanged;
 
-        public Command(Action<object> action, Func<bool> canExecute)
+        public Command(Action action, Func<bool> canExecute)
         {
             this.action = action;
             this.canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object param)
         {
             return canExecute();
         }
 
-        public void Execute(object parameter)
+        public void Execute(object param)
         {
-            action(parameter);
+            action();
         }
+
+        public void ExecuteWhen()
+        {
+             if (canExecute()) action();
+        }
+
 
         public void CanExceuteChanged()
         {

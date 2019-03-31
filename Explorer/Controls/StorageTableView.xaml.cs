@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -43,6 +44,8 @@ namespace Explorer.Controls
             LostFocus += StorageTableView_LostFocus;
         }
 
+        #region Properties
+
         public MenuFlyout ItemFlyout { get; set; }
         public MenuFlyout MultipleItemFlyout { get; set; }
         public MenuFlyout BackgroundFlyout { get; set; }
@@ -51,7 +54,12 @@ namespace Explorer.Controls
         public ObservableCollection<FileSystemElement> ItemsSource
         {
             get { return (ObservableCollection<FileSystemElement>)GetValue(ItemsSourceProperty); }
-            set { SetValue(ItemsSourceProperty, value); }
+            set
+            {
+                if (ItemsSource != null) ItemsSource.CollectionChanged -= ItemsSource_CollectionChanged;
+                SetValue(ItemsSourceProperty, value);
+                ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
+            }
         }
 
         public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register(nameof(ItemsSource), typeof(ObservableCollection<FileSystemElement>),
@@ -74,6 +82,16 @@ namespace Explorer.Controls
 
         public static readonly DependencyProperty DoubleTappedItemProperty = DependencyProperty.Register(nameof(DoubleTappedItem), typeof(FileSystemElement),
             typeof(StorageTableView), new PropertyMetadata(DependencyProperty.UnsetValue));
+
+        #endregion
+
+        private void ItemsSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                UnselectOldRows();
+            }
+        }
 
         #region TableHeader Actions
 
@@ -132,18 +150,17 @@ namespace Explorer.Controls
 
         private void StorageTableView_GotFocus(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Enabled");
+            if (ItemsSource != null && ItemsSource.Count > 0 && FocusedItem == null) FocusRow(ItemsSource[0]);
         }
 
         private void StorageTableView_LostFocus(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Disabled");
+            RemoveFocus(FocusedItem);
         }
 
         private void Window_KeyDown(object sender, KeyRoutedEventArgs args)
         {
             if (ItemsSource.Count == 0) return;
-
 
             var shiftDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
             var ctrlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
@@ -162,9 +179,14 @@ namespace Explorer.Controls
                 case VirtualKey.Enter:
                     DoubleTappedItem = FocusedItem;
                     break;
+                case VirtualKey.Menu:
+                    OpenItemFlyout(FocusedItem, focusedRow, new Point(0, focusedRow.Height));
+                    break;
                 //Move focus to next/previous element and keep it in view
                 case VirtualKey.Up:
                 case VirtualKey.Down:
+                case VirtualKey.W:
+                case VirtualKey.S:
                     //If there is a focused item take index of it
                     //If there is no focused item and no SelectedItems begin from start
                     //If there is no focused item but SelectedItems get the index of the last
@@ -172,10 +194,12 @@ namespace Explorer.Controls
                         SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last())
                         : ItemsSource.IndexOf(FocusedItem);
 
-                    var index = args.Key == VirtualKey.Up ? lastFocusedIndex - 1 : lastFocusedIndex + 1;                  //Find next index depending on which button has been pressed
-                    var condBoundings = args.Key == VirtualKey.Up ? index >= 0 : index < ItemsSource.Count;         //Check bounding 0 <= index < ItemsSource.Count 
+                    var up = args.Key == VirtualKey.Up || args.Key == VirtualKey.W;
+
+                    var index = up ? lastFocusedIndex - 1 : lastFocusedIndex + 1;                  //Find next index depending on which button has been pressed
+                    var condBoundings = up ? index >= 0 : index < ItemsSource.Count;               //Check bounding 0 <= index < ItemsSource.Count 
                     
-                    if (!condBoundings) break;                               //Cancel move focus if next item would be out of bounds
+                    if (!condBoundings) break;                                  //Cancel move focus if next item would be out of bounds
                     if (ctrlDown)
                     {
                         //Select next row if ctrl was pressed
@@ -191,6 +215,9 @@ namespace Explorer.Controls
                     args.Handled = true;                                    //Set event as handled (Prevents ScrollViewer from scrolling down/up)
                     break;
             }
+
+            //Don't find FileSystemElemets which start with key pressed if modifiers have been pressed
+            if (ctrlDown || shiftDown) return;
 
             var focusItemIndex = ItemsSource.IndexOf(FocusedItem);
             var key = args.Key.ToString().ToLower();
@@ -258,8 +285,7 @@ namespace Explorer.Controls
                 SelectRow(item, hitbox);
             }
 
-            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(hitbox, e.GetPosition(hitbox));
-            else MultipleItemFlyout.ShowAt(hitbox, e.GetPosition(hitbox));
+            OpenItemFlyout(item, hitbox, e.GetPosition(hitbox));
         }
 
         private void Row_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -378,6 +404,24 @@ namespace Explorer.Controls
             //Apply focused style to new row
             if (SelectedItems.Contains(FocusedItem)) focusedRow.Style = (Style)Resources["RowSelectedFocusedStyle"];
             else focusedRow.Style = (Style)Resources["RowDefaultFocusedStyle"];
+        }
+
+        private void RemoveFocus(FileSystemElement fse)
+        {
+            if (focusedRow != null)
+            {
+                if (SelectedItems.Contains(FocusedItem)) focusedRow.Style = (Style)Resources["RowSelectedStyle"];
+                else focusedRow.Style = (Style)Resources["RowDefaultStyle"];
+            }
+
+            FocusedItem = null;
+            focusedRow = null;
+        }
+
+        private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)
+        {
+            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
+            else MultipleItemFlyout.ShowAt(row, position);
         }
     }
 }

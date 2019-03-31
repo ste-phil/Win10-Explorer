@@ -11,6 +11,9 @@ using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
 using Newtonsoft.Json;
 using System.Linq;
+using Windows.UI.Xaml;
+using Windows.UI.Core;
+using Windows.System;
 
 namespace Explorer.Models
 {
@@ -47,8 +50,8 @@ namespace Explorer.Models
             CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
             SelectedItems = new ObservableCollection<FileSystemElement>();
 
-            NavigateBack = new Command(x => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
-            NavigateForward = new Command(x => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
+            NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
+            NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
 
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
@@ -62,8 +65,12 @@ namespace Explorer.Models
                 dataTransferManager.DataRequested += OnShareRequested;
             }
 
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+
             NavigateTo(CurrentFolder);
         }
+
+        #region Properties
 
         public FileSystemElement CurrentFolder
         {
@@ -126,6 +133,7 @@ namespace Explorer.Models
 
         public Command NavigateForward { get; }
 
+        #endregion
 
         /// <summary>
         /// Clears the navigation history
@@ -149,7 +157,6 @@ namespace Explorer.Models
             HistoryPosition++;
 
             LoadFolderAsync(fse);
-            SelectedItems.Clear();
         }
 
         /// <summary>
@@ -408,6 +415,28 @@ namespace Explorer.Models
             catch (Exception)
             {
                 PathSuggestions.Clear();
+            }
+        }
+
+        private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            switch (args.VirtualKey)
+            {
+                case VirtualKey.Left:
+                    NavigateBack.ExecuteWhen();
+                    break;
+                case VirtualKey.Right:
+                    NavigateForward.ExecuteWhen();
+                    break;
+                case VirtualKey.Back:
+                    NavigateBack.ExecuteWhen();
+                    break;
+                case VirtualKey.F5:
+                    Refresh();
+                    break;
+                case VirtualKey.F2:
+                    await RenameStorageItemSelectedAsync();
+                    break;
             }
         }
     }

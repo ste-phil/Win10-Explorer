@@ -76,7 +76,7 @@
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     SelectionChanged="{x:Bind ViewModel.NavigateNavigationFSE}"
                     OpenPaneLength="200"
-                    MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}">
+                    MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}" >
         <NavigationView.AutoSuggestBox>
             <AutoSuggestBox></AutoSuggestBox>
         </NavigationView.AutoSuggestBox>

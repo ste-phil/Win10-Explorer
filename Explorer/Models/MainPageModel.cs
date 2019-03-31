@@ -29,7 +29,7 @@ namespace Explorer.Models
             Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
-            AddTabCmd = new Command(x => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            AddTabCmd = new Command(() => FileBrowserModels.Add(new FileBrowserModel()), () => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
             FavNavLinkUpCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveUpFavorite(x), x => Favorites.IndexOf(x) > 0);

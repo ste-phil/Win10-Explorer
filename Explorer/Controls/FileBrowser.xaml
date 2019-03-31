@@ -82,7 +82,7 @@
         </ContentDialog>
         
         <RefreshContainer Grid.Row="1">
-            <local:StorageTableView 
+            <local:StorageTableView
                 ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
                 SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
                 DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}">
