@@ -93,7 +93,8 @@ namespace Explorer
             {
                 //Remove tab from current window
                 ViewModel.FileBrowserModels.Remove(tabModel);
-
+                
+                
                 // Need to serialize item to better provide transfer across window threads.
                 var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));
             }

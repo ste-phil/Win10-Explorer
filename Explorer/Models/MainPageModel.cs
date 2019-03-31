@@ -26,6 +26,7 @@ namespace Explorer.Models
         {
             NavigationItems = new ObservableCollection<object>();
             FileBrowserModels = new ObservableCollection<FileBrowserModel>();
+            FileBrowserModels.CollectionChanged += FileBrowserModels_CollectionChanged;
             Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
@@ -42,11 +43,17 @@ namespace Explorer.Models
             dws.DeviceChanged += (s, e) => AddDrivesToNavigation();
         }
 
+        private void FileBrowserModels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged("AllowCloseTabs");
+        }
+
         #region Properties
 
         public ObservableRangeCollection<FavoriteNavigationLink> Favorites { get; set; }
         public ObservableCollection<object> NavigationItems { get; set; }
         public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
+        public bool AllowCloseTabs => FileBrowserModels.Count > 1;
 
         public FileBrowserModel CurrentFileBrowser
         {

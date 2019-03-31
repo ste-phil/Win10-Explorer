@@ -114,7 +114,7 @@
             <controls:TabView x:Name="Tabs" ItemsSource="{x:Bind ViewModel.FileBrowserModels}"
                               SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
                               Grid.Column="1"  Background="Transparent"
-                              TabWidthBehavior="Actual" CanCloseTabs="True"
+                              TabWidthBehavior="Actual" CanCloseTabs="{x:Bind ViewModel.AllowCloseTabs, Mode=OneWay}"
                               CanDragItems="True" CanReorderItems="True" AllowDrop="True"
                               TabDraggedOutside="Tabs_TabDraggedOutsideAsync">
                 <controls:TabView.Resources>

@@ -270,6 +270,8 @@ namespace Explorer.Models
         /// </summary>
         public async Task RenameStorageItemSelectedAsync()
         {
+            if (SelectedItems.Count == 0) return;
+
             RenameName = SelectedItems[0].Name;
 
             var result = await RenameDialog.ShowAsync();
