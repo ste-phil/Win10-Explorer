@@ -38,15 +38,12 @@
                             QuerySubmitted="TextBoxPath_QuerySubmitted"
                             UpdateTextOnSelect="False"
             >
-                <!--TextMemberPath="Path"-->
                 <AutoSuggestBox.TextBoxStyle>
                     <Style TargetType="TextBox">
                         <Setter Property="FontSize" Value="30"></Setter>
                     </Style>
                 </AutoSuggestBox.TextBoxStyle>
             </AutoSuggestBox>
-            <!--QuerySubmitted="{x:Bind ViewModel.Searched}"-->
-            <!--<TextBox Grid.Column="2" Name="TextBoxPath" FontSize="30px" Text="{x:Bind Mode=OneWay, Path=ViewModel.Path }" PreviewKeyDown="TextBoxPath_PreviewKeyDown"></TextBox>-->
             <Button Grid.Column="3" Background="Transparent">
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">
@@ -83,9 +80,10 @@
         
         <RefreshContainer Grid.Row="1">
             <local:StorageTableView
+                KeyDown="{x:Bind StorageTableView_KeyDown}"
                 ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
                 SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
-                DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}">
+                DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}" >
                 <local:StorageTableView.ItemFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">

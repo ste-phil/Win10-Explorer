@@ -62,5 +62,10 @@ namespace Explorer.Controls
             else
                 ViewModel.NavigateTo(new FileSystemElement { Path = args.QueryText });
         }
+
+        private void StorageTableView_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            ViewModel.KeyDown(e.Key);
+        }
     }
 }

@@ -65,8 +65,6 @@ namespace Explorer.Models
                 dataTransferManager.DataRequested += OnShareRequested;
             }
 
-            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
-
             NavigateTo(CurrentFolder);
         }
 
@@ -420,9 +418,9 @@ namespace Explorer.Models
             }
         }
 
-        private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        public async void KeyDown(VirtualKey key)
         {
-            switch (args.VirtualKey)
+            switch (key)
             {
                 case VirtualKey.Left:
                     NavigateBack.ExecuteWhen();
