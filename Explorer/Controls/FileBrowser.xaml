@@ -51,6 +51,9 @@
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">
                         <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="F5"></KeyboardAccelerator>
+                            </MenuFlyoutItem.KeyboardAccelerators>
                         </MenuFlyoutItem>
                         <MenuFlyoutItem Text="Open in Powershell" Click="OpenPowershell_Clicked">
                             <MenuFlyoutItem.Icon>
@@ -85,16 +88,41 @@
                 DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}">
                 <local:StorageTableView.ItemFlyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Enter"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
                         <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="F2"/>
+                                <KeyboardAccelerator Modifiers="Control" Key="R"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Delete"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="X"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="V"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
@@ -109,12 +137,33 @@
                     <MenuFlyout>
                         <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="F2"/>
+                                <KeyboardAccelerator Modifiers="Control" Key="R"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Delete"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="X"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="V"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                             <MenuFlyoutItem.Icon>
@@ -125,7 +174,11 @@
                 </local:StorageTableView.MultipleItemFlyout>
                 <local:StorageTableView.BackgroundFlyout>
                     <MenuFlyout ShowMode="Standard">
-                        <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="F5"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
                         <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
                         <MenuFlyoutSeparator/>
                         <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">

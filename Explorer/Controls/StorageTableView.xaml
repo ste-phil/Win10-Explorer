@@ -20,6 +20,14 @@
                 <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
                 <Setter Property="Background" Value="Transparent"></Setter>
             </Style>
+            <Style x:Key="RowDefaultFocusedStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
+                <Setter Property="BorderBrush" Value="White"></Setter>
+                <Setter Property="BorderThickness" Value="2"></Setter>
+            </Style>
+            <Style x:Key="RowSelectedFocusedStyle" TargetType="Border" BasedOn="{StaticResource RowSelectedStyle}">
+                <Setter Property="BorderBrush" Value="White"></Setter>
+                <Setter Property="BorderThickness" Value="2"></Setter>
+            </Style>
             <Style TargetType="ItemsControl">
                 <Setter Property="ItemContainerTransitions">
                     <Setter.Value>
@@ -39,7 +47,7 @@
             </Style>
         </ResourceDictionary>
     </Page.Resources>
-    <Grid>
+    <Grid Padding="5">
         <Grid Name="HeaderGrid" Padding="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="HeaderColumnIcon" ></ColumnDefinition>
@@ -125,8 +133,8 @@
 
             <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
         </Grid>
-        <ScrollViewer Margin="0,40,0,0">
-            <Grid Name="ContentGrid" Padding="10">
+        <ScrollViewer Margin="0,50,0,0" >
+            <Grid Name="ContentGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
                     <ColumnDefinition Width="*"    MinWidth="100"></ColumnDefinition>
@@ -139,27 +147,17 @@
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Style="{StaticResource RowDefaultStyle}" Height="30"
-                                    Tag="{x:Bind}" Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped"
-                                    ></Border>
+                            <Border Style="{StaticResource RowDefaultStyle}" Height="30" AllowFocusOnInteraction="True"
+                                    Tag="{x:Bind}" Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped">
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <SymbolIcon Symbol="{x:Bind Icon, Mode=OneWay}" Height="30"></SymbolIcon>
@@ -168,12 +166,7 @@
                 </ItemsControl>
 
 
-                <ItemsControl x:Name="ColumnName" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsHitTestVisible="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ColumnName" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <Border Height="30" Padding="5,0,5,0">
@@ -183,12 +176,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <ItemsControl x:Name="ColumnDateModified" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="2" Grid.Row="0" IsHitTestVisible="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ColumnDateModified" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="2" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <Border Height="30" Padding="5,0,5,0">
@@ -198,12 +186,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <ItemsControl x:Name="ColumnSize" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="3" Grid.Row="0" IsHitTestVisible="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ColumnSize" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="3" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <Border Height="30" Padding="5,0,5,0">
@@ -213,12 +196,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <ItemsControl x:Name="ColumnType" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="4" Grid.Row="0" IsHitTestVisible="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel></ItemsStackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl x:Name="ColumnType" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="4" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <Border Height="30" Padding="5,0,5,0">

@@ -9,10 +9,8 @@ using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
 using FileAttributes = Windows.Storage.FileAttributes;
-using Explorer.Controls;
 using Newtonsoft.Json;
 using System.Linq;
-using System.Diagnostics;
 
 namespace Explorer.Models
 {
@@ -151,6 +149,7 @@ namespace Explorer.Models
             HistoryPosition++;
 
             LoadFolderAsync(fse);
+            SelectedItems.Clear();
         }
 
         /// <summary>
