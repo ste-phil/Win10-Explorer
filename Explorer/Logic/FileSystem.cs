@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Foundation;
 using Windows.Security.Cryptography;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -21,23 +22,8 @@ namespace Explorer.Logic
 {
     public class FileSystem
     {
-        //        List<string> fileTypeFilter = new List<string>();
-        //        fileTypeFilter.Add(".txt");
-        //fileTypeFilter.Add(".png");
-        //var options = new Windows.Storage.Search.QueryOptions(Windows.Storage.Search.CommonFileQuery.OrderByName, fileTypeFilter);
-        //        var query = ApplicationData.Current.LocalFolder.CreateFileQueryWithOptions(options);
-        //        //subscribe on query's ContentsChanged event
-        //        query.ContentsChanged += Query_ContentsChanged;
-        //var files = await query.GetFilesAsync();
-
-        //        private void Query_ContentsChanged(Windows.Storage.Search.IStorageQueryResultBase sender, object args)
-        //        {
-        //            //TODO:
-        //        }
-
-
         public static StorageFolder AppDataFolder = ApplicationData.Current.LocalFolder;
-
+        
         public static async Task<StorageFile> CreateOrOpenFileAsync(StorageFolder folder, string name, CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
         {
             return await folder.CreateFileAsync(name, option);
@@ -104,6 +90,7 @@ namespace Explorer.Logic
             return Directory.Exists(path);
         }
 
+        #region File CRUD ops
         public static async Task<bool> StorageItemExists(StorageFolder folder, string name)
         {
             return (await folder.TryGetItemAsync(name)) != null;
@@ -121,21 +108,18 @@ namespace Explorer.Logic
             await Launcher.LaunchFileAsync(file, new LauncherOptions{DisplayApplicationPicker = true});
         }
 
-        public static async void DeleteStorageItemAsync(FileSystemElement fse)
+        public static async Task DeleteStorageItemAsync(FileSystemElement fse)
         {
             var storageItem = await GetStorageItemAsync(fse);
             await storageItem.DeleteAsync();
         }
 
-        public static async void DeleteStorageItemsAsync(Collection<FileSystemElement> fses)
+        public static async Task DeleteStorageItemsAsync(Collection<FileSystemElement> fses)
         {
-            await Task.Run(() =>
+            for (int i = 0; i < fses.Count; i++)
             {
-                for (int i = 0; i < fses.Count; i++)
-                {
-                    DeleteStorageItemAsync(fses[i]);
-                }
-            });
+                await DeleteStorageItemAsync(fses[i]);
+            }
         }
 
         public static async Task DeleteFolderAsync(string path)
@@ -155,6 +139,21 @@ namespace Explorer.Logic
             if (folder) await DeleteFolderAsync(path);
             else await DeleteFileAsync(path);
         }
+
+        public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
+        {
+            var file = await GetStorageItemAsync(fse);
+            await file.RenameAsync(newName);
+        }
+        #endregion
+
+        public static async Task<BasicProperties> GetPropertiesOfFile(string path)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            return await file.GetBasicPropertiesAsync();
+        }
+
+        #region Copy/Move
 
         public static async Task MoveStorageItemsAsync(FileSystemElement folder, List<IStorageItem> storageItems)
         {
@@ -201,7 +200,7 @@ namespace Explorer.Logic
             if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
             {
                 var storageFolder = (StorageFolder)storageItem;
-                var queryResult = GetQueryResult(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
+                var queryResult = GetFolderQuery(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
                 //Rename folder if item exists
                 var name = storageFolder.Name;
@@ -238,7 +237,7 @@ namespace Explorer.Logic
             if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
             {
                 var storageFolder = (StorageFolder)storageItem;
-                var queryResult = GetQueryResult(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
+                var queryResult = GetFolderQuery(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
                 //Rename folder if item exists
                 var name = storageFolder.Name;
@@ -269,46 +268,26 @@ namespace Explorer.Logic
             }
         }
 
-        private static StorageItemQueryResult GetQueryResult(StorageFolder folder, FolderDepth depth, IndexerOption indexer)
-        {
-            QueryOptions query = new QueryOptions(CommonFileQuery.DefaultQuery, new List<string>())
-            {
-                FolderDepth = depth,
-                //ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",  // Filter out all files that have WIP enabled
-                IndexerOption = indexer
-            };
+        #endregion
 
-            return folder.CreateItemQueryWithOptions(query);
-        }
+        #region Get Files/Folders Actions
 
-        public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
-        {
-            var file = await GetStorageItemAsync(fse);
-            await file.RenameAsync(newName);
-        }
-
-        public static async Task<BasicProperties> GetPropertiesOfFile(string path)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            return await file.GetBasicPropertiesAsync();
-        }
-
-        public static async Task<IStorageFile> GetFileAsync(FileSystemElement fse)
+        public static async Task<StorageFile> GetFileAsync(FileSystemElement fse)
         {
             return await StorageFile.GetFileFromPathAsync(fse.Path);
         }
 
-        public static async Task<IStorageFile> GetFileAsync(string path)
+        public static async Task<StorageFile> GetFileAsync(string path)
         {
             return await StorageFile.GetFileFromPathAsync(path);
         }
 
-        public static async Task<IStorageFolder> GetFolderAsync(FileSystemElement fse)
+        public static async Task<StorageFolder> GetFolderAsync(FileSystemElement fse)
         {
             return await StorageFolder.GetFolderFromPathAsync(fse.Path);
         }
 
-        public static async Task<IStorageFolder> GetFolderAsync(string path)
+        public static async Task<StorageFolder> GetFolderAsync(string path)
         {
             return await StorageFolder.GetFolderFromPathAsync(path);
         }
@@ -331,11 +310,77 @@ namespace Explorer.Logic
             return sis;
         }
 
+        #endregion
+
+        public static async Task<StorageItemQueryResult> GetItemsQuery(string folder, FolderDepth depth, IndexerOption indexer)
+        {
+            return (await GetFolderAsync(folder)).CreateItemQuery();
+        }
+
+        public static StorageItemQueryResult GetFolderQuery(StorageFolder folder, FolderDepth depth, IndexerOption indexer)
+        {
+            QueryOptions query = new QueryOptions(CommonFileQuery.DefaultQuery, new List<string>())
+            {
+                FolderDepth = depth,
+                //ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",  // Filter out all files that have WIP enabled
+                IndexerOption = indexer
+            };
+
+            return folder.CreateItemQueryWithOptions(query);
+        }
+        public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(StorageItemQueryResult query)
+        {
+            var itemsList = await query.GetItemsAsync();
+            var resultList = new List<FileSystemElement>(itemsList.Count);
+            foreach (var element in itemsList)
+            {
+                var props = await element.GetBasicPropertiesAsync();
+
+                resultList.Add(new FileSystemElement
+                {
+                    Name = element.Name,
+                    Size = props.Size,
+                    Type = element.Attributes,
+                    DateModified = props.DateModified,
+                    Path = element.Path,
+                });
+            }
+
+            return resultList;
+        }
+
         public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path)
         {
             var folder = await StorageFolder.GetFolderFromPathAsync(path);
 
             var itemsList = await folder.GetItemsAsync();
+            var resultList = new List<FileSystemElement>(itemsList.Count);
+            foreach (var element in itemsList)
+            {
+                var props = await element.GetBasicPropertiesAsync();
+
+                resultList.Add(new FileSystemElement
+                {
+                    Name = element.Name,
+                    Size = props.Size,
+                    Type = element.Attributes,
+                    DateModified = props.DateModified,
+                    Path = element.Path,
+                });
+            }
+
+            return resultList;
+        }
+
+        public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path, TypedEventHandler<IStorageQueryResultBase, object> changedCallback)
+        {
+            var folder = await StorageFolder.GetFolderFromPathAsync(path);
+            var query = GetFolderQuery(folder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
+            
+            //subscribe on query's ContentsChanged event
+            query.ContentsChanged += changedCallback;
+
+            var itemsList = await query.GetItemsAsync();
             var resultList = new List<FileSystemElement>(itemsList.Count);
             foreach (var element in itemsList)
             {

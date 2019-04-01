@@ -133,6 +133,7 @@
     <Compile Include="Helper\EnvironmentPaths.cs" />
     <Compile Include="Helper\Extensions.cs" />
     <Compile Include="Helper\ObservableRangeCollection.cs" />
+    <Compile Include="Logic\FileSystemService.cs" />
     <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystem.cs" />

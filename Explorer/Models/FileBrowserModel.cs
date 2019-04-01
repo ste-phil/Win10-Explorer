@@ -14,6 +14,8 @@ using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Core;
 using Windows.System;
+using System.Diagnostics;
+using Windows.Storage.Search;
 
 namespace Explorer.Models
 {
@@ -26,6 +28,9 @@ namespace Explorer.Models
         //Used for windows share
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
+
+        private CoreDispatcher dispatcher;
+        private FileSystemService fss;
 
         private string path;
         private bool pathIncreased;
@@ -46,7 +51,7 @@ namespace Explorer.Models
 
         public FileBrowserModel()
         {
-            FileSystemElements = new ObservableCollection<FileSystemElement>();
+            //FileSystemElements = new ObservableCollection<FileSystemElement>();
             CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
             SelectedItems = new ObservableCollection<FileSystemElement>();
 
@@ -55,6 +60,10 @@ namespace Explorer.Models
 
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
+
+            dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
+            fss = new FileSystemService();
+            FileSystemElements = fss.Items;
 
             PathSuggestions = new ObservableCollection<FileSystemElement>();
 
@@ -189,6 +198,12 @@ namespace Explorer.Models
             FileSystem.LaunchExeAsync(path, arguments);
         }
 
+        private async void Query_ContentsChanged(IStorageQueryResultBase sender, object args)
+        {
+            await dispatcher.TryRunAsync(CoreDispatcherPriority.Normal, () => LoadFolderAsync(CurrentFolder));
+        }
+
+
         /// <summary>
         /// Loads the folder's contents
         /// </summary>
@@ -196,17 +211,17 @@ namespace Explorer.Models
         {
             try
             {
-                var files = await Task.Run(() => FileSystem.GetFolderContentSimple(fse.Path));
+                await fss.LoadFolderAsync(fse.Path);
+
                 if (Path != fse.Path) return;
 
-                FileSystemElements.Clear();
-                foreach (var file in files)
-                {
-                    FileSystemElements.Add(file);
-                }
+                //FileSystemElements.Clear();
+                //foreach (var file in files)
+                //{
+                //    FileSystemElements.Add(file);
+                //}
 
                 CurrentFolder = fse;
-
             }
             catch (Exception)
             {
@@ -304,9 +319,8 @@ namespace Explorer.Models
         {
             try
             {
-                FileSystem.DeleteStorageItemsAsync(SelectedItems);
+                _ = FileSystem.DeleteStorageItemsAsync(SelectedItems);
                 FileSystemElements.RemoveRange(SelectedItems);
-                SelectedItems.Clear();
             } catch(Exception) { /*e.g. UnauthorizedAccessException*/}
         }
 
@@ -352,10 +366,6 @@ namespace Explorer.Models
                     data.ReportOperationCompleted(DataPackageOperation.Move);
                 }
             }
-
-            //var src = await FileSystem.GetFolderAsync(@"C:\Users\phste\Downloads\CopyTest");
-            //var dest = await FileSystem.GetFolderAsync(@"C:\Users\phste\Downloads\CopyTestResult");
-            //FileSystem.CopyStorageItemsAsync(new FileSystemElement { Path = @"C:\Users\phste\Downloads\CopyTestResult" }, new Collection<IStorageItem> { src });
         }
 
         /// <summary>
@@ -380,15 +390,6 @@ namespace Explorer.Models
         public void Refresh()
         {
             LoadFolderAsync(CurrentFolder);
-        }
-
-        /// <summary>
-        /// Event called in UI that navigates to the passed FileSystemElement
-        /// </summary>
-        public void NavigateNextFSE(object sender, FileSystemElement fileSystemElement)
-        {
-            //if (fileSystemElement.IsFolder) NavigateTo(fileSystemElement);
-            //else FileSystem.OpenFileWithDefaultApp(SelectedItems.Path);
         }
 
         public async void UpdatePathSuggestions()
@@ -436,6 +437,22 @@ namespace Explorer.Models
                     break;
                 case VirtualKey.F2:
                     await RenameStorageItemSelectedAsync();
+                    break;
+            }
+
+            var ctrlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+            if (!ctrlDown) return;
+
+            switch (key)
+            {
+                case VirtualKey.C:
+                    CopyStorageItemSelected();
+                    break;
+                case VirtualKey.X:
+                    CutStorageItemSelected();
+                    break;
+                case VirtualKey.V:
+                    PasteStorageItemSelected();
                     break;
             }
         }

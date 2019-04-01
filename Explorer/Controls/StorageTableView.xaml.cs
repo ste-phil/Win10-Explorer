@@ -99,6 +99,14 @@ namespace Explorer.Controls
         {
             for (int i = 0; i < ContentGrid.ColumnDefinitions.Count; i++)
             {
+                //Shrinken down name column by the size of the NavigatioViewPanel
+                if (i == 1)
+                {
+                    HeaderGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth - 200);
+                    ContentGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth - 200);
+                    continue;
+                }
+
                 HeaderGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth);
                 ContentGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth);
             }
