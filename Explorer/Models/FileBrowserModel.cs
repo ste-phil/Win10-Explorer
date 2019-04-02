@@ -281,7 +281,7 @@ namespace Explorer.Models
         /// <summary>
         /// Renames the currently selected file system element
         /// </summary>
-        public async Task RenameStorageItemSelectedAsync()
+        public async void RenameStorageItemSelectedAsync()
         {
             if (SelectedItems.Count == 0) return;
 
@@ -419,7 +419,7 @@ namespace Explorer.Models
             }
         }
 
-        public async void KeyDown(VirtualKey key)
+        public void KeyDown(VirtualKey key)
         {
             switch (key)
             {
@@ -436,7 +436,10 @@ namespace Explorer.Models
                     Refresh();
                     break;
                 case VirtualKey.F2:
-                    await RenameStorageItemSelectedAsync();
+                    RenameStorageItemSelectedAsync();
+                    break;
+                case VirtualKey.Delete:
+                    DeleteStorageItemSelected();
                     break;
             }
 

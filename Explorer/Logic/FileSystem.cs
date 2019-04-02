@@ -202,11 +202,11 @@ namespace Explorer.Logic
                 var storageFolder = (StorageFolder)storageItem;
                 var queryResult = GetFolderQuery(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
-                //Rename folder if item exists
-                var name = storageFolder.Name;
+                //Rename storage item if item exists
+                var name = storageItem.Name;
                 while (isRoot && await StorageItemExists(target, name))
                     name += " Copy";
-                
+
                 //Create folder
                 var copiedFolder = await target.CreateFolderAsync(name);
 
@@ -228,7 +228,7 @@ namespace Explorer.Logic
             else
             {
                 var file = (StorageFile)storageItem;
-                await file.CopyAsync(target);
+                await file.CopyAsync(target, file.Name, NameCollisionOption.GenerateUniqueName);
             }
         }
 

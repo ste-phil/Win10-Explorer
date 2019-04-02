@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Search;
+using Windows.UI.Core;
 
 namespace Explorer.Logic
 {
@@ -25,6 +26,8 @@ namespace Explorer.Logic
         private Task[] queryTasks;
         private Stopwatch s = new Stopwatch();
         private CancellationTokenSource cts;
+
+        private bool refreshRunning;
 
         public ObservableCollection<FileSystemElement> Items;
 
@@ -69,10 +72,79 @@ namespace Explorer.Logic
             itemQuery = folder.CreateItemQuery();
 
             AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
+            itemQuery.ContentsChanged += ItemQuery_ContentsChanged;
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
         }
+
+        private async void ItemQuery_ContentsChanged(IStorageQueryResultBase sender, object args)
+        {
+            if (refreshRunning) return;
+            refreshRunning = true;
+
+            itemQuery.ApplyNewQueryOptions(new QueryOptions());
+            var items = await itemQuery.GetItemsAsync();
+
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                AddDifference(items, cts.Token);
+            });
+
+            refreshRunning = false;
+        }
+
+        private async void AddDifference(IReadOnlyList<IStorageItem> newList, CancellationToken cancellationToken)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < newList.Count; j++)
+                {
+                    if (Items[i].Name == newList[j].Name)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    if (cancellationToken.IsCancellationRequested) return;
+                    Items.Remove(Items[i]);
+                }
+            }
+
+            for (int i = 0; i < newList.Count; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < Items.Count; j++)
+                {
+                    if (Items[j].Name == newList[i].Name)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    if (cancellationToken.IsCancellationRequested) return;
+
+                    var element = newList[i];
+                    var props = await element.GetBasicPropertiesAsync();
+                    Items.Add(new FileSystemElement
+                    {
+                        Name = element.Name,
+                        Size = props.Size,
+                        Type = element.Attributes,
+                        DateModified = props.DateModified,
+                        Path = element.Path,
+                    });
+                }
+            }
+
+        } 
 
         private async void AddStorageItems(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
         {
