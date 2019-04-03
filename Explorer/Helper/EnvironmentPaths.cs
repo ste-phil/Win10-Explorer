@@ -15,5 +15,6 @@ namespace Explorer.Helper
         public static string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         public static string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
         public static string VideosPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+        public static string RecyclePath = @"C:\$Recycle.Bin";
     }
 }

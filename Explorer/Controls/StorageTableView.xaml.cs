@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Input;
 using Windows.Foundation;
+using Windows.Storage.BulkAccess;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -401,6 +402,7 @@ namespace Explorer.Controls
                 else focusedRow.Style = (Style)Resources["RowDefaultStyle"];
             }
 
+            //Scroll to focused item when the user navigates through files with the keyboard
             if (usedKeyboard)
             {
                 var index = ItemsSource.IndexOf(fse);

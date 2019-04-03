@@ -15,6 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
@@ -188,6 +189,26 @@
                 </local:StorageTableView.BackgroundFlyout>
             </local:StorageTableView>
         </RefreshContainer>
-        
+
+        <Grid Grid.Row="2" Background="#FF1F1F1F" Padding="10,0,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                <Run Text="Selected Items:"></Run>
+                <Run Text="{x:Bind ViewModel.SelectedItems.Count}"></Run>
+                <Run Text="of"></Run>
+                <Run Text="{x:Bind ViewModel.FileSystemElements.Count}"></Run>
+            </TextBlock>
+
+            <Button Grid.Column="2" ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
+                <Viewbox Height="18px">
+                    <FontIcon Glyph="&#xF0E2;"></FontIcon>
+                </Viewbox>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>
