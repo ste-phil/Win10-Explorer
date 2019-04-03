@@ -17,8 +17,6 @@ namespace Explorer.Logic
 {
     public class FileSystemService
     {
-        public event EventHandler FolderContentChangedEvent;
-
         private string currentPath;
 
         private StorageItemQueryResult itemQuery;
@@ -52,7 +50,7 @@ namespace Explorer.Logic
 
         private async Task ReloadFolderAsync(CancellationToken cancellationToken)
         {
-            AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
+            await AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
@@ -75,9 +73,21 @@ namespace Explorer.Logic
             {
                 queryOptions.IndexerOption = IndexerOption.UseIndexerWhenAvailable;
             }
+            //queryOptions.SortOrder.Add(new SortEntry
+            //{
+            //    PropertyName = "System.ContentType",
+            //    AscendingOrder = true
+            //});
+            //queryOptions.SortOrder.Add(new SortEntry
+            //{
+            //    PropertyName = "System.ItemNameDisplay",
+            //    AscendingOrder = true
+            //});
+
+
             itemQuery = folder.CreateItemQueryWithOptions(queryOptions);
 
-            AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
+            await AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
             itemQuery.ContentsChanged += ItemQuery_ContentsChanged;
 
             s.Stop();
@@ -143,7 +153,7 @@ namespace Explorer.Logic
 
         } 
 
-        private void AddStorageItems(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
+        private async Task AddStorageItems(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
         {
             Items.Clear();
             for (int i = 0; i < items.Count; i++)
@@ -151,14 +161,14 @@ namespace Explorer.Logic
                 if (cancellationToken.IsCancellationRequested)
                 {
                     Items.Clear();
-                    return;
+                    break;
                 }
 
-                AddStorageItem(items[i]);
+                await AddStorageItem(items[i]);
             }
         }
 
-        private async void AddStorageItem(IStorageItem item)
+        private async Task AddStorageItem(IStorageItem item)
         {
             if (item is StorageFile file) await AddFileAsync(file);
             else if (item is StorageFolder folder) await AddFolderAsync(folder);
