@@ -2,7 +2,8 @@
 Welcome to the new Windows 10 File Explorer made to replace the outdated current one.
 It uses the new Fluent Design from Microsoft to integrate seamlessly into the new Windows 10 experience.
 
-![File Explorer](https://i.gyazo.com/516e1ace9b6786ac3fe5c48a9e3f403c.png)
+![File Explorer](https://i.gyazo.com/8eb622cc59bb30de41fd5656650cdd91.gif)
+![File Explorer](https://i.gyazo.com/56c23c2661a181314e7ea7e320f2dd54.png)
 
 
 ## Usage:
