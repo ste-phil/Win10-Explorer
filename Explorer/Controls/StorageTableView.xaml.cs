@@ -376,8 +376,14 @@ namespace Explorer.Controls
         {
             for (int i = 0; i < selectedElements.Count; i++)
             {
-                var fse = SelectedItems[i];
                 var hitbox = selectedElements[i];
+                if (i >= SelectedItems.Count)        //Could be that the selectedItem doesnt exist anymore but rows still need to be recolored
+                {
+                    hitbox.Style = (Style)Resources["RowDefaultStyle"];
+                    continue;
+                }
+
+                var fse = SelectedItems[i];
 
                 StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
             }

@@ -174,7 +174,11 @@ namespace Explorer.Models
             if (fse == null) return;
 
             if (fse.IsFolder) NavigateTo(fse);
-            else FileSystem.OpenFileWithDefaultApp(fse.Path);
+            else
+            {
+                if (fse.Type == ".exe") FileSystem.LaunchExeAsync(fse.Path, "");
+                else FileSystem.OpenFileWithDefaultApp(fse.Path);
+            }
         }
 
         /// <summary>

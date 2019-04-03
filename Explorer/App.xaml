@@ -12,18 +12,210 @@
             <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
                   BackgroundSource="HostBackdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
             <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
+
+            <!--Style for Button-->
+            <Style TargetType="Button" x:Key="MyButtonRevealStyle">
+                <Setter Property="Background" Value="{ThemeResource ButtonRevealBackground}" />
+                <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ButtonRevealBorderBrush}" />
+                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="Padding" Value="8,4,8,4" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+                <Setter Property="UseSystemFocusVisuals" Value="True" />
+                <Setter Property="FocusVisualMargin" Value="-3" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+
+                                            <Storyboard>
+                                                <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="PointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootGrid.(RevealBrush.State)" Value="PointerOver" />
+                                                <Setter Target="RootGrid.Background" Value="{ThemeResource ButtonRevealBackgroundPointerOver}" />
+                                                <Setter Target="ContentPresenter.BorderBrush" Value="Transparent"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundPointerOver}" />
+                                            </VisualState.Setters>
+
+                                            <Storyboard>
+                                                <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootGrid.(RevealBrush.State)" Value="Pressed" />
+                                                <Setter Target="RootGrid.Background" Value="{ThemeResource ButtonRevealBackgroundPressed}" />
+                                                <Setter Target="ContentPresenter.BorderBrush" Value="{ThemeResource ButtonRevealBackgroundPressed}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
+                                            </VisualState.Setters>
+
+                                            <Storyboard>
+                                                <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Disabled">
+                                            <VisualState.Setters>
+                                                <Setter Target="RootGrid.Background" Value="Transparent" />
+                                                <Setter Target="ContentPresenter.BorderBrush" Value="Transparent" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundDisabled}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+
+                                </VisualStateManager.VisualStateGroups>
+                                <ContentPresenter x:Name="ContentPresenter"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Content="{TemplateBinding Content}"
+                    ContentTransitions="{TemplateBinding ContentTransitions}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    Padding="{TemplateBinding Padding}"
+                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                    AutomationProperties.AccessibilityView="Raw" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Style for AutoSuggestBox -->
+            <Style TargetType="AutoSuggestBox">
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="TextBoxStyle" Value="{StaticResource AutoSuggestBoxTextBoxStyle}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="AutoSuggestBox">
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="Orientation">
+                                        <VisualState x:Name="Landscape"/>
+                                        <VisualState x:Name="Portrait"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <TextBox x:Name="TextBox"
+                    Style="{TemplateBinding TextBoxStyle}"
+                    PlaceholderText="{TemplateBinding PlaceholderText}"
+                    Header="{TemplateBinding Header}"
+                    Width="{TemplateBinding Width}"
+                    ScrollViewer.BringIntoViewOnFocusChange="False"
+                    Canvas.ZIndex="0"
+                    Margin="0"
+                    DesiredCandidateWindowAlignment="BottomEdge"/>
+                                <Popup x:Name="SuggestionsPopup">
+                                    <Border x:Name="SuggestionsContainer">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform x:Name="UpwardTransform"/>
+                                        </Border.RenderTransform>
+                                        <ListView
+                x:Name="SuggestionsList"
+                Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                BorderThickness="{ThemeResource AutoSuggestListBorderThemeThickness}"
+                BorderBrush="{ThemeResource SystemControlForegroundChromeHighBrush}"
+                DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                IsItemClickEnabled="True"
+                ItemTemplate="{TemplateBinding ItemTemplate}"
+                ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                MaxHeight="{ThemeResource AutoSuggestListMaxHeight}"
+                Margin="{ThemeResource AutoSuggestListMargin}"
+                Padding="{ThemeResource AutoSuggestListPadding}">
+                                            <ListView.ItemContainerTransitions>
+                                                <TransitionCollection />
+                                            </ListView.ItemContainerTransitions>
+                                        </ListView>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Style for Textbox inside AutoSuggestBox -->
+            <Style TargetType="AutoSuggestBox" x:Name="MyAutoSuggestBoxRevealStyle">
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="TextBoxStyle" Value="{StaticResource AutoSuggestBoxTextBoxStyle}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="AutoSuggestBox">
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="Orientation">
+                                        <VisualState x:Name="Landscape"/>
+                                        <VisualState x:Name="Portrait"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <TextBox x:Name="TextBox"
+                                        BorderThickness="0"
+                                        Background="Transparent"
+                                        Style="{TemplateBinding TextBoxStyle}"
+                                        PlaceholderText="{TemplateBinding PlaceholderText}"
+                                        Header="{TemplateBinding Header}"
+                                        Width="{TemplateBinding Width}"
+                                        ScrollViewer.BringIntoViewOnFocusChange="False"
+                                        Canvas.ZIndex="0"
+                                        Margin="0"
+                                        DesiredCandidateWindowAlignment="BottomEdge"/>      
+                                <Popup x:Name="SuggestionsPopup">
+                                    <Border x:Name="SuggestionsContainer">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform x:Name="UpwardTransform"/>
+                                        </Border.RenderTransform>
+                                        <ListView
+                                            x:Name="SuggestionsList"
+                                            Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                                            BorderThickness="{ThemeResource AutoSuggestListBorderThemeThickness}"
+                                            BorderBrush="{ThemeResource SystemControlForegroundChromeHighBrush}"
+                                            DisplayMemberPath="{TemplateBinding DisplayMemberPath}"
+                                            IsItemClickEnabled="True"
+                                            ItemTemplate="{TemplateBinding ItemTemplate}"
+                                            ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                            ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                            MaxHeight="{ThemeResource AutoSuggestListMaxHeight}"
+                                            Margin="{ThemeResource AutoSuggestListMargin}"
+                                            Padding="{ThemeResource AutoSuggestListPadding}">   
+                                            <ListView.ItemContainerTransitions>
+                                                <TransitionCollection />
+                                            </ListView.ItemContainerTransitions>
+                                        </ListView>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Default">
+                <ResourceDictionary x:Key="Dark">
                     <AcrylicBrush x:Key="AppBackgroundBrush"
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.8"
-                                  FallbackColor="#363636"/>
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="HighContrast">
-                    <SolidColorBrush x:Key="AppBackgroundBrush"
-                                     Color="{ThemeResource SystemColorWindowColor}"/>
+                                  FallbackColor="#191919"/>
+                    <AcrylicBrush x:Key="AppElementBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.5"
+                                  FallbackColor="#191919"/>
+                    <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Light">
@@ -32,6 +224,12 @@
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.8"
                                   FallbackColor="#EAEAEA"/>
+                    <AcrylicBrush x:Key="AppElementBackgroundBrush"
+                                  BackgroundSource="HostBackdrop"
+                                  TintColor="{ThemeResource SystemChromeMediumColor}"
+                                  TintOpacity="0.5"
+                                  FallbackColor="#191919"/>
+                    <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Light" Color="Transparent"></RevealBorderBrush>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -20,8 +22,8 @@ namespace Explorer.Logic
         private string currentPath;
 
         private StorageItemQueryResult itemQuery;
-        //private StorageFolderQueryResult folderQuery;
-        //private StorageFileQueryResult fileQuery;
+        private StorageFolderQueryResult folderQuery;
+        private StorageFileQueryResult fileQuery;
 
         private Stopwatch s = new Stopwatch();
         private CancellationTokenSource cts;
@@ -42,15 +44,20 @@ namespace Explorer.Logic
             cts?.Cancel();  //Cancel previously scheduled browse
             cts = new CancellationTokenSource();    //Create new cancel token for this request
 
-            if (currentPath == path) await ReloadFolderAsync(cts.Token);
+            if (currentPath == path) await ReloadFolderAsync(path, cts.Token);
             else await SwitchFolderAsync(path, cts.Token);
-
-            currentPath = path;
         }
 
-        private async Task ReloadFolderAsync(CancellationToken cancellationToken)
+        private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
-            await AddStorageItemsAsync(await itemQuery.GetItemsAsync(), cancellationToken);
+            currentPath = path;
+
+            var folders = await folderQuery.GetFoldersAsync();
+            var files = await fileQuery.GetFilesAsync();
+
+            Items.Clear();
+            await AddFoldersAsync(folders, cancellationToken);
+            await AddFilesAsync(files, cancellationToken);
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
@@ -58,13 +65,16 @@ namespace Explorer.Logic
 
         private async Task SwitchFolderAsync(string path, CancellationToken cancellationToken)
         {
+            currentPath = path;
+
             var folder = await FileSystem.GetFolderAsync(path);
             var indexedState = await folder.GetIndexedStateAsync();
 
-            var queryOptions = new QueryOptions();
-            queryOptions.SetThumbnailPrefetch(ThumbnailMode.ListView, 20, ThumbnailOptions.UseCurrentScale);
-            queryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties,
-                new string[] 
+            var fileQueryOptions = new QueryOptions();
+            var folderQueryOptions = new QueryOptions();
+
+            fileQueryOptions.SetThumbnailPrefetch(ThumbnailMode.ListView, 20, ThumbnailOptions.UseCurrentScale);
+            var props = new string[]
                 {
                     "System.DateModified",
                     "System.ContentType",
@@ -72,32 +82,33 @@ namespace Explorer.Logic
                     "System.FileExtension",
                     //"System.FolderNameDisplay",
                     //"System.ItemNameDisplay"
-                });
+                };
+
+            fileQueryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, props);
+            //folderQueryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, props);
 
             if (indexedState == IndexedState.FullyIndexed)
             {
-                queryOptions.IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties;
+                fileQueryOptions.IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties;
+                folderQueryOptions.IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties;
             }
             else
             {
-                queryOptions.IndexerOption = IndexerOption.UseIndexerWhenAvailable;
+                fileQueryOptions.IndexerOption = IndexerOption.UseIndexerWhenAvailable;
+                folderQueryOptions.IndexerOption = IndexerOption.UseIndexerWhenAvailable;
             }
-            //queryOptions.SortOrder.Add(new SortEntry
-            //{
-            //    PropertyName = "System.FolderNameDisplay",
-            //    AscendingOrder = true
-            //});
-            //queryOptions.SortOrder.Add(new SortEntry
-            //{
-            //    PropertyName = "System.ItemNameDisplay",
-            //    AscendingOrder = true
-            //});
 
+            folderQuery = folder.CreateFolderQueryWithOptions(folderQueryOptions);
+            fileQuery = folder.CreateFileQueryWithOptions(fileQueryOptions);
 
-            itemQuery = folder.CreateItemQueryWithOptions(queryOptions);
+            var folders = await folderQuery.GetFoldersAsync();
+            var files = await fileQuery.GetFilesAsync();
 
-            await AddStorageItemsAsync(await itemQuery.GetItemsAsync(), cancellationToken);
-            itemQuery.ContentsChanged += ItemQuery_ContentsChanged;
+            Items.Clear();
+            await AddFoldersAsync(folders, cancellationToken);
+            await AddFilesAsync(files, cancellationToken);
+
+            folderQuery.ContentsChanged += ItemQuery_ContentsChanged;
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
@@ -109,8 +120,9 @@ namespace Explorer.Logic
             refreshRunning = true;
 
             //itemQuery.ApplyNewQueryOptions(new QueryOptions());
-            var items = await itemQuery.GetItemsAsync();
+            var items = await fileQuery.GetFilesAsync();
 
+            Items.Clear();
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 AddDifference(items, cts.Token);
@@ -160,7 +172,35 @@ namespace Explorer.Logic
                 }
             }
 
-        } 
+        }
+
+        private async Task AddFoldersAsync(IReadOnlyList<StorageFolder> items, CancellationToken cancellationToken)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Items.Clear();
+                    break;
+                }
+
+                await AddFolderAsync(items[i]);
+            }
+        }
+
+        private async Task AddFilesAsync(IReadOnlyList<StorageFile> items, CancellationToken cancellationToken)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Items.Clear();
+                    break;
+                }
+
+                await AddFileAsync(items[i]);
+            }
+        }
 
         private async Task AddStorageItemsAsync(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
         {
@@ -182,6 +222,7 @@ namespace Explorer.Logic
             if (item is StorageFile file) await AddFileAsync(file);
             else if (item is StorageFolder folder) await AddFolderAsync(folder);
         }
+
 
         private async Task AddFileAsync(StorageFile item)
         {
@@ -209,12 +250,6 @@ namespace Explorer.Logic
         private async Task AddFolderAsync(StorageFolder item)
         {
             var basicProps = await item.GetBasicPropertiesAsync();
-            var image = new BitmapImage();
-            var ti = await item.GetThumbnailAsync(ThumbnailMode.ListView, 30, ThumbnailOptions.ResizeThumbnail);
-            if (ti != null)
-            {
-                await image.SetSourceAsync(ti.CloneStream());
-            }
 
             Items.Add(new FileSystemElement
             {
@@ -223,8 +258,7 @@ namespace Explorer.Logic
                 Size = basicProps.Size,
                 DisplayType = "Folder",
                 DateModified = basicProps.DateModified,
-                Path = item.Path,
-                Image = image
+                Path = item.Path
             });
         }
 

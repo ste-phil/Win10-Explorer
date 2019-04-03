@@ -47,7 +47,7 @@
                 <StackPanel  Orientation="Horizontal" Margin="-5,0,0,0">
                     <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
                     <FontIcon Glyph="&#xED67;" Margin="-10,10,0,0" FontSize="13"></FontIcon>
-                    <TextBlock Text="{x:Bind DriveLetter}" Foreground="Black" Margin="-10,12,0,0" FontSize="10"></TextBlock>
+                    <TextBlock Text="{x:Bind DriveLetter}" Foreground="{ThemeResource SystemAltHighColor}" Margin="-10,12,0,0" FontSize="10"></TextBlock>
                     <StackPanel Orientation="Vertical" Margin="10,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="10">

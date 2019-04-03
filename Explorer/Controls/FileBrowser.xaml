@@ -26,13 +26,14 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Command="{x:Bind Path=ViewModel.NavigateBack}" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
+            <Button Grid.Column="0" Command="{x:Bind Path=ViewModel.NavigateBack}" Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Back" Margin="10"></SymbolIcon>
             </Button>
-            <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
+            <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{StaticResource MyButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <AutoSuggestBox Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" IsFocusEngaged="{x:Bind ViewModel.TextBoxPathIsFocused, Mode=TwoWay}"
+            <AutoSuggestBox Style="{StaticResource MyAutoSuggestBoxRevealStyle}"
+                            Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" IsFocusEngaged="{x:Bind ViewModel.TextBoxPathIsFocused, Mode=TwoWay}"
                             Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
                             ItemsSource="{x:Bind ViewModel.PathSuggestions}"
                             TextMemberPath="Path" DisplayMemberPath="Name"
@@ -190,7 +191,7 @@
             </local:StorageTableView>
         </RefreshContainer>
 
-        <Grid Grid.Row="2" Background="#FF1F1F1F" Padding="10,0,10,0">
+        <Grid Grid.Row="2" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -199,9 +200,9 @@
 
             <TextBlock Grid.Column="0" VerticalAlignment="Center">
                 <Run Text="Selected Items:"></Run>
-                <Run Text="{x:Bind ViewModel.SelectedItems.Count}"></Run>
+                <Run Text="{x:Bind ViewModel.SelectedItems.Count, Mode=OneWay}"></Run>
                 <Run Text="of"></Run>
-                <Run Text="{x:Bind ViewModel.FileSystemElements.Count}"></Run>
+                <Run Text="{x:Bind ViewModel.FileSystemElements.Count, Mode=OneWay}"></Run>
             </TextBlock>
 
             <Button Grid.Column="2" ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
