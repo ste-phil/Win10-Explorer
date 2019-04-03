@@ -133,7 +133,7 @@
 
             <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
         </Grid>
-        <ScrollViewer Margin="0,50,0,0" HorizontalScrollBarVisibility="Auto">
+        <ScrollViewer Name="ScrollViewer" Margin="0,50,0,0" HorizontalScrollBarVisibility="Auto">
             <Grid Name="ContentGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
@@ -156,14 +156,6 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-
-                <!--<ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <SymbolIcon Symbol="{x:Bind Icon, Mode=OneWay}" Height="30"></SymbolIcon>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>-->
 
                 <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>

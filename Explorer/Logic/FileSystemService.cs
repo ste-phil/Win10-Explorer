@@ -50,7 +50,7 @@ namespace Explorer.Logic
 
         private async Task ReloadFolderAsync(CancellationToken cancellationToken)
         {
-            await AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
+            await AddStorageItemsAsync(await itemQuery.GetItemsAsync(), cancellationToken);
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
@@ -64,7 +64,16 @@ namespace Explorer.Logic
             var queryOptions = new QueryOptions();
             queryOptions.SetThumbnailPrefetch(ThumbnailMode.ListView, 20, ThumbnailOptions.UseCurrentScale);
             queryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties,
-                new string[] { "System.DateModified", "System.ContentType", "System.Size", "System.FileExtension" });
+                new string[] 
+                {
+                    "System.DateModified",
+                    "System.ContentType",
+                    "System.Size",
+                    "System.FileExtension",
+                    //"System.FolderNameDisplay",
+                    //"System.ItemNameDisplay"
+                });
+
             if (indexedState == IndexedState.FullyIndexed)
             {
                 queryOptions.IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties;
@@ -75,7 +84,7 @@ namespace Explorer.Logic
             }
             //queryOptions.SortOrder.Add(new SortEntry
             //{
-            //    PropertyName = "System.ContentType",
+            //    PropertyName = "System.FolderNameDisplay",
             //    AscendingOrder = true
             //});
             //queryOptions.SortOrder.Add(new SortEntry
@@ -87,7 +96,7 @@ namespace Explorer.Logic
 
             itemQuery = folder.CreateItemQueryWithOptions(queryOptions);
 
-            await AddStorageItems(await itemQuery.GetItemsAsync(), cancellationToken);
+            await AddStorageItemsAsync(await itemQuery.GetItemsAsync(), cancellationToken);
             itemQuery.ContentsChanged += ItemQuery_ContentsChanged;
 
             s.Stop();
@@ -147,13 +156,13 @@ namespace Explorer.Logic
                 {
                     if (cancellationToken.IsCancellationRequested) return;
 
-                    AddStorageItem(newList[i]);
+                    AddStorageItemAsync(newList[i]);
                 }
             }
 
         } 
 
-        private async Task AddStorageItems(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
+        private async Task AddStorageItemsAsync(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
         {
             Items.Clear();
             for (int i = 0; i < items.Count; i++)
@@ -164,11 +173,11 @@ namespace Explorer.Logic
                     break;
                 }
 
-                await AddStorageItem(items[i]);
+                await AddStorageItemAsync(items[i]);
             }
         }
 
-        private async Task AddStorageItem(IStorageItem item)
+        private async Task AddStorageItemAsync(IStorageItem item)
         {
             if (item is StorageFile file) await AddFileAsync(file);
             else if (item is StorageFolder folder) await AddFolderAsync(folder);

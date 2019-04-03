@@ -116,7 +116,7 @@ namespace Explorer.Models
                 }
 
                 //Redirect to first drive (mainly windows) when current drive is not available anymore
-                if (!Directory.Exists(CurrentFileBrowser.Path))
+                if (CurrentFileBrowser != null && !FileSystem.DirectoryExists(CurrentFileBrowser.Path))
                 {
                     var drive = drives[0];
 

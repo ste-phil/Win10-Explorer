@@ -218,7 +218,7 @@ namespace Explorer.Controls
                             SelectRow(ItemsSource[lastFocusedIndex]);
                     }
 
-                    FocusRow(ItemsSource[index]);
+                    FocusRow(ItemsSource[index], true);
 
                     args.Handled = true;                                    //Set event as handled (Prevents ScrollViewer from scrolling down/up)
                     break;
@@ -391,7 +391,7 @@ namespace Explorer.Controls
             else hitbox.Style = (Style)Resources[style + "Style"];
         }
 
-        private void FocusRow(FileSystemElement fse)
+        private void FocusRow(FileSystemElement fse, bool usedKeyboard = false)
         {
             //Remove focus highlight from old row
             //If there has already been a focused element
@@ -399,6 +399,12 @@ namespace Explorer.Controls
             {
                 if (SelectedItems.Contains(FocusedItem)) focusedRow.Style = (Style)Resources["RowSelectedStyle"];
                 else focusedRow.Style = (Style)Resources["RowDefaultStyle"];
+            }
+
+            if (usedKeyboard)
+            {
+                var index = ItemsSource.IndexOf(fse);
+                ScrollViewer.ChangeView(null, 30 * index, null);
             }
 
             //Fetch row (border) from hitboxes (see xaml)
