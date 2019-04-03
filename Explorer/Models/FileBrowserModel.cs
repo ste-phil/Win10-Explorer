@@ -260,7 +260,7 @@ namespace Explorer.Models
             if (SelectedItems.Count != 1) return;
 
             var selectedItem = SelectedItems[0];
-            if (!selectedItem.Type.HasFlag(FileAttributes.Directory)) FileSystem.OpenFileWith(selectedItem.Path);
+            if (!selectedItem.IsFolder) FileSystem.OpenFileWith(selectedItem.Path);
         }
 
         /// <summary>

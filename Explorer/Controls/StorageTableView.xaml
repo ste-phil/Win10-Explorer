@@ -157,14 +157,21 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                <!--<ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <SymbolIcon Symbol="{x:Bind Icon, Mode=OneWay}" Height="30"></SymbolIcon>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                </ItemsControl>-->
 
+                <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="entities:FileSystemElement">
+                            <Image Source="{x:Bind Image}" Height="20" Margin="0,5,0,5"></Image>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
                 <ItemsControl x:Name="ColumnName" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                     <ItemsControl.ItemTemplate>
@@ -200,7 +207,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
                             <Border Height="30" Padding="5,0,5,0">
-                                <TextBlock Text="{x:Bind Type, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="{x:Bind DisplayType, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

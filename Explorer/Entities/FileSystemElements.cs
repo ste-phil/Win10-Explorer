@@ -10,6 +10,7 @@ using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Explorer.Entities
 {
@@ -19,9 +20,17 @@ namespace Explorer.Entities
         private string path;
         private DateTimeOffset dateModified;
         private ulong size;
-        private Windows.Storage.FileAttributes type;
+        private string displayType;
+        private bool isFolder;
+        private BitmapImage image;
+        private string type;
 
-        public Windows.Storage.FileAttributes Type
+        public string DisplayType
+        {
+            get { return displayType; }
+            set { displayType = value; OnPropertyChanged(); }
+        }
+        public string Type
         {
             get { return type; }
             set { type = value; OnPropertyChanged(); }
@@ -50,8 +59,19 @@ namespace Explorer.Entities
             set { name = value; OnPropertyChanged(); }
         }
 
+        public BitmapImage Image
+        {
+            get { return image; }
+            set { image = value; OnPropertyChanged(); }
+        }
+
+        public bool IsFolder
+        {
+            get { return isFolder; }
+            set { isFolder = value; OnPropertyChanged(); }
+        }
+
         public string DateModifiedString => DateModified.ToString("dd.MM.yyyy HH:MM");
-        public bool IsFolder => Type.HasFlag(Windows.Storage.FileAttributes.Directory);
         public string SizeString => GetReadableSize(Size);
         public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
 

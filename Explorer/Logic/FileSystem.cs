@@ -295,7 +295,7 @@ namespace Explorer.Logic
 
         public static async Task<IStorageItem> GetStorageItemAsync(FileSystemElement fse)
         {
-            if (fse.Type.HasFlag(FileAttributes.Directory))
+            if (fse.IsFolder)
                 return await GetFolderAsync(fse);
             return await GetFileAsync(fse);
         }
@@ -328,26 +328,26 @@ namespace Explorer.Logic
 
             return folder.CreateItemQueryWithOptions(query);
         }
-        public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(StorageItemQueryResult query)
-        {
-            var itemsList = await query.GetItemsAsync();
-            var resultList = new List<FileSystemElement>(itemsList.Count);
-            foreach (var element in itemsList)
-            {
-                var props = await element.GetBasicPropertiesAsync();
+        //public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(StorageItemQueryResult query)
+        //{
+        //    var itemsList = await query.GetItemsAsync();
+        //    var resultList = new List<FileSystemElement>(itemsList.Count);
+        //    foreach (var element in itemsList)
+        //    {
+        //        var props = await element.GetBasicPropertiesAsync();
 
-                resultList.Add(new FileSystemElement
-                {
-                    Name = element.Name,
-                    Size = props.Size,
-                    Type = element.Attributes,
-                    DateModified = props.DateModified,
-                    Path = element.Path,
-                });
-            }
+        //        resultList.Add(new FileSystemElement
+        //        {
+        //            Name = element.Name,
+        //            Size = props.Size,
+        //            Type = element.Attributes,
+        //            DateModified = props.DateModified,
+        //            Path = element.Path,
+        //        });
+        //    }
 
-            return resultList;
-        }
+        //    return resultList;
+        //}
 
         public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path)
         {
@@ -363,7 +363,7 @@ namespace Explorer.Logic
                 {
                     Name = element.Name,
                     Size = props.Size,
-                    Type = element.Attributes,
+                    DisplayType = element.Attributes.ToString(),
                     DateModified = props.DateModified,
                     Path = element.Path,
                 });
@@ -372,32 +372,32 @@ namespace Explorer.Logic
             return resultList;
         }
 
-        public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path, TypedEventHandler<IStorageQueryResultBase, object> changedCallback)
-        {
-            var folder = await StorageFolder.GetFolderFromPathAsync(path);
-            var query = GetFolderQuery(folder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
-            
-            //subscribe on query's ContentsChanged event
-            query.ContentsChanged += changedCallback;
+        //public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path, TypedEventHandler<IStorageQueryResultBase, object> changedCallback)
+        //{
+        //    var folder = await StorageFolder.GetFolderFromPathAsync(path);
+        //    var query = GetFolderQuery(folder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
-            var itemsList = await query.GetItemsAsync();
-            var resultList = new List<FileSystemElement>(itemsList.Count);
-            foreach (var element in itemsList)
-            {
-                var props = await element.GetBasicPropertiesAsync();
+        //    //subscribe on query's ContentsChanged event
+        //    query.ContentsChanged += changedCallback;
 
-                resultList.Add(new FileSystemElement
-                {
-                    Name = element.Name,
-                    Size = props.Size,
-                    Type = element.Attributes,
-                    DateModified = props.DateModified,
-                    Path = element.Path,
-                });
-            }
+        //    var itemsList = await query.GetItemsAsync();
+        //    var resultList = new List<FileSystemElement>(itemsList.Count);
+        //    foreach (var element in itemsList)
+        //    {
+        //        var props = await element.GetBasicPropertiesAsync();
 
-            return resultList;
-        }
+        //        resultList.Add(new FileSystemElement
+        //        {
+        //            Name = element.Name,
+        //            Size = props.Size,
+        //            Type = element.Attributes,
+        //            DateModified = props.DateModified,
+        //            Path = element.Path,
+        //        });
+        //    }
+
+        //    return resultList;
+        //}
 
         public static async void LaunchExeAsync(string appPath, string arguments)
         {
