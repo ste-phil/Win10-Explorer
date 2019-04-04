@@ -47,97 +47,98 @@
             </Style>
         </ResourceDictionary>
     </Page.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Name="HeaderGrid" Padding="0,10,0,0" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="HeaderColumnIcon" ></ColumnDefinition>
-                <ColumnDefinition x:Name="HeaderColumnName" ></ColumnDefinition>
-                <ColumnDefinition x:Name="HeaderColumnDateModified"></ColumnDefinition>
-                <ColumnDefinition x:Name="HeaderColumnSize"></ColumnDefinition>
-                <ColumnDefinition x:Name="HeaderColumnType"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30px"></RowDefinition>
-                <RowDefinition Height="5px"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Grid.Column="1" Padding="5,0,5,0"
-                   BorderThickness="2">
+            <Grid Grid.Row="0" Name="HeaderGrid" Padding="0,10,0,0" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition x:Name="HeaderColumnIcon" ></ColumnDefinition>
+                    <ColumnDefinition x:Name="HeaderColumnName" ></ColumnDefinition>
+                    <ColumnDefinition x:Name="HeaderColumnDateModified"></ColumnDefinition>
+                    <ColumnDefinition x:Name="HeaderColumnSize"></ColumnDefinition>
+                    <ColumnDefinition x:Name="HeaderColumnType"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30px"></RowDefinition>
+                    <RowDefinition Height="5px"></RowDefinition>
+                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center" FontSize="18"></TextBlock>
-                <Viewbox
-                    Grid.Column="1" HorizontalAlignment="Right"  
-                    PointerPressed="HeaderColumn_PointerPressed"
-                    PointerReleased="HeaderColumn_PointerReleased" 
-                    PointerMoved="HeaderColumn_PointerMoved"
-                >
-                    <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
-                </Viewbox>
+                <Grid Grid.Row="0" Grid.Column="1" Padding="5,0,5,0"
+                       BorderThickness="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center" FontSize="18"></TextBlock>
+                    <Viewbox
+                        Grid.Column="1" HorizontalAlignment="Right"  
+                        PointerPressed="HeaderColumn_PointerPressed"
+                        PointerReleased="HeaderColumn_PointerReleased" 
+                        PointerMoved="HeaderColumn_PointerMoved"
+                    >
+                        <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
+                    </Viewbox>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="2" Padding="5,0,5,0"
+                       BorderThickness="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Modified" VerticalAlignment="Center" FontSize="18"></TextBlock>
+                    <Viewbox
+                        Grid.Column="1" HorizontalAlignment="Right"  
+                        PointerPressed="HeaderColumn_PointerPressed"
+                        PointerReleased="HeaderColumn_PointerReleased" 
+                        PointerMoved="HeaderColumn_PointerMoved"
+                    >
+                        <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
+                    </Viewbox>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="3" Padding="5,0,5,0"
+                       BorderThickness="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Size" VerticalAlignment="Center" FontSize="18"></TextBlock>
+                    <Viewbox
+                        Grid.Column="1" HorizontalAlignment="Right"  
+                        PointerPressed="HeaderColumn_PointerPressed"
+                        PointerReleased="HeaderColumn_PointerReleased" 
+                        PointerMoved="HeaderColumn_PointerMoved"
+                    >
+                        <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
+                    </Viewbox>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="4" Padding="5,0,5,0"
+                       BorderThickness="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Type" VerticalAlignment="Center" FontSize="18"></TextBlock>
+                    <Viewbox
+                        Grid.Column="1" HorizontalAlignment="Right"  
+                        PointerPressed="HeaderColumn_PointerPressed"
+                        PointerReleased="HeaderColumn_PointerReleased" 
+                        PointerMoved="HeaderColumn_PointerMoved"
+                    >
+                        <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
+                    </Viewbox>
+                </Grid>
+
+                <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
             </Grid>
-            <Grid Grid.Row="0" Grid.Column="2" Padding="5,0,5,0"
-                   BorderThickness="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="Modified" VerticalAlignment="Center" FontSize="18"></TextBlock>
-                <Viewbox
-                    Grid.Column="1" HorizontalAlignment="Right"  
-                    PointerPressed="HeaderColumn_PointerPressed"
-                    PointerReleased="HeaderColumn_PointerReleased" 
-                    PointerMoved="HeaderColumn_PointerMoved"
-                >
-                    <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
-                </Viewbox>
-            </Grid>
-            <Grid Grid.Row="0" Grid.Column="3" Padding="5,0,5,0"
-                   BorderThickness="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="Size" VerticalAlignment="Center" FontSize="18"></TextBlock>
-                <Viewbox
-                    Grid.Column="1" HorizontalAlignment="Right"  
-                    PointerPressed="HeaderColumn_PointerPressed"
-                    PointerReleased="HeaderColumn_PointerReleased" 
-                    PointerMoved="HeaderColumn_PointerMoved"
-                >
-                    <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
-                </Viewbox>
-            </Grid>
-            <Grid Grid.Row="0" Grid.Column="4" Padding="5,0,5,0"
-                   BorderThickness="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="Type" VerticalAlignment="Center" FontSize="18"></TextBlock>
-                <Viewbox
-                    Grid.Column="1" HorizontalAlignment="Right"  
-                    PointerPressed="HeaderColumn_PointerPressed"
-                    PointerReleased="HeaderColumn_PointerReleased" 
-                    PointerMoved="HeaderColumn_PointerMoved"
-                >
-                    <SymbolIcon Height="40" Symbol="Switch" ToolTipService.ToolTip="Resize"></SymbolIcon>
-                </Viewbox>
-            </Grid>
-
-            <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
-        </Grid>
-        <ScrollViewer Grid.Row="1" Name="ScrollViewer" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" Name="ScrollViewer">
             <Grid Name="ContentGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
@@ -231,5 +232,6 @@
                 <Rectangle Grid.ColumnSpan="5" Grid.Row="1" Fill="Transparent" RightTapped="{x:Bind OpenBackgroundFlyout}"></Rectangle>
             </Grid>
         </ScrollViewer>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>
