@@ -5,10 +5,12 @@
     xmlns:local="using:Explorer.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:entities="using:Explorer.Entities"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
-    <Grid >
+    d:DesignWidth="400" SizeChanged="UserControl_SizeChanged">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -79,118 +81,151 @@
             </ContentDialog.Title>
             <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
         </ContentDialog>
-        
-        <RefreshContainer Grid.Row="1">
-            <local:StorageTableView
-                KeyDown="{x:Bind StorageTableView_KeyDown}"
-                ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
-                SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
-                DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}" >
-                <local:StorageTableView.ItemFlyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Enter"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="F2"/>
-                                <KeyboardAccelerator Modifiers="Control" Key="R"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Delete"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="C"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="X"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="V"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE946;"/>
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                    </MenuFlyout>
-                </local:StorageTableView.ItemFlyout>
-                <local:StorageTableView.MultipleItemFlyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="F2"/>
-                                <KeyboardAccelerator Modifiers="Control" Key="R"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="Delete"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="C"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="X"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Modifiers="Control" Key="V"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE946;"/>
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                    </MenuFlyout>
-                </local:StorageTableView.MultipleItemFlyout>
-                <local:StorageTableView.BackgroundFlyout>
-                    <MenuFlyout ShowMode="Standard">
-                        <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="F5"/>
-                            </MenuFlyoutItem.KeyboardAccelerators>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
-                        <MenuFlyoutSeparator/>
-                        <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
-                            <MenuFlyoutItem.Icon>
-                                <FontIcon Glyph="&#xE946;"/>
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                    </MenuFlyout>
-                </local:StorageTableView.BackgroundFlyout>
-            </local:StorageTableView>
-        </RefreshContainer>
 
+        <local:StorageTableView x:Name="TableView" Grid.Row="1"
+            KeyDown="{x:Bind StorageTableView_KeyDown}"
+            ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
+            SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
+            DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}" >
+            <local:StorageTableView.ItemFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Enter"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Open with" Icon="OpenWith" Click="{x:Bind ViewModel.OpenFileWithSelected}"></MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="F2"/>
+                            <KeyboardAccelerator Modifiers="Control" Key="R"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Delete"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="X"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="V"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Favorite" Icon="OutlineStar" Click="{x:Bind ViewModel.FavoriteItemSelected}"></MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE946;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </local:StorageTableView.ItemFlyout>
+            <local:StorageTableView.MultipleItemFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Share" Icon="Share" Click="{x:Bind ViewModel.ShareStorageItem}"></MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Rename" Icon="Edit" Click="{x:Bind ViewModel.RenameStorageItemSelectedAsync}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="F2"/>
+                            <KeyboardAccelerator Modifiers="Control" Key="R"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Delete" Icon="Delete" Click="{x:Bind ViewModel.DeleteStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Delete"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Copy" Icon="Copy" Click="{x:Bind ViewModel.CopyStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Cut" Icon="Cut" Click="{x:Bind ViewModel.CutStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="X"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="V"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE946;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </local:StorageTableView.MultipleItemFlyout>
+            <local:StorageTableView.BackgroundFlyout>
+                <MenuFlyout ShowMode="Standard">
+                    <MenuFlyoutItem Text="Refresh" Icon="Refresh" Click="{x:Bind ViewModel.Refresh}">
+                        <MenuFlyoutItem.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="F5"/>
+                        </MenuFlyoutItem.KeyboardAccelerators>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE946;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </local:StorageTableView.BackgroundFlyout>
+        </local:StorageTableView>
+
+        <GridView HorizontalAlignment="Center" SelectionMode="Multiple" Name="GridView" Padding="25,25,25,0" Visibility="Collapsed" Grid.Row="1" ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}">
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem">
+                    <Setter Property="Width" Value="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}"/>
+                </Style>
+            </GridView.ItemContainerStyle>
+            <GridView.ItemTemplateSelector>
+                <entities:StorageItemTemplateSelector>
+                    <entities:StorageItemTemplateSelector.FileTemplate>
+                        <DataTemplate x:DataType="entities:FileSystemElement">
+                            <StackPanel>
+                                <controls:DropShadowPanel Margin="25" HorizontalAlignment="Center">
+                                    <Image Source="{x:Bind Image, Mode=OneWay}"></Image>
+                                </controls:DropShadowPanel>
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-20,0,10"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </entities:StorageItemTemplateSelector.FileTemplate>
+                    <entities:StorageItemTemplateSelector.FolderTemplate>
+                        <DataTemplate x:DataType="entities:FileSystemElement">
+                            <StackPanel>
+                                <Viewbox Margin="75">
+                                    <Grid>
+                                        <FontIcon Glyph="&#xE8D5;" Foreground="#ffe792"></FontIcon>
+                                        <FontIcon Glyph="&#xE8B7;" Foreground="Black"></FontIcon>
+                                    </Grid>
+                                </Viewbox>
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-50,0,10"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </entities:StorageItemTemplateSelector.FolderTemplate>
+                </entities:StorageItemTemplateSelector>
+            </GridView.ItemTemplateSelector>
+        </GridView>
+        
         <Grid Grid.Row="2" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -205,9 +240,10 @@
                 <Run Text="{x:Bind ViewModel.FileSystemElements.Count, Mode=OneWay}"></Run>
             </TextBlock>
 
-            <Button Grid.Column="2" ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent">
+            <Button Grid.Column="2" ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent"
+                    Command="{x:Bind ViewModel.ToggleView}">
                 <Viewbox Height="18px">
-                    <FontIcon Glyph="&#xF0E2;"></FontIcon>
+                    <FontIcon Glyph="{x:Bind ViewModel.ViewModeIcon, Mode=OneWay}"></FontIcon>
                 </Viewbox>
             </Button>
         </Grid>

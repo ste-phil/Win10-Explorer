@@ -19,9 +19,15 @@ namespace Explorer.Logic
 {
     public class FileSystemService
     {
+        public struct ThumbnailFetchOptions
+        {
+            public ThumbnailMode Mode { get; set; }
+            public uint Size { get; set; }
+            public ThumbnailOptions Scale { get; set; }
+        }
+
         private string currentPath;
 
-        private StorageItemQueryResult itemQuery;
         private StorageFolderQueryResult folderQuery;
         private StorageFileQueryResult fileQuery;
 
@@ -32,8 +38,9 @@ namespace Explorer.Logic
         private CancellationTokenSource cts;
 
         private bool refreshRunning;
+        private ThumbnailFetchOptions thumbnailOptions;
 
-        public ObservableCollection<FileSystemElement> Items;
+        public ObservableCollection<FileSystemElement> Items { get; set; }
 
         public FileSystemService()
         {
@@ -42,7 +49,6 @@ namespace Explorer.Logic
             fileQueryOptions = new QueryOptions();
             folderQueryOptions = new QueryOptions();
 
-            fileQueryOptions.SetThumbnailPrefetch(ThumbnailMode.ListView, 20, ThumbnailOptions.UseCurrentScale);
             var props = new string[]
             {
                 "System.DateModified",
@@ -57,8 +63,10 @@ namespace Explorer.Logic
             //folderQueryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, props);
         }
 
-        public async Task LoadFolderAsync(string path)
+        public async Task LoadFolderAsync(string path, ThumbnailFetchOptions thumbnailOptions = default)
         {
+            this.thumbnailOptions = thumbnailOptions;
+
             s.Restart();
 
             cts?.Cancel();  //Cancel previously scheduled browse
@@ -93,6 +101,7 @@ namespace Explorer.Logic
             var folder = await FileSystem.GetFolderAsync(path);
             var indexedState = await folder.GetIndexedStateAsync();
 
+            fileQueryOptions.SetThumbnailPrefetch(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
             if (indexedState == IndexedState.FullyIndexed)
             {
                 fileQueryOptions.IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties;
@@ -234,7 +243,8 @@ namespace Explorer.Logic
         {
             var basicProps = await item.GetBasicPropertiesAsync();
             var image = new BitmapImage();
-            var ti = await item.GetThumbnailAsync(ThumbnailMode.ListView, 30, ThumbnailOptions.ResizeThumbnail);
+
+            var ti = await item.GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, ThumbnailOptions.UseCurrentScale);
             if (ti != null)
             {
                 await image.SetSourceAsync(ti.CloneStream());

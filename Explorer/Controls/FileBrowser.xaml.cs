@@ -14,26 +14,46 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Explorer.Entities;
 using Explorer.Models;
-using Windows.System;
 using System.Diagnostics;
+using Windows.Storage.FileProperties;
 
 namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
+        public class ViewMode
+        {
+            public ThumbnailMode Type { get; set; }
+            public string Icon { get; set; }
+            public FrameworkElement Element { get; set; }
+
+            public ViewMode(ThumbnailMode type, string icon, FrameworkElement element)
+            {
+                Type = type;
+                Icon = icon;
+                Element = element;
+            }
+        }
+
         public event FSEEventHandler FavoriteAdded;
+
+        private ViewMode[] viewModes;
 
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
             set 
             { 
-                SetValue(ViewModelProperty, value); 
-                Bindings.Update(); 
+                SetValue(ViewModelProperty, value);
+                Bindings.Update();
 
                 if (ViewModel != null)
                 {
+                    ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.RenameDialog = RenameDialog;
+                    ViewModel.ViewModes = viewModes;
+                    ViewModel.ViewModeCurrent = -1;
+                    ViewModel.ToggleViewMode();
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
                 }
             }
@@ -46,6 +66,13 @@ namespace Explorer.Controls
         public FileBrowser()
         {
             this.InitializeComponent();
+
+            viewModes = new ViewMode[]
+            {
+                new ViewMode(ThumbnailMode.ListView, "\uF0E2", TableView),
+                new ViewMode(ThumbnailMode.PicturesView, "\uE8FD", GridView),
+            };
+
             ((FrameworkElement) this.Content).DataContext = this;
         }
 
@@ -66,6 +93,11 @@ namespace Explorer.Controls
         private void StorageTableView_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             ViewModel.KeyDown(e.Key);
+        }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (ViewModel != null) ViewModel.FileBrowserWidth = e.NewSize.Width;
         }
     }
 }

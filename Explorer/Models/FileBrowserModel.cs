@@ -16,6 +16,9 @@ using Windows.UI.Core;
 using Windows.System;
 using System.Diagnostics;
 using Windows.Storage.Search;
+using static Explorer.Logic.FileSystemService;
+using static Explorer.Controls.FileBrowser;
+using Windows.Storage.FileProperties;
 
 namespace Explorer.Models
 {
@@ -29,7 +32,6 @@ namespace Explorer.Models
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
 
-        private CoreDispatcher dispatcher;
         private FileSystemService fss;
 
         private string path;
@@ -49,6 +51,13 @@ namespace Explorer.Models
         [JsonIgnore] public ContentDialog RenameDialog { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
 
+        public double FileBrowserWidth { get; set; }
+        public double GridViewItemWidth { get; set; }
+
+        public short ViewModeCurrent { get; set; }
+        [JsonIgnore] public ViewMode[] ViewModes { get; set; }
+        public string ViewModeIcon { get; set; }
+
         public FileBrowserModel()
         {
             //FileSystemElements = new ObservableCollection<FileSystemElement>();
@@ -57,11 +66,11 @@ namespace Explorer.Models
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
+            ToggleView = new Command(() => ToggleViewMode(), () => true);
 
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
 
-            dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
             fss = new FileSystemService();
             FileSystemElements = fss.Items;
 
@@ -135,10 +144,14 @@ namespace Explorer.Models
             get { return renameName; }
             set { renameName = value; OnPropertyChanged(); }
         }
-        
+
+        public ViewMode ViewMode => ViewModes[ViewModeCurrent];
+
         public Command NavigateBack { get; }
 
         public Command NavigateForward { get; }
+
+        public Command ToggleView { get; }
 
         #endregion
 
@@ -202,12 +215,6 @@ namespace Explorer.Models
             FileSystem.LaunchExeAsync(path, arguments);
         }
 
-        private async void Query_ContentsChanged(IStorageQueryResultBase sender, object args)
-        {
-            await dispatcher.TryRunAsync(CoreDispatcherPriority.Normal, () => LoadFolderAsync(CurrentFolder));
-        }
-
-
         /// <summary>
         /// Loads the folder's contents
         /// </summary>
@@ -215,15 +222,19 @@ namespace Explorer.Models
         {
             try
             {
-                await fss.LoadFolderAsync(fse.Path);
+                //Set thumbnail size depending in which viewmode the user is
+                GridViewItemWidth = FileBrowserWidth / 3 - 35;
+                OnPropertyChanged("GridViewItemWidth");
+                var thumbnailSize = ViewMode.Type == ThumbnailMode.PicturesView ? (uint) GridViewItemWidth - 50 : 20;
+
+                await fss.LoadFolderAsync(fse.Path, new ThumbnailFetchOptions
+                {
+                    Mode = ViewMode.Type,
+                    Size = thumbnailSize,
+                    Scale = ThumbnailOptions.UseCurrentScale
+                });
 
                 if (Path != fse.Path) return;
-
-                //FileSystemElements.Clear();
-                //foreach (var file in files)
-                //{
-                //    FileSystemElements.Add(file);
-                //}
 
                 CurrentFolder = fse;
             }
@@ -235,14 +246,14 @@ namespace Explorer.Models
         }
 
         /// <summary>
-        /// Called from system when DataTransferManager.ShowShareUI has been called
+        /// Reloads the currently selected Folder
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void OnShareRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        public void Refresh()
         {
-            args.Request.Data = sharedData;
+            LoadFolderAsync(CurrentFolder);
         }
+
+        #region Selected FileSystemElements Methods
 
         /// <summary>
         /// Opens or navigates to the currently selected file system element
@@ -388,13 +399,29 @@ namespace Explorer.Models
             FavoriteAddRequested?.Invoke(SelectedItems[0]);
         }
 
-        /// <summary>
-        /// Reloads the currently selected Folder
-        /// </summary>
-        public void Refresh()
+        #endregion
+
+        public void ToggleViewMode()
         {
-            LoadFolderAsync(CurrentFolder);
+            //Hide old view, when there has been an old view
+            if (ViewModeCurrent >= 0) ViewModes[ViewModeCurrent].Element.Visibility = Visibility.Collapsed;
+
+            //Cycle through modes
+            ViewModeCurrent += 1;
+
+            //Reset when exceeded
+            if (ViewModeCurrent == ViewModes.Length) ViewModeCurrent = 0;
+
+            Refresh();
+
+            //Show new view
+            ViewModes[ViewModeCurrent].Element.Visibility = Visibility.Visible;
+
+            //Change icon of view switcher btn
+            ViewModeIcon = ViewModes[ViewModeCurrent].Icon;
+            OnPropertyChanged("ViewModeIcon");
         }
+
 
         public async void UpdatePathSuggestions()
         {
@@ -423,6 +450,21 @@ namespace Explorer.Models
             }
         }
 
+        /// <summary>
+        /// Called from system when DataTransferManager.ShowShareUI has been called
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnShareRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            args.Request.Data = sharedData;
+        }
+
+
+        /// <summary>
+        /// Provides different key shortcuts
+        /// </summary>
+        /// <param name="key"></param>
         public void KeyDown(VirtualKey key)
         {
             switch (key)
