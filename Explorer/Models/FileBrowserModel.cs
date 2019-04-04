@@ -60,8 +60,6 @@ namespace Explorer.Models
 
         public FileBrowserModel()
         {
-            //FileSystemElements = new ObservableCollection<FileSystemElement>();
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
             SelectedItems = new ObservableCollection<FileSystemElement>();
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
@@ -82,8 +80,16 @@ namespace Explorer.Models
                 dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += OnShareRequested;
             }
+        }
 
-            NavigateTo(CurrentFolder);
+        public void Activate()
+        {
+            //Set start folder to windows
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
+
+            //First viewMode is TableView, Switch to it and load files
+            ViewModeCurrent = -1;
+            ToggleViewMode();
         }
 
         #region Properties
@@ -103,7 +109,7 @@ namespace Explorer.Models
 
         public string Name
         {
-            get { return currentFolder.Name; }
+            get { return currentFolder?.Name; }
             set { currentFolder.Name = value; OnPropertyChanged(); }
         }
 

@@ -52,9 +52,15 @@ namespace Explorer.Controls
                     ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.RenameDialog = RenameDialog;
                     ViewModel.ViewModes = viewModes;
-                    ViewModel.ViewModeCurrent = -1;
-                    ViewModel.ToggleViewMode();
+                    
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
+
+                    //Initial setup of window
+                    if (ViewModel.CurrentFolder == null)
+                    {
+                        ViewModel.Activate();
+                    }
+
                 }
             }
         }
