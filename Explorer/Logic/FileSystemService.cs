@@ -19,10 +19,10 @@ namespace Explorer.Logic
 {
     public class FileSystemService
     {
-        public struct ThumbnailFetchOptions
+        public class ThumbnailFetchOptions
         {
-            public ThumbnailMode Mode { get; set; }
-            public uint Size { get; set; }
+            public ThumbnailMode Mode { get; set; } = ThumbnailMode.ListView;
+            public uint Size { get; set; } = 20;
             public ThumbnailOptions Scale { get; set; }
         }
 

@@ -46,6 +46,10 @@ namespace Explorer.Models
         private FileSystemElement doubleTappedItem;
         private string renameName;
 
+        private short viewModeCurrent;
+        [JsonIgnore] private ViewMode[] viewModes;
+        private string viewModeIcon;
+
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
         [JsonIgnore] public ContentDialog RenameDialog { get; set; }
@@ -54,12 +58,10 @@ namespace Explorer.Models
         public double FileBrowserWidth { get; set; }
         public double GridViewItemWidth { get; set; }
 
-        public short ViewModeCurrent { get; set; }
-        [JsonIgnore] public ViewMode[] ViewModes { get; set; }
-        public string ViewModeIcon { get; set; }
-
         public FileBrowserModel()
         {
+            //Set start folder to windows disk
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
             SelectedItems = new ObservableCollection<FileSystemElement>();
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
@@ -80,16 +82,8 @@ namespace Explorer.Models
                 dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += OnShareRequested;
             }
-        }
 
-        public void Activate()
-        {
-            //Set start folder to windows
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
-
-            //First viewMode is TableView, Switch to it and load files
-            ViewModeCurrent = -1;
-            ToggleViewMode();
+            NavigateTo(CurrentFolder);
         }
 
         #region Properties
@@ -151,7 +145,21 @@ namespace Explorer.Models
             set { renameName = value; OnPropertyChanged(); }
         }
 
-        public ViewMode ViewMode => ViewModes[ViewModeCurrent];
+        public short ViewModeCurrent
+        {
+            get { return viewModeCurrent; }
+            set { viewModeCurrent = value; OnPropertyChanged(); OnPropertyChanged("ViewModeIcon"); }
+        }
+
+        public ViewMode[] ViewModes
+        {
+            get { return viewModes; }
+            set { viewModes = value; OnPropertyChanged(); OnPropertyChanged("ViewModeIcon"); }
+        }
+
+        public string ViewModeIcon => ViewMode?.Icon;
+
+        public ViewMode ViewMode => ViewModes?[ViewModeCurrent];
 
         public Command NavigateBack { get; }
 
@@ -229,13 +237,20 @@ namespace Explorer.Models
             try
             {
                 //Set thumbnail size depending in which viewmode the user is
-                GridViewItemWidth = FileBrowserWidth / 3 - 35;
-                OnPropertyChanged("GridViewItemWidth");
-                var thumbnailSize = ViewMode.Type == ThumbnailMode.PicturesView ? (uint) GridViewItemWidth - 50 : 20;
+                //but only when it has been set, else enable TableView
+                uint thumbnailSize = 20;
+                var mode = ThumbnailMode.ListView;
+                if (ViewMode != null)
+                {
+                    GridViewItemWidth = FileBrowserWidth / 3 - 35;
+                    thumbnailSize = (uint)GridViewItemWidth - 50;
+                    mode = ViewMode.Type;
+                    OnPropertyChanged("GridViewItemWidth");
+                }
 
                 await fss.LoadFolderAsync(fse.Path, new ThumbnailFetchOptions
                 {
-                    Mode = ViewMode.Type,
+                    Mode = mode,
                     Size = thumbnailSize,
                     Scale = ThumbnailOptions.UseCurrentScale
                 });
@@ -342,7 +357,8 @@ namespace Explorer.Models
             {
                 _ = FileSystem.DeleteStorageItemsAsync(SelectedItems);
                 FileSystemElements.RemoveRange(SelectedItems);
-            } catch(Exception) { /*e.g. UnauthorizedAccessException*/}
+            }
+            catch (Exception) { /*e.g. UnauthorizedAccessException*/}
         }
 
         public async void CopyStorageItemSelected()
@@ -409,23 +425,18 @@ namespace Explorer.Models
 
         public void ToggleViewMode()
         {
-            //Hide old view, when there has been an old view
-            if (ViewModeCurrent >= 0) ViewModes[ViewModeCurrent].Element.Visibility = Visibility.Collapsed;
+            //Hide old view
+            ViewMode.Element.Visibility = Visibility.Collapsed;
 
             //Cycle through modes
-            ViewModeCurrent += 1;
-
             //Reset when exceeded
-            if (ViewModeCurrent == ViewModes.Length) ViewModeCurrent = 0;
+            if (ViewModeCurrent < ViewModes.Length - 1) ViewModeCurrent += 1;
+            else ViewModeCurrent = 0;
 
             Refresh();
 
             //Show new view
-            ViewModes[ViewModeCurrent].Element.Visibility = Visibility.Visible;
-
-            //Change icon of view switcher btn
-            ViewModeIcon = ViewModes[ViewModeCurrent].Icon;
-            OnPropertyChanged("ViewModeIcon");
+            ViewMode.Element.Visibility = Visibility.Visible;
         }
 
 

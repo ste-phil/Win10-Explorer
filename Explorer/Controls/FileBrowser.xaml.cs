@@ -16,11 +16,14 @@ using Explorer.Entities;
 using Explorer.Models;
 using System.Diagnostics;
 using Windows.Storage.FileProperties;
+using System.Threading.Tasks;
 
 namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
+        public static ViewMode DefaultViewMode = new ViewMode(ThumbnailMode.ListView, "", null);
+
         public class ViewMode
         {
             public ThumbnailMode Type { get; set; }
@@ -42,25 +45,19 @@ namespace Explorer.Controls
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
-            set 
+            set
             { 
                 SetValue(ViewModelProperty, value);
-                Bindings.Update();
 
                 if (ViewModel != null)
                 {
                     ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.RenameDialog = RenameDialog;
                     ViewModel.ViewModes = viewModes;
-                    
+
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
 
-                    //Initial setup of window
-                    if (ViewModel.CurrentFolder == null)
-                    {
-                        ViewModel.Activate();
-                    }
-
+                    Bindings.Update();
                 }
             }
         }
