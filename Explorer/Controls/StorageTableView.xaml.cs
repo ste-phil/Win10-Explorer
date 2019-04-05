@@ -69,7 +69,12 @@ namespace Explorer.Controls
         public ObservableCollection<FileSystemElement> SelectedItems
         {
             get { return (ObservableCollection<FileSystemElement>)GetValue(SelectedItemsProperty); }
-            set { SetValue(SelectedItemsProperty, value); }
+            set
+            {
+                if (SelectedItems != null) SelectedItems.CollectionChanged -= SelectedItems_CollectionChanged;
+                SetValue(SelectedItemsProperty, value);
+                SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+            }
         }
 
         public static readonly DependencyProperty SelectedItemsProperty = DependencyProperty.Register(nameof(SelectedItems), typeof(ObservableCollection<FileSystemElement>),
@@ -94,6 +99,39 @@ namespace Explorer.Controls
             }
         }
 
+        /// <summary>
+        /// Needed to sync selection changes between the different ViewModes of the FileBrowser (e.g TableView, PictureView)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectedItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                for (int i = 0; i < e.OldItems.Count; i++)
+                {
+                    var fse = (FileSystemElement)e.OldItems[i];
+                    var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+                    if (container == null) break;
+
+                    var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+                    StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
+                }
+            }
+
+            for (int i = 0; i < SelectedItems.Count; i++)
+            {
+                var fse = SelectedItems[i];
+                var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+                if (container == null) break;
+
+                var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+                StyleHitbox(fse, hitbox, ROW_SELECTED_STYLE_NAME);
+            }
+        }
+
         #region TableHeader Actions
 
         private void ContentGrid_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -103,8 +141,11 @@ namespace Explorer.Controls
                 //Shrinken down name column by the size of the NavigatioViewPanel
                 if (i == 1)
                 {
-                    HeaderGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth - 200);
-                    ContentGrid.ColumnDefinitions[i].Width = new GridLength(ContentGrid.ColumnDefinitions[i].ActualWidth - 200);
+                    var width = ContentGrid.ColumnDefinitions[i].ActualWidth - 200;
+                    if (width <= 0) width = ContentGrid.ColumnDefinitions[i].ActualWidth;
+
+                    HeaderGrid.ColumnDefinitions[i].Width = new GridLength(width);
+                    ContentGrid.ColumnDefinitions[i].Width = new GridLength(width);
                     continue;
                 }
 
@@ -400,6 +441,8 @@ namespace Explorer.Controls
 
         private void UnselectOldRows()
         {
+            if (selectedElements.Count == 0 && SelectedItems.Count == 0) return;
+
             for (int i = 0; i < selectedElements.Count; i++)
             {
                 var hitbox = selectedElements[i];

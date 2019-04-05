@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:entities="using:Explorer.Entities"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:gif="using:XamlAnimatedGif"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -17,11 +18,38 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <!--<Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                
+                <Button Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent">
+                    <StackPanel>
+                        <SymbolIcon Symbol="Paste"></SymbolIcon>
+                        <TextBlock FontSize="10" Text="Paste"></TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent">
+                    <StackPanel>
+                        <SymbolIcon Symbol="Add"></SymbolIcon>
+                        <TextBlock FontSize="10" Text="Add"></TextBlock>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>-->
+        
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -73,7 +101,7 @@
             </Button>
         </Grid>
 
-        <ContentDialog Name="RenameDialog" Grid.Row="1"  PrimaryButtonText="Rename" SecondaryButtonText="Cancel">
+        <ContentDialog Name="RenameDialog" Grid.Row="2"  PrimaryButtonText="Rename" SecondaryButtonText="Cancel">
             <ContentDialog.Title>
                     <TextBlock>
                         <Run Text="Rename"></Run>
@@ -83,7 +111,7 @@
             <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
         </ContentDialog>
 
-        <local:StorageTableView x:Name="TableView" Grid.Row="1"
+        <local:StorageTableView x:Name="TableView" Grid.Row="2"
             KeyDown="{x:Bind StorageTableView_KeyDown}"
             ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
             SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
@@ -191,17 +219,14 @@
                 </MenuFlyout>
             </local:StorageTableView.BackgroundFlyout>
         </local:StorageTableView>
-            
-        <GridView Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple"  Padding="25,25,25,0" Visibility="Collapsed" Grid.Row="1" 
-                  ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
-                  DoubleTapped="{x:Bind ViewModel.NavigateOrOpenSelected}">
-            <GridView.SelectedItems></GridView.SelectedItems>
-            <GridView.ItemContainerStyle>
-                <Style TargetType="GridViewItem">
-                    <Setter Property="Width" Value="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}"/>
-                </Style>
-            </GridView.ItemContainerStyle>
-            <GridView.ItemTemplateSelector>
+        
+        
+        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple" Padding="25,25,25,0" Visibility="Collapsed" Grid.Row="2" 
+                                   animations:ReorderGridAnimation.Duration="250"
+                                   ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}" DesiredWidth="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}" 
+                                   SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
+                                   >
+            <local:StorageAdaptiveGridView.ItemTemplateSelector>
                 <entities:StorageItemTemplateSelector>
                     <entities:StorageItemTemplateSelector.FileTemplate>
                         <DataTemplate x:DataType="entities:FileSystemElement">
@@ -227,10 +252,47 @@
                         </DataTemplate>
                     </entities:StorageItemTemplateSelector.FolderTemplate>
                 </entities:StorageItemTemplateSelector>
-            </GridView.ItemTemplateSelector>
-        </GridView>
+            </local:StorageAdaptiveGridView.ItemTemplateSelector>
+        </local:StorageAdaptiveGridView>
         
-        <Grid Grid.Row="2" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
+        <!--<GridView Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple"  Padding="25,25,25,0" Visibility="Collapsed" Grid.Row="1" 
+                  ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
+                  DoubleTapped="{x:Bind ViewModel.NavigateOrOpenSelected}">
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem">
+                    <Setter Property="Width" Value="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}"/>
+                </Style>
+            </GridView.ItemContainerStyle>
+            <GridView.ItemTemplateSelector>
+                <entities:StorageItemTemplateSelector>
+                    <entities:StorageItemTemplateSelector.FileTemplate>
+                        <DataTemplate x:DataType="entities:FileSystemElement">
+                            <StackPanel Width="{Binding ViewModel.GridViewItemWidth, Mode=OneWay}">
+                                <controls:DropShadowPanel Margin="25" HorizontalAlignment="Center">
+                                    <Image Source="{x:Bind Image, Mode=OneWay}"></Image>
+                                </controls:DropShadowPanel>
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-20,0,10"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </entities:StorageItemTemplateSelector.FileTemplate>
+                    <entities:StorageItemTemplateSelector.FolderTemplate>
+                        <DataTemplate x:DataType="entities:FileSystemElement">
+                            <StackPanel>
+                                <Viewbox Margin="50">
+                                    <Grid>
+                                        <FontIcon Glyph="&#xE8D5;" Foreground="#ffe792"></FontIcon>
+                                        <FontIcon Glyph="&#xE8B7;" Foreground="Black"></FontIcon>
+                                    </Grid>
+                                </Viewbox>
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-50,0,10"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </entities:StorageItemTemplateSelector.FolderTemplate>
+                </entities:StorageItemTemplateSelector>
+            </GridView.ItemTemplateSelector>
+        </GridView>-->
+        
+        <Grid Grid.Row="3" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>

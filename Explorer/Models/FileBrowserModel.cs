@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
 using Windows.UI.Xaml.Controls;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
-using FileAttributes = Windows.Storage.FileAttributes;
 using Newtonsoft.Json;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Core;
 using Windows.System;
-using System.Diagnostics;
-using Windows.Storage.Search;
 using static Explorer.Logic.FileSystemService;
 using static Explorer.Controls.FileBrowser;
 using Windows.Storage.FileProperties;
-using System.IO.Compression;
 
 namespace Explorer.Models
 {
@@ -49,6 +44,7 @@ namespace Explorer.Models
 
         private short viewModeCurrent;
         [JsonIgnore] private ViewMode[] viewModes;
+        private double gridViewItemWidth;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
@@ -56,7 +52,6 @@ namespace Explorer.Models
         public bool TextBoxPathIsFocused { get; set; }
 
         public double FileBrowserWidth { get; set; }
-        public double GridViewItemWidth { get; set; }
 
         public FileBrowserModel()
         {
@@ -66,7 +61,7 @@ namespace Explorer.Models
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
-            ToggleView = new Command(() => ToggleViewMode(), () => true);
+            ToggleView = new Command(async () => await ToggleViewMode(), () => true);
 
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
@@ -157,6 +152,12 @@ namespace Explorer.Models
             set { viewModes = value; OnPropertyChanged(); OnPropertyChanged("ViewModeIcon"); }
         }
 
+        public double GridViewItemWidth
+        {
+            get { return gridViewItemWidth; }
+            set { gridViewItemWidth = value; OnPropertyChanged(); }
+        }
+
         public string ViewModeIcon => ViewMode?.Icon;
 
         public ViewMode ViewMode => ViewModes?[ViewModeCurrent];
@@ -237,10 +238,9 @@ namespace Explorer.Models
             var mode = ThumbnailMode.ListView;
             if (ViewMode != null)
             {
-                GridViewItemWidth = FileBrowserWidth / 3 - 35;
+                GridViewItemWidth = FileBrowserWidth / 3 - 50;
                 thumbnailSize = (uint)GridViewItemWidth - 50;
                 mode = ViewMode.Type;
-                OnPropertyChanged("GridViewItemWidth");
             }
 
             return new ThumbnailFetchOptions
@@ -444,6 +444,11 @@ namespace Explorer.Models
 
             var options = GetThumbnailFetchOptions();
             await fss.RefetchThumbnails(options);
+
+            //var fse = new FileSystemElement();
+            //SelectedItems.Add(fse);
+            //SelectedItems.Remove(fse);
+
         }
 
 

@@ -17,6 +17,7 @@ using Explorer.Models;
 using System.Diagnostics;
 using Windows.Storage.FileProperties;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 
 namespace Explorer.Controls
 {
@@ -41,6 +42,7 @@ namespace Explorer.Controls
         public event FSEEventHandler FavoriteAdded;
 
         private ViewMode[] viewModes;
+        private CoreDispatcher dispatcher;
 
         public FileBrowserModel ViewModel
         {
@@ -65,18 +67,17 @@ namespace Explorer.Controls
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
             "ViewModel", typeof (FileBrowserModel), typeof (FileBrowser), new PropertyMetadata(null));
 
-
         public FileBrowser()
         {
             this.InitializeComponent();
-
+            ((FrameworkElement)this.Content).DataContext = this;
             viewModes = new ViewMode[]
             {
                 new ViewMode(ThumbnailMode.ListView, "\uF0E2", TableView),
                 new ViewMode(ThumbnailMode.PicturesView, "\uE8FD", GridView),
             };
 
-            ((FrameworkElement) this.Content).DataContext = this;
+            dispatcher = Window.Current.Dispatcher;
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

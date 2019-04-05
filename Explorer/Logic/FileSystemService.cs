@@ -86,21 +86,17 @@ namespace Explorer.Logic
         {
             this.thumbnailOptions = thumbnailOptions;
 
-            cts?.Cancel();  //Cancel previously scheduled browse
-            cts = new CancellationTokenSource();    //Create new cancel token for this request
-
             for (int i = loadedFolderCount; i < loadedFiles.Count; i++)
             {
-                if (cts.IsCancellationRequested)
-                {
-                    Clear();
-                    break;
-                }
+                if (cts.Token.IsCancellationRequested) break;
 
                 var ti = await loadedFiles[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
                 if (ti != null)
                 {
-                    await Items[i].Image.SetSourceAsync(ti.CloneStream());
+                    try
+                    {
+                        await Items[i].Image.SetSourceAsync(ti.CloneStream());
+                    } catch(Exception) { /*Supress Task canceled exception*/ }
                 }
             }
         }
