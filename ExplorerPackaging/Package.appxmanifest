@@ -10,7 +10,7 @@
   <Identity
     Name="6f1ae505-d8c3-459f-9c17-14105bf8d302"
     Publisher="CN=Philipp"
-    Version="1.0.0.0" />
+    Version="0.1.1.0" />
 
   <Properties>
     <DisplayName>ExplorerPackaging</DisplayName>

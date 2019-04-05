@@ -43,13 +43,20 @@
             </NavigationViewItem>
         </DataTemplate>
         <DataTemplate x:Key="DriveDataTemplate" x:DataType="entities:Drive">
-            <NavigationViewItem Tag="{x:Bind}">
+            <NavigationViewItem Tag="{x:Bind}" ToolTipService.ToolTip="{x:Bind Name}">
                 <StackPanel  Orientation="Horizontal" Margin="-5,0,0,0">
                     <SymbolIcon Symbol="{x:Bind Icon}"></SymbolIcon>
                     <FontIcon Glyph="&#xED67;" Margin="-10,10,0,0" FontSize="13"></FontIcon>
                     <TextBlock Text="{x:Bind DriveLetter}" Foreground="{ThemeResource SystemAltHighColor}" Margin="-10,12,0,0" FontSize="10"></TextBlock>
-                    <StackPanel Orientation="Vertical" Margin="10,5,0,0">
-                        <StackPanel Orientation="Horizontal">
+                    <Grid  Margin="10,5,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="145"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <TextBlock FontSize="10">
                                 <Run Text="{x:Bind Name}"></Run>
                                 <Run Text="{x:Bind FreeSpaceString}"></Run>
@@ -57,8 +64,8 @@
                                 <Run Text="{x:Bind TotalSpaceString}"></Run>
                             </TextBlock>
                         </StackPanel>
-                        <ProgressBar Foreground="{x:Bind SpaceColorBrush}" Margin="3" Value="{x:Bind UsedSpacePercent}" Maximum="100" Width="130"></ProgressBar>
-                    </StackPanel>
+                        <ProgressBar Grid.Row="1" Foreground="{x:Bind SpaceColorBrush}" Margin="3" Value="{x:Bind UsedSpacePercent}" Maximum="100" ></ProgressBar>
+                    </Grid>
                 </StackPanel>
             </NavigationViewItem>
         </DataTemplate>

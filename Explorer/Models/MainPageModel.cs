@@ -76,7 +76,7 @@ namespace Explorer.Models
 
         private void InitNavigationAsync()
         {
-            LoadFavoritesAsync();
+            _ = LoadFavoritesAsync();
             AddKnownFoldersToNavigation();
             AddDrivesToNavigation();
         }

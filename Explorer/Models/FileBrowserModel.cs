@@ -48,7 +48,6 @@ namespace Explorer.Models
 
         private short viewModeCurrent;
         [JsonIgnore] private ViewMode[] viewModes;
-        private string viewModeIcon;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }

@@ -6,7 +6,7 @@
          xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
          xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
          IgnorableNamespaces="uap mp iot rescap">
-  <Identity Name="ee5efaa6-281e-4c99-80f0-d332a984d1b8" Publisher="CN=Philipp" Version="1.0.0.0" />
+  <Identity Name="ee5efaa6-281e-4c99-80f0-d332a984d1b8" Publisher="CN=Philipp" Version="0.1.0.0" />
   <mp:PhoneIdentity PhoneProductId="ee5efaa6-281e-4c99-80f0-d332a984d1b8" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Explorer</DisplayName>

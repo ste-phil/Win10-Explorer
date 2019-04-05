@@ -164,7 +164,7 @@ namespace Explorer.Controls
 
         private void StorageTableView_LostFocus(object sender, RoutedEventArgs e)
         {
-            RemoveFocus(FocusedItem);
+            RemoveFocus();
         }
 
         private void Window_KeyDown(object sender, KeyRoutedEventArgs args)
@@ -243,8 +243,7 @@ namespace Explorer.Controls
                     if (i <= focusItemIndex) continue;
 
                     UnselectOldRows();
-                    SelectRow(ItemsSource[i]);
-                    FocusRow(ItemsSource[i]);
+                    TryScrollFocusSelect(ItemsSource[i]);
                     foundNextItem = true;
                     break;
                 }
@@ -253,8 +252,7 @@ namespace Explorer.Controls
             if (!foundNextItem && firstItemIndex != -1)
             {
                 UnselectOldRows();
-                SelectRow(ItemsSource[firstItemIndex]);
-                FocusRow(ItemsSource[firstItemIndex]);
+                TryScrollFocusSelect(ItemsSource[firstItemIndex]);
             }
         }
 
@@ -311,6 +309,35 @@ namespace Explorer.Controls
             BackgroundFlyout.ShowAt(s, e.GetPosition(s));
         }
 
+        private void TryScrollFocusSelect(FileSystemElement fse)
+        {
+            //Check if the element is even rendered
+            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            if (container == null)
+            {
+                ScrollTo(fse);
+                return;
+            }
+
+            var childTransform = container.TransformToVisual(ScrollViewer);
+            var rectangle = childTransform.TransformBounds(new Rect(new Point(0, 0), container.RenderSize));
+            var scrollViewerRect = new Rect(new Point(0, 0), ScrollViewer.RenderSize);
+
+            //Check if the elements Rect intersects with that of the scrollviewer's
+            scrollViewerRect.Intersect(rectangle);
+
+            //Not in view
+            if (scrollViewerRect.IsEmpty)
+            {
+                ScrollTo(fse);
+            }
+
+            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+            SelectRow(fse, hitbox);
+            FocusRow(fse, hitbox);
+        }
+
+
         private void SelectRow(FileSystemElement fse, FrameworkElement hitbox)
         {
             if (SelectedItems.Contains(fse))
@@ -331,7 +358,6 @@ namespace Explorer.Controls
         {
             var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
             var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
-
             if (SelectedItems.Contains(fse))
             {
                 DeselectRow(fse, hitbox);
@@ -411,8 +437,7 @@ namespace Explorer.Controls
             //Scroll to focused item when the user navigates through files with the keyboard
             if (usedKeyboard)
             {
-                var index = ItemsSource.IndexOf(fse);
-                ScrollViewer.ChangeView(null, 30 * index, null);
+                ScrollTo(fse);
             }
 
             //Fetch row (border) from hitboxes (see xaml)
@@ -428,7 +453,30 @@ namespace Explorer.Controls
             else focusedRow.Style = (Style)Resources["RowDefaultFocusedStyle"];
         }
 
-        private void RemoveFocus(FileSystemElement fse)
+        private void FocusRow(FileSystemElement fse, FrameworkElement hitbox, bool usedKeyboard = false)
+        {
+            RemoveFocus();
+
+            //Scroll to focused item when the user navigates through files with the keyboard
+            if (usedKeyboard)
+            {
+                ScrollTo(fse);
+            }
+
+            //Store FileSystemElement(for checking if its selected) and Border (for styling)
+            FocusedItem = fse;
+            focusedRow = hitbox;
+
+            //Apply focused style to new row
+            if (SelectedItems.Contains(FocusedItem)) focusedRow.Style = (Style)Resources["RowSelectedFocusedStyle"];
+            else focusedRow.Style = (Style)Resources["RowDefaultFocusedStyle"];
+        }
+
+        /// <summary>
+        /// Remove focus highlight from focusedRow, if it is focused
+        /// </summary>
+        /// <param name="fse"></param>
+        private void RemoveFocus()
         {
             if (focusedRow != null)
             {
@@ -438,6 +486,16 @@ namespace Explorer.Controls
 
             FocusedItem = null;
             focusedRow = null;
+        }
+
+        private void ScrollTo(FileSystemElement fse)
+        {
+            ScrollTo(ItemsSource.IndexOf(fse));
+        }
+
+        private void ScrollTo(int index)
+        {
+            ScrollViewer.ChangeView(null, 30 * index, null);
         }
 
         private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)

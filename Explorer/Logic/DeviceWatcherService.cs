@@ -43,7 +43,7 @@ namespace Explorer.Logic
             WatchDevices();    
         }
 
-        public async void WatchDevices()
+        public void WatchDevices()
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Explorer.Logic
             }
         }
 
-        public async void StopWatcher(object sender, RoutedEventArgs eventArgs)
+        public void StopWatcher(object sender, RoutedEventArgs eventArgs)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace Explorer.Logic
             });
         }
 
-        public async void Watcher_Stopped(DeviceWatcher sender, object args)
+        public void Watcher_Stopped(DeviceWatcher sender, object args)
         {
             if (watcher.Status == Windows.Devices.Enumeration.DeviceWatcherStatus.Aborted)
             {
@@ -173,7 +173,7 @@ namespace Explorer.Logic
             }
         }
 
-        public async void DisplayDeviceInterfaceArray()
+        public void DisplayDeviceInterfaceArray()
         {
             int count2 = 0;
             foreach (DeviceInformation deviceInterface in interfaces)
@@ -186,7 +186,7 @@ namespace Explorer.Logic
             }
         }
 
-        public async void DisplayDeviceInterface(DeviceInformation deviceInterface)
+        public void DisplayDeviceInterface(DeviceInformation deviceInterface)
         {
             var id = "Id:" + deviceInterface.Id;
             var name = deviceInterface.Name;

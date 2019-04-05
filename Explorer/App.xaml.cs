@@ -98,7 +98,7 @@ namespace Explorer
                 }
                 else
                 {
-                    WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), e.Arguments);
+                    _ = WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), e.Arguments);
                 }
 
                 // Ensure the current window is active
