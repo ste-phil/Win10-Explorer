@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:entities="using:Explorer.Entities"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:gif="using:XamlAnimatedGif"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400" SizeChanged="UserControl_SizeChanged">

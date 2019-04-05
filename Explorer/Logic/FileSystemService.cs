@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,6 +13,7 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -40,11 +42,15 @@ namespace Explorer.Logic
         private bool refreshRunning;
         private ThumbnailFetchOptions thumbnailOptions;
 
+        private int loadedFolderCount;
+        private List<StorageFile> loadedFiles;
+
         public ObservableCollection<FileSystemElement> Items { get; set; }
 
         public FileSystemService()
         {
             Items = new ObservableCollection<FileSystemElement>();
+            loadedFiles = new List<StorageFile>();
 
             fileQueryOptions = new QueryOptions();
             folderQueryOptions = new QueryOptions();
@@ -76,6 +82,36 @@ namespace Explorer.Logic
             else await SwitchFolderAsync(path, cts.Token);
         }
 
+        public async Task RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions = default)
+        {
+            this.thumbnailOptions = thumbnailOptions;
+
+            cts?.Cancel();  //Cancel previously scheduled browse
+            cts = new CancellationTokenSource();    //Create new cancel token for this request
+
+            for (int i = loadedFolderCount; i < loadedFiles.Count; i++)
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    Clear();
+                    break;
+                }
+
+                var ti = await loadedFiles[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
+                if (ti != null)
+                {
+                    await Items[i].Image.SetSourceAsync(ti.CloneStream());
+                }
+            }
+        }
+
+        public void Clear()
+        {
+            loadedFolderCount = 0;
+            Items.Clear();
+            loadedFiles.Clear();
+        }
+
         private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
             currentPath = path;
@@ -86,7 +122,7 @@ namespace Explorer.Logic
             var folders = await folderQuery.GetFoldersAsync();
             var files = await fileQuery.GetFilesAsync();
 
-            Items.Clear();
+            Clear();
             await AddFoldersAsync(folders, cancellationToken);
             await AddFilesAsync(files, cancellationToken);
 
@@ -119,7 +155,7 @@ namespace Explorer.Logic
             var folders = await folderQuery.GetFoldersAsync();
             var files = await fileQuery.GetFilesAsync();
 
-            Items.Clear();
+            Clear();
             await AddFoldersAsync(folders, cancellationToken);
             await AddFilesAsync(files, cancellationToken);
 
@@ -195,7 +231,7 @@ namespace Explorer.Logic
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Items.Clear();
+                    Clear();
                     break;
                 }
 
@@ -209,7 +245,7 @@ namespace Explorer.Logic
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Items.Clear();
+                    Clear();
                     break;
                 }
 
@@ -219,12 +255,11 @@ namespace Explorer.Logic
 
         private async Task AddStorageItemsAsync(IReadOnlyList<IStorageItem> items, CancellationToken cancellationToken)
         {
-            Items.Clear();
             for (int i = 0; i < items.Count; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Items.Clear();
+                    Clear();
                     break;
                 }
 
@@ -261,6 +296,8 @@ namespace Explorer.Logic
                 Path = item.Path,
                 Image = image
             });
+
+            loadedFiles.Add(item);
         }
 
         private async Task AddFolderAsync(StorageFolder item)
@@ -276,6 +313,8 @@ namespace Explorer.Logic
                 DateModified = basicProps.DateModified,
                 Path = item.Path
             });
+
+            loadedFolderCount++;
         }
 
         //public async Task<FileSystemElement[]> ReloadFolderAsync()

@@ -19,6 +19,7 @@ using Windows.Storage.Search;
 using static Explorer.Logic.FileSystemService;
 using static Explorer.Controls.FileBrowser;
 using Windows.Storage.FileProperties;
+using System.IO.Compression;
 
 namespace Explorer.Models
 {
@@ -228,6 +229,28 @@ namespace Explorer.Models
             FileSystem.LaunchExeAsync(path, arguments);
         }
 
+        private ThumbnailFetchOptions GetThumbnailFetchOptions()
+        {
+            //Set thumbnail size depending in which viewmode the user is
+            //but only when it has been set, else enable TableView
+            uint thumbnailSize = 20;
+            var mode = ThumbnailMode.ListView;
+            if (ViewMode != null)
+            {
+                GridViewItemWidth = FileBrowserWidth / 3 - 35;
+                thumbnailSize = (uint)GridViewItemWidth - 50;
+                mode = ViewMode.Type;
+                OnPropertyChanged("GridViewItemWidth");
+            }
+
+            return new ThumbnailFetchOptions
+            {
+                Mode = mode,
+                Size = thumbnailSize,
+                Scale = ThumbnailOptions.UseCurrentScale
+            };
+        }
+
         /// <summary>
         /// Loads the folder's contents
         /// </summary>
@@ -235,24 +258,8 @@ namespace Explorer.Models
         {
             try
             {
-                //Set thumbnail size depending in which viewmode the user is
-                //but only when it has been set, else enable TableView
-                uint thumbnailSize = 20;
-                var mode = ThumbnailMode.ListView;
-                if (ViewMode != null)
-                {
-                    GridViewItemWidth = FileBrowserWidth / 3 - 35;
-                    thumbnailSize = (uint)GridViewItemWidth - 50;
-                    mode = ViewMode.Type;
-                    OnPropertyChanged("GridViewItemWidth");
-                }
-
-                await fss.LoadFolderAsync(fse.Path, new ThumbnailFetchOptions
-                {
-                    Mode = mode,
-                    Size = thumbnailSize,
-                    Scale = ThumbnailOptions.UseCurrentScale
-                });
+                var options = GetThumbnailFetchOptions();
+                await fss.LoadFolderAsync(fse.Path, options);
 
                 if (Path != fse.Path) return;
 
@@ -422,7 +429,7 @@ namespace Explorer.Models
 
         #endregion
 
-        public void ToggleViewMode()
+        public async Task ToggleViewMode()
         {
             //Hide old view
             ViewMode.Element.Visibility = Visibility.Collapsed;
@@ -432,10 +439,11 @@ namespace Explorer.Models
             if (ViewModeCurrent < ViewModes.Length - 1) ViewModeCurrent += 1;
             else ViewModeCurrent = 0;
 
-            Refresh();
-
             //Show new view
             ViewMode.Element.Visibility = Visibility.Visible;
+
+            var options = GetThumbnailFetchOptions();
+            await fss.RefetchThumbnails(options);
         }
 
 
