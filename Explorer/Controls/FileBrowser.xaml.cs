@@ -23,42 +23,53 @@ namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
-        public static ViewMode DefaultViewMode = new ViewMode(ThumbnailMode.ListView, "", null);
-
-        public class ViewMode
+        public class ViewMode : ObservableEntity
         {
-            public ThumbnailMode Type { get; set; }
-            public string Icon { get; set; }
-            public FrameworkElement Element { get; set; }
+            private ThumbnailMode type;
+            private string icon;
+            private Visibility visibility;
 
-            public ViewMode(ThumbnailMode type, string icon, FrameworkElement element)
+            public ThumbnailMode Type
+            {
+                get { return type; }
+                set { type = value; OnPropertyChanged(); }
+            }
+
+            public string Icon
+            {
+                get { return icon; }
+                set { icon = value; OnPropertyChanged(); }
+            }
+
+            public Visibility Visibility
+            {
+                get { return visibility; }
+                set { visibility = value; OnPropertyChanged(); }
+            }
+
+            public ViewMode(ThumbnailMode type, string icon, Visibility visibility = Visibility.Collapsed)
             {
                 Type = type;
                 Icon = icon;
-                Element = element;
+                Visibility = visibility;
             }
         }
 
         public event FSEEventHandler FavoriteAdded;
 
-        private ViewMode[] viewModes;
-        private CoreDispatcher dispatcher;
-
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
             set
-            { 
+            {
                 SetValue(ViewModelProperty, value);
 
                 if (ViewModel != null)
                 {
                     ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.RenameDialog = RenameDialog;
-                    ViewModel.ViewModes = viewModes;
 
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
-
                     Bindings.Update();
                 }
             }
@@ -71,13 +82,6 @@ namespace Explorer.Controls
         {
             this.InitializeComponent();
             ((FrameworkElement)this.Content).DataContext = this;
-            viewModes = new ViewMode[]
-            {
-                new ViewMode(ThumbnailMode.ListView, "\uF0E2", TableView),
-                new ViewMode(ThumbnailMode.PicturesView, "\uE8FD", GridView),
-            };
-
-            dispatcher = Window.Current.Dispatcher;
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

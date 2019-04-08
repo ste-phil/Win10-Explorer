@@ -43,7 +43,7 @@ namespace Explorer.Models
         private string renameName;
 
         private short viewModeCurrent;
-        [JsonIgnore] private ViewMode[] viewModes;
+        private ViewMode[] viewModes;
         private double gridViewItemWidth;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
@@ -77,6 +77,12 @@ namespace Explorer.Models
                 dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += OnShareRequested;
             }
+
+            ViewModes = new ViewMode[]
+            {
+                new ViewMode(ThumbnailMode.ListView, "\uF0E2", Visibility.Visible),
+                new ViewMode(ThumbnailMode.PicturesView, "\uE8FD")
+            };
 
             NavigateTo(CurrentFolder);
         }
@@ -154,7 +160,8 @@ namespace Explorer.Models
 
         public double GridViewItemWidth
         {
-            get { return gridViewItemWidth; }
+            //MinWidth = 1 for GridView
+            get { return gridViewItemWidth <= 0 ? 1 : gridViewItemWidth; }
             set { gridViewItemWidth = value; OnPropertyChanged(); }
         }
 
@@ -357,11 +364,11 @@ namespace Explorer.Models
         /// <summary>
         /// Deletes the currently selected file system element
         /// </summary>
-        public void DeleteStorageItemSelected()
+        public async void DeleteStorageItemSelected()
         {
             try
             {
-                _ = FileSystem.DeleteStorageItemsAsync(SelectedItems);
+                await FileSystem.DeleteStorageItemsAsync(SelectedItems);
                 FileSystemElements.RemoveRange(SelectedItems);
             }
             catch (Exception) { /*e.g. UnauthorizedAccessException*/}
@@ -432,7 +439,7 @@ namespace Explorer.Models
         public async Task ToggleViewMode()
         {
             //Hide old view
-            ViewMode.Element.Visibility = Visibility.Collapsed;
+            ViewMode.Visibility = Visibility.Collapsed;
 
             //Cycle through modes
             //Reset when exceeded
@@ -440,7 +447,7 @@ namespace Explorer.Models
             else ViewModeCurrent = 0;
 
             //Show new view
-            ViewMode.Element.Visibility = Visibility.Visible;
+            ViewMode.Visibility = Visibility.Visible;
 
             var options = GetThumbnailFetchOptions();
             await fss.RefetchThumbnails(options);

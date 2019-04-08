@@ -115,7 +115,8 @@
             KeyDown="{x:Bind StorageTableView_KeyDown}"
             ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
             SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
-            DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}" >
+            DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}"
+            Visibility="{x:Bind ViewModel.ViewModes[0].Visibility, Mode=OneWay}">
             <local:StorageTableView.ItemFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">
@@ -221,10 +222,11 @@
         </local:StorageTableView>
         
         
-        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple" Padding="25,25,25,0" Visibility="Collapsed" Grid.Row="2" 
+        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
                                    animations:ReorderGridAnimation.Duration="250"
                                    ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}" DesiredWidth="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}" 
                                    SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
+                                   Visibility="{x:Bind ViewModel.ViewModes[1].Visibility, Mode=OneWay}"
                                    >
             <local:StorageAdaptiveGridView.ItemTemplateSelector>
                 <entities:StorageItemTemplateSelector>
