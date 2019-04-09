@@ -132,16 +132,21 @@
     <Compile Include="Controls\FileBrowser.xaml.cs">
       <DependentUpon>FileBrowser.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FileSystemOperationView.xaml.cs">
+      <DependentUpon>FileSystemOperationView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StorageAdaptiveGridView.cs" />
     <Compile Include="Entities\DataTemplates.cs" />
     <Compile Include="Entities\FileSystemElements.cs" />
+    <Compile Include="Entities\FileSystemOperation.cs" />
     <Compile Include="Entities\NavigationLinks.cs" />
     <Compile Include="Entities\ObservableEntity.cs" />
     <Compile Include="Helper\Commands.cs" />
     <Compile Include="Helper\EnvironmentPaths.cs" />
     <Compile Include="Helper\Extensions.cs" />
     <Compile Include="Helper\ObservableRangeCollection.cs" />
-    <Compile Include="Logic\FileSystemService.cs" />
+    <Compile Include="Logic\FileSystemOperationService.cs" />
+    <Compile Include="Logic\FileSystemRetrieveService.cs" />
     <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystem.cs" />
@@ -227,6 +232,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Controls\FileBrowser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FileSystemOperationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

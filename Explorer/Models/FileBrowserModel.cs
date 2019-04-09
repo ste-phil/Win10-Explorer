@@ -12,7 +12,7 @@ using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Core;
 using Windows.System;
-using static Explorer.Logic.FileSystemService;
+using static Explorer.Logic.FileSystemRetrieveService;
 using static Explorer.Controls.FileBrowser;
 using Windows.Storage.FileProperties;
 
@@ -28,7 +28,8 @@ namespace Explorer.Models
         private static DataTransferManager dataTransferManager;
         private static DataPackage sharedData;
 
-        private FileSystemService fss;
+        private FileSystemRetrieveService retrieveService;
+        private FileSystemOperationService operationSerivce;
 
         private string path;
         private bool pathIncreased;
@@ -66,8 +67,10 @@ namespace Explorer.Models
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
 
-            fss = new FileSystemService();
-            FileSystemElements = fss.Items;
+            retrieveService = new FileSystemRetrieveService();
+            FileSystemElements = retrieveService.Items;
+
+            operationSerivce = FileSystemOperationService.Instance;
 
             PathSuggestions = new ObservableCollection<FileSystemElement>();
 
@@ -266,7 +269,7 @@ namespace Explorer.Models
             try
             {
                 var options = GetThumbnailFetchOptions();
-                await fss.LoadFolderAsync(fse.Path, options);
+                await retrieveService.LoadFolderAsync(fse.Path, options);
 
                 if (Path != fse.Path) return;
 
@@ -407,12 +410,12 @@ namespace Explorer.Models
                 var items = await data.GetStorageItemsAsync();
                 if (data.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                 {
-                    await FileSystem.CopyStorageItemsAsync(CurrentFolder, items.ToList());
+                    await operationSerivce.BeginCopyOperation(items.ToList(), CurrentFolder);
                     data.ReportOperationCompleted(DataPackageOperation.Copy);
                 }
                 else if (data.RequestedOperation.HasFlag(DataPackageOperation.Move))
                 {
-                    await FileSystem.MoveStorageItemsAsync(CurrentFolder, items.ToList());
+                    await operationSerivce.BeginMoveOperation(items.ToList(), CurrentFolder);
                     data.ReportOperationCompleted(DataPackageOperation.Move);
                 }
             }
@@ -450,7 +453,7 @@ namespace Explorer.Models
             ViewMode.Visibility = Visibility.Visible;
 
             var options = GetThumbnailFetchOptions();
-            await fss.RefetchThumbnails(options);
+            await retrieveService.RefetchThumbnails(options);
 
             //var fse = new FileSystemElement();
             //SelectedItems.Add(fse);

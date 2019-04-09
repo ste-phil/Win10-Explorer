@@ -19,7 +19,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Explorer.Logic
 {
-    public class FileSystemService
+    public class FileSystemRetrieveService
     {
         public class ThumbnailFetchOptions
         {
@@ -47,7 +47,7 @@ namespace Explorer.Logic
 
         public ObservableCollection<FileSystemElement> Items { get; set; }
 
-        public FileSystemService()
+        public FileSystemRetrieveService()
         {
             Items = new ObservableCollection<FileSystemElement>();
             loadedFiles = new List<StorageFile>();

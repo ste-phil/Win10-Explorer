@@ -20,7 +20,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30px"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!--<Grid Grid.Row="0">
@@ -301,19 +301,25 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" VerticalAlignment="Center">
-                <Run Text="Selected Items:"></Run>
-                <Run Text="{x:Bind ViewModel.SelectedItems.Count, Mode=OneWay}"></Run>
-                <Run Text="of"></Run>
-                <Run Text="{x:Bind ViewModel.FileSystemElements.Count, Mode=OneWay}"></Run>
-            </TextBlock>
+            <Grid VerticalAlignment="Bottom" Height="30">
+                <TextBlock VerticalAlignment="Center">
+                    <Run Text="Selected Items:"></Run>
+                    <Run Text="{x:Bind ViewModel.SelectedItems.Count, Mode=OneWay}"></Run>
+                    <Run Text="of"></Run>
+                    <Run Text="{x:Bind ViewModel.FileSystemElements.Count, Mode=OneWay}"></Run>
+                </TextBlock>
+            </Grid>
 
-            <Button Grid.Column="2" ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent"
+            <local:FileSystemOperationView Grid.Column="1"></local:FileSystemOperationView>
+
+            <Grid Grid.Column="2" VerticalAlignment="Bottom" Height="30">
+                <Button ToolTipService.ToolTip="Toggle view" Style="{ThemeResource ButtonRevealStyle}" Background="Transparent"
                     Command="{x:Bind ViewModel.ToggleView}">
-                <Viewbox Height="18px">
-                    <FontIcon Glyph="{x:Bind ViewModel.ViewModeIcon, Mode=OneWay}"></FontIcon>
-                </Viewbox>
-            </Button>
+                    <Viewbox Height="18px">
+                        <FontIcon Glyph="{x:Bind ViewModel.ViewModeIcon, Mode=OneWay}"></FontIcon>
+                    </Viewbox>
+                </Button>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

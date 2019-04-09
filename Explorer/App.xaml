@@ -2,6 +2,7 @@
     x:Class="Explorer.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:local="using:Explorer">
     <Application.Resources>
         <ResourceDictionary>
@@ -35,7 +36,6 @@
                                 <VisualStateManager.VisualStateGroups>
                                     <VisualStateGroup x:Name="CommonStates">
                                         <VisualState x:Name="Normal">
-
                                             <Storyboard>
                                                 <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                             </Storyboard>
@@ -214,7 +214,7 @@
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.5"
-                                  FallbackColor="#191919"/>
+                                  FallbackColor="#171717"/>
                     <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
                 </ResourceDictionary>
 
