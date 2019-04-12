@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Explorer.Logic;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,15 +8,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Foundation;
+using Windows.Storage;
 using Windows.Storage.BulkAccess;
+using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 
 namespace Explorer.Controls
@@ -24,6 +30,7 @@ namespace Explorer.Controls
     {
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
+        private const string ROW_DROP_STYLE_NAME = "RowDrop";
 
         private bool isResizing;
         private Point startPos;
@@ -467,6 +474,11 @@ namespace Explorer.Controls
             else hitbox.Style = (Style)Resources[style + "Style"];
         }
 
+        private void StyleHitbox(FrameworkElement hitbox, string style)
+        {
+            hitbox.Style = (Style)Resources[style + "Style"];
+        }
+
         private void FocusRow(FileSystemElement fse, bool usedKeyboard = false)
         {
             //Remove focus highlight from old row
@@ -545,6 +557,90 @@ namespace Explorer.Controls
         {
             if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
             else MultipleItemFlyout.ShowAt(row, position);
+        }
+
+        private async void Row_Drop(object sender, DragEventArgs e)
+        {
+            var row = (Border)sender;
+            var fse = (FileSystemElement)row.Tag;
+
+            StyleHitbox(row, ROW_DEFAULT_STYLE_NAME);
+            if (fse.IsFolder && e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await e.DataView.GetStorageItemsAsync();
+
+                //FileSystem.MoveStorageItemsAsync(fse, items.ToList());
+            }
+        }
+
+        private void Row_DragOver(object sender, DragEventArgs e)
+        {
+            var row = (Border)sender;
+            var fse = (FileSystemElement)row.Tag;
+
+            if (fse.IsFolder && e.DataView.Contains(StandardDataFormats.StorageItems))
+                e.AcceptedOperation = DataPackageOperation.Move;
+
+            StyleHitbox(row, ROW_DROP_STYLE_NAME);
+        }
+
+        private void Row_DragLeave(object sender, DragEventArgs e)
+        {
+            var row = (Border)sender;
+            StyleHitbox(row, ROW_DEFAULT_STYLE_NAME);
+        }
+
+        private async void Row_DragStarting(UIElement sender, DragStartingEventArgs args)
+        {
+            var row = (Border)sender;
+            var fse = (FileSystemElement)row.Tag;
+
+            Debug.WriteLine("Drag started");
+
+            var deferral = args.GetDeferral();
+            if (!fse.IsFolder)
+            {
+                var storageItem = await FileSystem.GetFileAsync(fse);
+                args.Data.SetStorageItems(new List<IStorageItem> { storageItem }, false);
+
+                var ti = await storageItem.GetThumbnailAsync(ThumbnailMode.SingleItem, 30);
+                if (ti != null)
+                {
+                    var stream = ti.CloneStream();
+                    var img = new BitmapImage();
+
+                    await img.SetSourceAsync(stream);
+
+                    args.Data.RequestedOperation = DataPackageOperation.Move;
+                    args.DragUI.SetContentFromBitmapImage(img, new Point(-1, 0));
+
+                    //args.Data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromStream(stream);
+                    //args.DragUI.SetContentFromDataPackage();
+                }
+            }
+            else
+            {
+                var storageItem = await FileSystem.GetFolderAsync(fse);
+                args.Data.SetStorageItems(new List<IStorageItem> { storageItem }, false);
+
+                var ti = await storageItem.GetThumbnailAsync(ThumbnailMode.SingleItem, 30);
+                if (ti != null)
+                {
+                    var stream = ti.CloneStream();
+                    var img = new BitmapImage();
+
+                    await img.SetSourceAsync(stream);
+
+                    args.Data.RequestedOperation = DataPackageOperation.Move;
+                    args.DragUI.SetContentFromBitmapImage(img, new Point(-1, 0));
+
+                    //args.Data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromStream(stream);
+                    //args.DragUI.SetContentFromDataPackage();
+                }
+            }
+
+            //args.DragUI.SetContentFromDataPackage();
+            deferral.Complete();
         }
     }
 }
