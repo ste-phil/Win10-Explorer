@@ -12,6 +12,7 @@ using Windows.Foundation;
 using Windows.Storage.BulkAccess;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -25,9 +26,16 @@ namespace Explorer.Controls
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
 
+        //Resizing columns stuff
         private bool isResizing;
         private Point startPos;
         private int currentColumnIndex;
+
+        //Selection rect stuff
+        private bool isDraggingSelection;
+        private PointerPoint pressedPos;
+        private ulong lastMoveTimestamp;
+        private int pointerOverRowIndex;
 
         private List<FrameworkElement> selectedElements;
         private FrameworkElement focusedRow;
@@ -200,7 +208,7 @@ namespace Explorer.Controls
 
         private void StorageTableView_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (ItemsSource != null && ItemsSource.Count > 0 && FocusedItem == null) FocusRow(ItemsSource[0]);
+            if (ItemsSource != null && ItemsSource.Count > 0 && FocusedItem != null) FocusRow(FocusedItem);
         }
 
         private void StorageTableView_LostFocus(object sender, RoutedEventArgs e)
@@ -223,7 +231,7 @@ namespace Explorer.Controls
                 //Select currently focused item
                 case VirtualKey.Space:
                     if (shiftDown) SelectRowsBetween(FocusedItem);
-                    else SelectRow(FocusedItem);
+                    else ToggleSelect(FocusedItem);
                     break;
                 //Open/Navigate currently focused item
                 case VirtualKey.Enter:
@@ -253,11 +261,11 @@ namespace Explorer.Controls
                     if (ctrlDown)
                     {
                         //Select next row if ctrl was pressed
-                        SelectRow(ItemsSource[index]);            
+                        ToggleSelect(ItemsSource[index]);            
 
                         //Select LastFocusedItem if its not selected
                         if (!SelectedItems.Contains(ItemsSource[lastFocusedIndex]))
-                            SelectRow(ItemsSource[lastFocusedIndex]);
+                            ToggleSelect(ItemsSource[lastFocusedIndex]);
                     }
 
                     FocusRow(ItemsSource[index], true);
@@ -314,7 +322,7 @@ namespace Explorer.Controls
             if (shiftDown)
                 SelectRowsBetween(item);
             else
-                SelectRow(item, hitbox);
+                ToggleSelect(item, hitbox);
         }
 
         private void Row_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -330,7 +338,7 @@ namespace Explorer.Controls
                 if (!controlDown)
                     UnselectOldRows();
 
-                SelectRow(item, hitbox);
+                ToggleSelect(item, hitbox);
             }
 
             OpenItemFlyout(item, hitbox, e.GetPosition(hitbox));
@@ -374,12 +382,38 @@ namespace Explorer.Controls
             }
 
             var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
-            SelectRow(fse, hitbox);
+            ToggleSelect(fse, hitbox);
             FocusRow(fse, hitbox);
         }
 
-
         private void SelectRow(FileSystemElement fse, FrameworkElement hitbox)
+        {
+            if (SelectedItems.Contains(fse)) return;
+
+            SelectedItems.Add(fse);
+            selectedElements.Add(hitbox);
+
+            //When item which is going to be selected and is focused apply different style
+            if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
+            else hitbox.Style = (Style)Resources["RowSelectedStyle"];
+        }
+
+        private void SelectRow(FileSystemElement fse)
+        {
+            if (SelectedItems.Contains(fse)) return;
+
+            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+            SelectedItems.Add(fse);
+            selectedElements.Add(hitbox);
+
+            //When item which is going to be selected and is focused apply different style
+            if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
+            else hitbox.Style = (Style)Resources["RowSelectedStyle"];
+        }
+
+        private void ToggleSelect(FileSystemElement fse, FrameworkElement hitbox)
         {
             if (SelectedItems.Contains(fse))
             {
@@ -395,10 +429,11 @@ namespace Explorer.Controls
             else hitbox.Style = (Style)Resources["RowSelectedStyle"];
         }
 
-        private void SelectRow(FileSystemElement fse)
+        private void ToggleSelect(FileSystemElement fse)
         {
             var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
             var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
             if (SelectedItems.Contains(fse))
             {
                 DeselectRow(fse, hitbox);
@@ -411,6 +446,16 @@ namespace Explorer.Controls
             StyleHitbox(fse, hitbox, ROW_SELECTED_STYLE_NAME);
         }
 
+        private void DeselectRow(FileSystemElement fse)
+        {
+            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+            SelectedItems.Remove(fse);
+            selectedElements.Remove(hitbox);
+
+            StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
+        }
 
         private void DeselectRow(FileSystemElement fse, FrameworkElement hitbox)
         {
@@ -435,7 +480,7 @@ namespace Explorer.Controls
                 var container = (ContentPresenter) ItemsSourceRowHitbox.ContainerFromItem(item);
                 var row = (FrameworkElement) VisualTreeHelper.GetChild(container, 0);
 
-                if (!SelectedItems.Contains(item)) SelectRow(item, row);
+                if (!SelectedItems.Contains(item)) ToggleSelect(item, row);
             }
         }
 
@@ -545,6 +590,76 @@ namespace Explorer.Controls
         {
             if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
             else MultipleItemFlyout.ShowAt(row, position);
+        }
+
+        private void ContentGrid_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            var pointer = e.GetCurrentPoint(ContentGrid);
+            if (!isDraggingSelection || pointer.Timestamp == lastMoveTimestamp) return;
+
+            var startPos = pressedPos.Position;
+            var newPos = pointer.Position;
+
+            var newSizeX = newPos.X - startPos.X;       //Get the move delta x
+            if (newSizeX < 0)       //Drag left from start pos
+            {
+                Canvas.SetLeft(SelectionRect, newPos.X);
+                SelectionRect.Width = -newSizeX;
+            }
+            else                    //Drag right from start pos
+            {
+                SelectionRect.Width = newPos.X - startPos.X;
+            }
+
+            var newSizeY = newPos.Y - startPos.Y;       //Get the move delta y
+            if (newSizeY < 0)       //Drag up from start pos
+            {
+                Canvas.SetTop(SelectionRect, newPos.Y);
+                SelectionRect.Height = -newSizeY;
+            }
+            else                    //Drag down from start pos
+            {
+                SelectionRect.Height = newPos.Y - startPos.Y;
+            }
+
+            var rowHeight = 30;
+            var currentPointerOverRowIndex = (int)newPos.Y / rowHeight;
+            if (pointerOverRowIndex != currentPointerOverRowIndex)  //If pointer is still over the same row dont do anything
+            {
+                var topPos = Canvas.GetTop(SelectionRect);
+                var from = (int)topPos / rowHeight;      //start index to select rows (30 is rowHeight)
+                var to = (int)(topPos + SelectionRect.Height) / rowHeight + 1;            //end index
+
+                var controlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+                if (!controlDown) UnselectOldRows();
+                for (int i = from; i < to; i++)
+                {
+                    if (i >= 0 && i < ItemsSource.Count)
+                        SelectRow(ItemsSource[i]);
+                }
+            }
+
+            lastMoveTimestamp = pointer.Timestamp;
+            pointerOverRowIndex = currentPointerOverRowIndex;
+        }
+
+        private void ContentGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            isDraggingSelection = true;
+            pressedPos = e.GetCurrentPoint((FrameworkElement)sender);
+            ContentGrid.CapturePointer(e.Pointer);
+
+            Canvas.SetLeft(SelectionRect, pressedPos.Position.X);
+            Canvas.SetTop(SelectionRect, pressedPos.Position.Y);
+        }
+
+        private void ContentGrid_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            isDraggingSelection = false;
+            ContentGrid.ReleasePointerCapture(e.Pointer);
+
+            SelectionRect.Width = 0;
+            SelectionRect.Height = 0;
         }
     }
 }

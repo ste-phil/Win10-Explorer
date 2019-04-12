@@ -139,99 +139,96 @@
                 <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
             </Grid>
             <ScrollViewer Grid.Row="1" Name="ScrollViewer">
-            <Grid Name="ContentGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
-                    <ColumnDefinition Width="*"    MinWidth="100"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto" MinWidth="120"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto" MinWidth="65"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto" MinWidth="100"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                </Grid.RowDefinitions>
+                <Grid Name="ContentGrid" PointerMoved="ContentGrid_PointerMoved" PointerPressed="ContentGrid_PointerPressed" PointerReleased="ContentGrid_PointerReleased">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
+                        <ColumnDefinition Width="*"    MinWidth="100"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" MinWidth="120"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" MinWidth="65"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" MinWidth="100"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
 
-                <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Style="{StaticResource RowDefaultStyle}" Height="30" AllowFocusOnInteraction="True"
+                    <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" >
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FileSystemElement">
+                                <Border Style="{StaticResource RowDefaultStyle}" Height="30" AllowFocusOnInteraction="True"
                                     Tag="{x:Bind}" Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped">
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplateSelector>
-                        <entities:StorageItemTemplateSelector>
-                            <entities:StorageItemTemplateSelector.FileTemplate>
-                                <DataTemplate x:DataType="entities:FileSystemElement">
-                                    <Image Source="{x:Bind Image}" Height="20" Margin="0,5,0,5"></Image>
-                                </DataTemplate>
-                            </entities:StorageItemTemplateSelector.FileTemplate>
-                            <entities:StorageItemTemplateSelector.FolderTemplate>
-                                <DataTemplate x:DataType="entities:FileSystemElement">
-                                    <Grid>
-                                        <FontIcon Glyph="&#xE8D5;" Foreground="#ffe792" Height="20" Margin="0,5,0,5"></FontIcon>
-                                        <FontIcon Glyph="&#xE8B7;" Foreground="Black" Height="20" Margin="0,5,0,5"></FontIcon>
-                                    </Grid>
-                                </DataTemplate>
-                            </entities:StorageItemTemplateSelector.FolderTemplate>
-                        </entities:StorageItemTemplateSelector>
-                        <!--<DataTemplate x:DataType="entities:FileSystemElement">
-                            --><!--<Image Source="{x:Bind Image}" Height="20" Margin="0,5,0,5"></Image>--><!--
-                            <Grid>
-                                <FontIcon Glyph="&#xE8D5;" Foreground="#ffe792" Height="20" Margin="0,5,0,5"></FontIcon>
-                                <FontIcon Glyph="&#xE8B7;" Foreground="Black" Height="20" Margin="0,5,0,5"></FontIcon>
-                            </Grid>
-                        </DataTemplate>-->
-                    </ItemsControl.ItemTemplateSelector>
-                </ItemsControl>
+                    <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                        <ItemsControl.ItemTemplateSelector>
+                            <entities:StorageItemTemplateSelector>
+                                <entities:StorageItemTemplateSelector.FileTemplate>
+                                    <DataTemplate x:DataType="entities:FileSystemElement">
+                                        <Image Source="{x:Bind Image}" Height="20" Margin="0,5,0,5"></Image>
+                                    </DataTemplate>
+                                </entities:StorageItemTemplateSelector.FileTemplate>
+                                <entities:StorageItemTemplateSelector.FolderTemplate>
+                                    <DataTemplate x:DataType="entities:FileSystemElement">
+                                        <Grid>
+                                            <FontIcon Glyph="&#xE8D5;" Foreground="#ffe792" Height="20" Margin="0,5,0,5"></FontIcon>
+                                            <FontIcon Glyph="&#xE8B7;" Foreground="Black" Height="20" Margin="0,5,0,5"></FontIcon>
+                                        </Grid>
+                                    </DataTemplate>
+                                </entities:StorageItemTemplateSelector.FolderTemplate>
+                            </entities:StorageItemTemplateSelector>
+                        </ItemsControl.ItemTemplateSelector>
+                    </ItemsControl>
 
-                <ItemsControl x:Name="ColumnName" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Height="30" Padding="5,0,5,0">
-                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    <ItemsControl x:Name="ColumnName" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FileSystemElement">
+                                <Border Height="30" Padding="5,0,5,0">
+                                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <ItemsControl x:Name="ColumnDateModified" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="2" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Height="30" Padding="5,0,5,0">
-                                <TextBlock Text="{x:Bind DateModifiedString, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    <ItemsControl x:Name="ColumnDateModified" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="2" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FileSystemElement">
+                                <Border Height="30" Padding="5,0,5,0">
+                                    <TextBlock Text="{x:Bind DateModifiedString, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <ItemsControl x:Name="ColumnSize" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="3" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Height="30" Padding="5,0,5,0">
-                                <TextBlock Text="{x:Bind SizeString, Mode=OneWay}" VerticalAlignment="Center" ></TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    <ItemsControl x:Name="ColumnSize" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="3" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FileSystemElement">
+                                <Border Height="30" Padding="5,0,5,0">
+                                    <TextBlock Text="{x:Bind SizeString, Mode=OneWay}" VerticalAlignment="Center" ></TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <ItemsControl x:Name="ColumnType" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="4" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="entities:FileSystemElement">
-                            <Border Height="30" Padding="5,0,5,0">
-                                <TextBlock Text="{x:Bind DisplayType, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    <ItemsControl x:Name="ColumnType" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="4" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FileSystemElement">
+                                <Border Height="30" Padding="5,0,5,0">
+                                    <TextBlock Text="{x:Bind DisplayType, Mode=OneWay}" VerticalAlignment="Center"></TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <Rectangle Grid.ColumnSpan="5" Grid.Row="1" Fill="Transparent" RightTapped="{x:Bind OpenBackgroundFlyout}"></Rectangle>
 
-                <Rectangle Grid.ColumnSpan="5" Grid.Row="1" Fill="Transparent" RightTapped="{x:Bind OpenBackgroundFlyout}"></Rectangle>
-            </Grid>
-        </ScrollViewer>
+                    <Canvas x:Name="SelectionCanvas" Grid.ColumnSpan="5" Grid.RowSpan="2" IsHitTestVisible="False">
+                        <Rectangle x:Name="SelectionRect" Stroke="AliceBlue" StrokeThickness="2"></Rectangle>
+                    </Canvas>
+                </Grid>
+            </ScrollViewer>
         </Grid>
     </ScrollViewer>
 </Page>
