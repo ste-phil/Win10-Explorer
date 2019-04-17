@@ -369,12 +369,10 @@ namespace Explorer.Models
         /// </summary>
         public async void DeleteStorageItemSelected()
         {
-            try
+            while (SelectedItems.Count > 0)
             {
-                await FileSystem.DeleteStorageItemsAsync(SelectedItems);
-                FileSystemElements.RemoveRange(SelectedItems);
+                await retrieveService.DeleteFileSystemElement(SelectedItems[0]);
             }
-            catch (Exception) { /*e.g. UnauthorizedAccessException*/}
         }
 
         public async void CopyStorageItemSelected()

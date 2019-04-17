@@ -216,6 +216,8 @@ namespace Explorer.Controls
             RemoveFocus();
         }
 
+        #region User Events
+
         private void Window_KeyDown(object sender, KeyRoutedEventArgs args)
         {
             if (ItemsSource.Count == 0) return;
@@ -313,8 +315,6 @@ namespace Explorer.Controls
             var shiftDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
             var controlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
 
-            FocusRow(item);
-
             //Begin new selection
             if (!controlDown && !shiftDown)
                 UnselectOldRows();
@@ -323,6 +323,8 @@ namespace Explorer.Controls
                 SelectRowsBetween(item);
             else
                 ToggleSelect(item, hitbox);
+
+            FocusRow(item);
         }
 
         private void Row_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -352,11 +354,19 @@ namespace Explorer.Controls
             DoubleTappedItem = item;
         }
 
+
         private void OpenBackgroundFlyout(object sender, RightTappedRoutedEventArgs e)
         {
             var s = (FrameworkElement)sender;
             BackgroundFlyout.ShowAt(s, e.GetPosition(s));
         }
+
+        private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)
+        {
+            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
+            else MultipleItemFlyout.ShowAt(row, position);
+        }
+        #endregion
 
         private void TryScrollFocusSelect(FileSystemElement fse)
         {
@@ -467,14 +477,14 @@ namespace Explorer.Controls
 
         private void SelectRowsBetween(FileSystemElement fse)
         {
-            var lastTappedRowIndex = SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last());
+            var lastTappedRowIndex = FocusedItem == null ? 0 : ItemsSource.IndexOf(FocusedItem); //SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last());
             var tappedRowIndex = ItemsSource.IndexOf(fse);
 
             var from = Math.Min(lastTappedRowIndex, tappedRowIndex);
             var to = Math.Max(lastTappedRowIndex, tappedRowIndex);
             for (int i = from; i <= to; i++)
             {
-                if (i == lastTappedRowIndex) continue;
+                //if (i == lastTappedRowIndex) continue;
 
                 var item = ItemsSource[i];
                 var container = (ContentPresenter) ItemsSourceRowHitbox.ContainerFromItem(item);
@@ -512,6 +522,7 @@ namespace Explorer.Controls
             else hitbox.Style = (Style)Resources[style + "Style"];
         }
 
+        #region Focus Methods
         private void FocusRow(FileSystemElement fse, bool usedKeyboard = false)
         {
             //Remove focus highlight from old row
@@ -575,6 +586,7 @@ namespace Explorer.Controls
             FocusedItem = null;
             focusedRow = null;
         }
+        #endregion
 
         private void ScrollTo(FileSystemElement fse)
         {
@@ -586,12 +598,8 @@ namespace Explorer.Controls
             ScrollViewer.ChangeView(null, 30 * index, null);
         }
 
-        private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)
-        {
-            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
-            else MultipleItemFlyout.ShowAt(row, position);
-        }
-
+       
+        #region SelectionRect Methods
         private void ContentGrid_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             var pointer = e.GetCurrentPoint(ContentGrid);
@@ -661,5 +669,6 @@ namespace Explorer.Controls
             SelectionRect.Width = 0;
             SelectionRect.Height = 0;
         }
+        #endregion
     }
 }

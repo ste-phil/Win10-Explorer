@@ -33,7 +33,7 @@
                     <Setter.Value>
                         <TransitionCollection>
                             <EntranceThemeTransition/>
-                            <RepositionThemeTransition/>
+                            <RepositionThemeTransition IsStaggeringEnabled="False"/>
                         </TransitionCollection>
                     </Setter.Value>
                 </Setter>

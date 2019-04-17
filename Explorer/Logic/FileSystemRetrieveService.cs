@@ -49,7 +49,7 @@ namespace Explorer.Logic
 
         public FileSystemRetrieveService()
         {
-            Items = new ObservableCollection<FileSystemElement>();
+            Items = new ObservableRangeCollection<FileSystemElement>();
             loadedFiles = new List<StorageFile>();
 
             fileQueryOptions = new QueryOptions();
@@ -82,32 +82,6 @@ namespace Explorer.Logic
             else await SwitchFolderAsync(path, cts.Token);
         }
 
-        public async Task RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions = default)
-        {
-            this.thumbnailOptions = thumbnailOptions;
-
-            for (int i = loadedFolderCount; i < loadedFiles.Count; i++)
-            {
-                if (cts.Token.IsCancellationRequested) break;
-
-                var ti = await loadedFiles[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
-                if (ti != null)
-                {
-                    try
-                    {
-                        await Items[i].Image.SetSourceAsync(ti.CloneStream());
-                    } catch(Exception) { /*Supress Task canceled exception*/ }
-                }
-            }
-        }
-
-        public void Clear()
-        {
-            loadedFolderCount = 0;
-            Items.Clear();
-            loadedFiles.Clear();
-        }
-
         private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
             currentPath = path;
@@ -125,6 +99,53 @@ namespace Explorer.Logic
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
         }
+
+        public void Clear()
+        {
+            loadedFolderCount = 0;
+            Items.Clear();
+            loadedFiles.Clear();
+        }
+
+        public async Task RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions = default)
+        {
+            this.thumbnailOptions = thumbnailOptions;
+
+            for (int i = loadedFolderCount; i < loadedFiles.Count; i++)
+            {
+                if (cts.Token.IsCancellationRequested) break;
+
+                var ti = await loadedFiles[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
+                if (ti != null)
+                {
+                    try
+                    {
+                        await Items[i].Image.SetSourceAsync(ti.CloneStream());
+                    }
+                    catch (Exception) { /*Supress Task canceled exception*/ }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes passed FileSystemElement and removes it from the list
+        /// </summary>
+        /// <param name="fse"></param>
+        /// <returns></returns>
+        public async Task DeleteFileSystemElement(FileSystemElement fse)
+        {
+            try
+            {
+                await FileSystem.DeleteStorageItemAsync(fse);
+
+                var index = Items.IndexOf(fse);
+                Items.RemoveAt(index);
+                if (!fse.IsFolder) loadedFiles.RemoveAt(index);
+            }
+            catch (Exception) { /*e.g. NotFound / Unauthorized Exception*/}
+        }
+
+        #region Internal Methods
 
         private async Task SwitchFolderAsync(string path, CancellationToken cancellationToken)
         {
@@ -312,81 +333,6 @@ namespace Explorer.Logic
 
             loadedFolderCount++;
         }
-
-        //public async Task<FileSystemElement[]> ReloadFolderAsync()
-        //{
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    var result = new FileSystemElement[folders.Count + files.Count];
-        //    queryTasks[0] = LoadFoldersAsync(result, 0);
-        //    queryTasks[1] = LoadFilesAsync(result, folders.Count);
-        //    await Task.WhenAll(queryTasks);
-
-        //    s.Stop();
-        //    Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
-
-        //    return result;
-        //}
-
-        //public async Task<FileSystemElement[]> SwitchFolderAsync(string path)
-        //{
-        //    var folder = await FileSystem.GetFolderAsync(path);
-
-        //    folderQuery = folder.CreateFolderQuery();
-        //    fileQuery = folder.CreateFileQuery();
-
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    var result = new FileSystemElement[folders.Count + files.Count];
-        //    queryTasks[0] = LoadFoldersAsync(result, 0);
-        //    queryTasks[1] = LoadFilesAsync(result, folders.Count);
-        //    await Task.WhenAll(queryTasks);
-
-        //    s.Stop();
-        //    Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
-
-        //    return result;
-        //}
-
-        //private async Task LoadFoldersAsync(FileSystemElement[] arr, int startIndex)
-        //{
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    for (int i = 0; i < folders.Count; i++)
-        //    {
-        //        StorageFolder element = folders[i];
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        arr[startIndex + i] = new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        };
-        //    }
-        //}
-
-        //private async Task LoadFilesAsync(FileSystemElement[] arr, int startIndex)
-        //{
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    for (int i = 0; i < files.Count; i++)
-        //    {
-        //        StorageFile element = files[i];
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        arr[startIndex + i] = new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        };
-        //    }
-        //}
+        #endregion
     }
 }

@@ -9,12 +9,6 @@ namespace Explorer.Helper
 {
     public static class Extensions
     {
-        public static void RemoveRange<T>(this Collection<T> collection, Collection<T> remove)
-        {
-            for (int i = 0; i < remove.Count; i++)
-            {
-                collection.Remove(remove[i]);
-            }
-        }
+        
     }
 }
