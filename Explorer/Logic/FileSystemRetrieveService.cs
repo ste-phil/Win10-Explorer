@@ -138,9 +138,8 @@ namespace Explorer.Logic
             {
                 await FileSystem.DeleteStorageItemAsync(fse);
 
-                var index = Items.IndexOf(fse);
-                Items.RemoveAt(index);
-                if (!fse.IsFolder) loadedFiles.RemoveAt(index);
+                Items.Remove(fse);
+                if (!fse.IsFolder) loadedFiles.Remove(loadedFiles.First(s => s.Path == fse.Path));
             }
             catch (Exception) { /*e.g. NotFound / Unauthorized Exception*/}
         }
