@@ -133,19 +133,9 @@ namespace Explorer.Controls
                 for (int i = 0; i < e.OldItems.Count; i++)
                 {
                     var fse = (FileSystemElement)e.OldItems[i];
-                    var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+                    var hitbox = selectedElements.First(f => f.Tag == fse);
 
-                    //Row doesnt exsist anymore just remove it from code
-                    if (container == null)  
-                    {
-                        selectedElements.RemoveAll(f => f.Tag == fse);
-                    }
-                    else
-                    {
-                        var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
-                        StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
-
-                    }
+                    StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
                 }
             }
 
