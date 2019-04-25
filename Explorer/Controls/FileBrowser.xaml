@@ -222,7 +222,7 @@
         </local:StorageTableView>
         
         
-        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
+        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Stretch" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
                                    animations:ReorderGridAnimation.Duration="250"
                                    ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}" DesiredWidth="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}" 
                                    SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"

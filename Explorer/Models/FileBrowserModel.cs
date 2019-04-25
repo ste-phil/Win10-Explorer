@@ -67,8 +67,8 @@ namespace Explorer.Models
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
 
-            retrieveService = new FileSystemRetrieveService();
-            FileSystemElements = retrieveService.Items;
+            retrieveService = new FileSystemRetrieveService(Window.Current.CoreWindow.Dispatcher);
+            FileSystemElements = retrieveService.ViewItems;
 
             operationSerivce = FileSystemOperationService.Instance;
 
@@ -101,6 +101,7 @@ namespace Explorer.Models
                 OnPropertyChanged();
                 OnPropertyChanged("Path");
                 OnPropertyChanged("Name");
+                OnPropertyChanged("SearchPlaceholder");
                 UpdatePathSuggestions();
             }
         }
@@ -108,8 +109,10 @@ namespace Explorer.Models
         public string Name
         {
             get { return currentFolder?.Name; }
-            set { currentFolder.Name = value; OnPropertyChanged(); }
+            set { currentFolder.Name = value; OnPropertyChanged(); OnPropertyChanged("SearchPlaceholder"); }
         }
+
+        public string SearchPlaceholder => "Search " + Name;
 
         public string Path
         {
@@ -189,6 +192,8 @@ namespace Explorer.Models
             HistoryPosition = -1;
         }
 
+        
+
         /// <summary>
         /// Navigate to the passed Folder
         /// </summary>
@@ -238,6 +243,11 @@ namespace Explorer.Models
         public void LaunchExe(string path, string arguments = null)
         {
             FileSystem.LaunchExeAsync(path, arguments);
+        }
+
+        public async void SearchFolder(string search)
+        {
+            await retrieveService.SearchFolder(search);
         }
 
         private ThumbnailFetchOptions GetThumbnailFetchOptions()
@@ -539,6 +549,21 @@ namespace Explorer.Models
                     break;
                 case VirtualKey.V:
                     PasteStorageItemSelected();
+                    break;
+                case VirtualKey.A:
+                    if (SelectedItems.Count == FileSystemElements.Count)
+                        SelectedItems.Clear();
+                    else
+                    {
+                        for (int i = 0; i < FileSystemElements.Count; i++)
+                        {
+                            if (!SelectedItems.Contains(FileSystemElements[i]))
+                                SelectedItems.Add(FileSystemElements[i]);
+                        }
+                    }
+                    
+
+                    
                     break;
             }
         }

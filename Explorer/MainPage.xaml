@@ -10,7 +10,8 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:system="using:System"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    KeyDown="Page_KeyDown">
     <Page.Resources>
         <DataTemplate x:Key="FileSystemLinkTemplate" x:DataType="entities:NavigationLink">
             <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind}">
@@ -85,7 +86,7 @@
                     OpenPaneLength="200"
                     MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}" >
         <NavigationView.AutoSuggestBox>
-            <AutoSuggestBox></AutoSuggestBox>
+            <AutoSuggestBox Name="SearchBox" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}"></AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
         
         <Grid Background="{ThemeResource AppBackgroundBrush}">

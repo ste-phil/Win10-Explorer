@@ -152,7 +152,7 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
 
-                    <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0" >
+                    <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="entities:FileSystemElement">
                                 <Border Style="{StaticResource RowDefaultStyle}" Height="30" AllowFocusOnInteraction="True"

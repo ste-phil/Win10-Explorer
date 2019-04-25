@@ -11,7 +11,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -68,7 +70,7 @@ namespace Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter == "") 
+            if ((string)e.Parameter == "") 
             {
                 ViewModel.FileBrowserModels.Add(new FileBrowserModel()); 
             }
@@ -97,6 +99,21 @@ namespace Explorer
                 
                 // Need to serialize item to better provide transfer across window threads.
                 var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));
+            }
+        }
+
+        private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            var key = e.Key;
+
+            var ctrlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+            if (!ctrlDown) return;
+
+            switch (key)
+            {
+                case VirtualKey.F:
+                    SearchBox.Focus(FocusState.Programmatic);
+                    break;
             }
         }
     }
