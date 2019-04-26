@@ -224,6 +224,11 @@ namespace Explorer.Models
 
         #endregion
 
+        public void FileBrowser_RequestedTabOpen(object sender, FileSystemElement e)
+        {
+            FileBrowserModels.Add(new FileBrowserModel(e));
+        }
+
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             var item = ((NavigationViewItem)args.SelectedItemContainer).Tag;

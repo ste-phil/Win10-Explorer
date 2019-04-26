@@ -123,7 +123,7 @@
 
 
              <!--Content First-->
-            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}"></local:FileBrowser>
+            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FileBrowser>
 
             <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"

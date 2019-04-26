@@ -54,15 +54,32 @@ namespace Explorer.Models
 
         public double FileBrowserWidth { get; set; }
 
-        public FileBrowserModel()
+        public FileBrowserModel(FileSystemElement folder)
         {
-            //Set start folder to windows disk
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
-            SelectedItems = new ObservableCollection<FileSystemElement>();
+            CurrentFolder = folder;
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
             ToggleView = new Command(async () => await ToggleViewMode(), () => true);
+
+            Init();
+        }
+
+        public FileBrowserModel()
+        {
+            //Set start folder to windows disk if it has not been set
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
+
+            NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
+            NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
+            ToggleView = new Command(async () => await ToggleViewMode(), () => true);
+
+            Init();
+        }
+
+        private void Init()
+        {
+            SelectedItems = new ObservableCollection<FileSystemElement>();
 
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
@@ -561,8 +578,6 @@ namespace Explorer.Models
                                 SelectedItems.Add(FileSystemElements[i]);
                         }
                     }
-                    
-
                     
                     break;
             }

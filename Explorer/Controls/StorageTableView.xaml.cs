@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Explorer.Logic;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,6 +24,8 @@ namespace Explorer.Controls
 {
     public sealed partial class StorageTableView : Page
     {
+        public event EventHandler<FileSystemElement> RequestedTabOpen;
+
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
 
@@ -319,6 +322,21 @@ namespace Explorer.Controls
             {
                 UnselectOldRows();
                 TryScrollFocusSelect(ItemsSource[firstItemIndex]);
+            }
+        }
+
+        private void Row_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            var hitbox = (FrameworkElement)sender;
+            var item = (FileSystemElement)hitbox.Tag;
+
+            var point = e.GetCurrentPoint(hitbox);
+            if (point.PointerDevice.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                if (point.Properties.IsMiddleButtonPressed && item.IsFolder)
+                {
+                    RequestedTabOpen?.Invoke(this, item);
+                }
             }
         }
 

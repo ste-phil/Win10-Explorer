@@ -156,7 +156,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="entities:FileSystemElement">
                                 <Border Style="{StaticResource RowDefaultStyle}" Height="30" AllowFocusOnInteraction="True"
-                                    Tag="{x:Bind}" Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped">
+                                    Tag="{x:Bind}" Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped" PointerPressed="Row_PointerPressed">
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
