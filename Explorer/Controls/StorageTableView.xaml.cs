@@ -254,7 +254,8 @@ namespace Explorer.Controls
                     DoubleTappedItem = FocusedItem;
                     break;
                 case VirtualKey.Menu:
-                    OpenItemFlyout(FocusedItem, focusedRow, new Point(0, focusedRow.Height));
+                    if (focusedRow != null)
+                        OpenItemFlyout(FocusedItem, focusedRow, new Point(0, focusedRow.Height));
                     break;
                 //Move focus to next/previous element and keep it in view
                 case VirtualKey.Up:

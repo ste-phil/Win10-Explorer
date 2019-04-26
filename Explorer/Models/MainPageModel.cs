@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -34,6 +35,7 @@ namespace Explorer.Models
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
             AddTabCmd = new Command(() => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            LaunchUrl = new GenericCommand<string>(async url => await Launcher.LaunchUriAsync(new Uri(url)), url => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
             FavNavLinkUpCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveUpFavorite(x), x => Favorites.IndexOf(x) > 0);
@@ -80,7 +82,8 @@ namespace Explorer.Models
             set { CurrentFileBrowser = value; }
         }
 
-        public Command AddTabCmd { get; }
+        public ICommand AddTabCmd { get; }
+        public ICommand LaunchUrl { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkUpCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkDownCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkRemoveCmd { get; }

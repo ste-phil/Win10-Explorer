@@ -70,7 +70,7 @@ namespace Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if ((string)e.Parameter == "") 
+            if (e.Parameter == "") 
             {
                 ViewModel.FileBrowserModels.Add(new FileBrowserModel()); 
             }

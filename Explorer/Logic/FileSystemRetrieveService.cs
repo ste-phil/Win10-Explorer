@@ -45,7 +45,9 @@ namespace Explorer.Logic
 
         private bool refreshRunning;
         private ThumbnailFetchOptions thumbnailOptions;
+
         private string currentSearch;
+        private bool deepSearchRunning;
 
         private int folderCount;
         private List<StorageFile> files;
@@ -62,6 +64,7 @@ namespace Explorer.Logic
             files = new List<StorageFile>();
 
             currentSearch = "";
+            this.dispatcher = dispatcher;
 
             fileQueryOptions = new QueryOptions();
             folderQueryOptions = new QueryOptions();
@@ -77,36 +80,43 @@ namespace Explorer.Logic
             };
 
             fileQueryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, props);
-            this.dispatcher = dispatcher;
             //folderQueryOptions.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, props);
         }
 
         public async Task LoadFolderAsync(string path, ThumbnailFetchOptions thumbnailOptions = default)
         {
-            this.thumbnailOptions = thumbnailOptions;
+            if (thumbnailOptions == default) this.thumbnailOptions = new ThumbnailFetchOptions();
+            else this.thumbnailOptions = thumbnailOptions;
 
             s.Restart();
 
-            browseCts?.Cancel();  //Cancel previously scheduled browse
+            browseCts?.Cancel();                          //Cancel previously scheduled browse
             browseCts = new CancellationTokenSource();    //Create new cancel token for this request
+            deepSearchRunning = false;                    //Current load might be a deep search so stop it
+
+            folderQueryOptions.FolderDepth = FolderDepth.Shallow;  
+            fileQueryOptions.FolderDepth = FolderDepth.Shallow;
 
             if (currentPath == path) await ReloadFolderAsync(path, browseCts.Token);
             else await SwitchFolderAsync(path, browseCts.Token);
         }
 
-        private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
+        public async Task LoadFolderDeepAsync(string path, ThumbnailFetchOptions thumbnailOptions = default)
         {
-            currentPath = path;
+            if (thumbnailOptions == default) this.thumbnailOptions = new ThumbnailFetchOptions();
+            else this.thumbnailOptions = thumbnailOptions;
 
-            folderQuery.ApplyNewQueryOptions(folderQueryOptions);
-            fileQuery.ApplyNewQueryOptions(fileQueryOptions);
+            s.Restart();
 
-            Clear();
-            await LoadFoldersAsync(cancellationToken);
-            await LoadFilesAsync(cancellationToken);
+            browseCts?.Cancel();                          //Cancel previously scheduled browse
+            browseCts = new CancellationTokenSource();    //Create new cancel token for this request
 
-            s.Stop();
-            Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
+            folderQueryOptions.FolderDepth = FolderDepth.Deep;      //Request any subfolders
+            fileQueryOptions.FolderDepth = FolderDepth.Deep;        //Request any files in subfolders
+
+            deepSearchRunning = true;
+            if (currentPath == path) await ReloadFolderAsync(path, browseCts.Token);
+            else await SwitchFolderAsync(path, browseCts.Token);
         }
 
         public void Clear()
@@ -162,32 +172,30 @@ namespace Explorer.Logic
             searchCts = new CancellationTokenSource();
 
             //Lower search input to find not capitalized results
-            search = search.ToLower();
+            var oldSearch = currentSearch;
+            currentSearch = search.ToLower();
 
-            //Deep search
-            if (Regex.Match(search, @"^d\s{1}").Success) await Task.Run(() => SearchFolderDeepAsync(search, searchCts.Token));
-            //Shallow search
+            //Begin deep search when user puts d_* and if its not already running
+            if (Regex.Match(currentSearch, @"^d\s{1}").Success)
+            {
+                currentSearch = currentSearch.Substring(2, currentSearch.Length - 2);
+                if (!deepSearchRunning) _ = LoadFolderDeepAsync(currentPath);
+            }
+
+            //Searchs currently loaded items
+            //If no input found reset search
+            if (currentSearch == "") RestoreItems();
+            //When the user adds one character to the existing search
+            else if (currentSearch.Length > oldSearch.Length && currentSearch.Contains(oldSearch)) await Task.Run(() => LimitSearchFolderShallowAsync(currentSearch, searchCts.Token));
+            //When the user remove one character from the existing search
+            else if (currentSearch.Length < oldSearch.Length && oldSearch.Contains(currentSearch)) await Task.Run(() => ExpandSearchFolderShallowAsync(currentSearch, searchCts.Token));
+            //If the use pastes a completely new search
             else
             {
-                //If no input found reset search
-                if (search == "") RestoreItems();
-                //When the user adds one character to the existing search
-                else if (search.Length > currentSearch.Length && search.Contains(currentSearch)) await Task.Run(() => LimitSearchFolderShallowAsync(search, searchCts.Token));
-                //When the user remove one character from the existing search
-                else if (search.Length < currentSearch.Length && currentSearch.Contains(search)) await Task.Run(() => ExpandSearchFolderShallowAsync(search, searchCts.Token));
-                //If the use pastes a completely new search
-                else
-                {
-                    ViewItems.Clear();
-                    await ExpandSearchFolderShallowAsync(search, searchCts.Token);
-                }
+                ViewItems.Clear();
+                await ExpandSearchFolderShallowAsync(currentSearch, searchCts.Token);
             }
             
-
-            currentSearch = search;
-
-            //else if (Regex.Match(search, @"^d\s{1}").Success) await SearchFolderDeep(search, searchCts.Token);
-            //else await SearchFolderShallow(search, searchCts.Token);
 
             s.Stop();
             Debug.WriteLine("******Search took: " + s.ElapsedMilliseconds + "ms");
@@ -229,11 +237,6 @@ namespace Explorer.Logic
             Debug.WriteLine("ExpandSearch took: " + s.ElapsedMilliseconds + "ms");
         }
 
-        private async Task SearchFolderDeepAsync(string search, CancellationToken token)
-        {
-
-        }
-
         #region Internal Methods
 
         private void RestoreItems()
@@ -243,6 +246,21 @@ namespace Explorer.Logic
             {
                 ViewItems.Add(fse);
             }
+        }
+
+        private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
+        {
+            currentPath = path;
+
+            folderQuery.ApplyNewQueryOptions(folderQueryOptions);
+            fileQuery.ApplyNewQueryOptions(fileQueryOptions);
+
+            Clear();
+            await LoadFoldersAsync(cancellationToken);
+            await LoadFilesAsync(cancellationToken);
+
+            s.Stop();
+            Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
         }
 
         private async Task SwitchFolderAsync(string path, CancellationToken cancellationToken)
@@ -435,7 +453,10 @@ namespace Explorer.Logic
             }
 
             var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size, image, item.DisplayType, item.FileType);
-            if (currentSearch == "") ViewItems.Add(fse);
+
+            //If there is a search going on check if the items fits the search
+            if (currentSearch != "" && fse.LowerName.Contains(currentSearch)) ViewItems.Add(fse);
+            else if (currentSearch == "") ViewItems.Add(fse);
 
             items.Add(fse);
             files.Add(item);
@@ -446,7 +467,10 @@ namespace Explorer.Logic
             var basicProps = await item.GetBasicPropertiesAsync();
 
             var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size);
-            if (currentSearch == "") ViewItems.Add(fse);
+
+            //If there is a search going on check if the items fits the search
+            if (currentSearch != "" && fse.LowerName.Contains(currentSearch)) ViewItems.Add(fse);
+            else if (currentSearch == "") ViewItems.Add(fse);
 
             items.Add(fse);
             folderCount++;
