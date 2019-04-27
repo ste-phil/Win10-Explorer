@@ -119,6 +119,12 @@ namespace Explorer.Logic
             else await SwitchFolderAsync(path, browseCts.Token);
         }
 
+        public void StopLoad()
+        {
+            browseCts?.Cancel();
+            s.Stop();
+        }
+
         public void Clear()
         {
             folderCount = 0;
@@ -131,7 +137,7 @@ namespace Explorer.Logic
         {
             this.thumbnailOptions = thumbnailOptions;
 
-            for (int i = folderCount; i < files.Count; i++)
+            for (int i = 0; i < files.Count; i++)
             {
                 if (browseCts.Token.IsCancellationRequested) break;
 
@@ -140,7 +146,7 @@ namespace Explorer.Logic
                 {
                     try
                     {
-                        await ViewItems[i].Image.SetSourceAsync(ti.CloneStream());
+                        await ViewItems[folderCount + i].Image.SetSourceAsync(ti.CloneStream());
                     }
                     catch (Exception) { /*Supress Task canceled exception*/ }
                 }
@@ -202,6 +208,19 @@ namespace Explorer.Logic
             Debug.WriteLine("----");
         }
 
+
+
+        #region Internal Methods
+
+        #region Search
+        private void RestoreItems()
+        {
+            ViewItems.Clear();
+            foreach (FileSystemElement fse in items)
+            {
+                ViewItems.Add(fse);
+            }
+        }
         private async Task LimitSearchFolderShallowAsync(string search, CancellationToken token)
         {
             var s2 = new Stopwatch();
@@ -230,23 +249,13 @@ namespace Explorer.Logic
             {
                 FileSystemElement fse = items[i];
                 if (token.IsCancellationRequested) return;
-                if (fse.LowerName.Contains(search) && !ViewItems.Contains(fse)) await dispatcher.RunAsync(CoreDispatcherPriority.Low, () => ViewItems.Add(fse)); 
+                if (fse.LowerName.Contains(search) && !ViewItems.Contains(fse)) await dispatcher.RunAsync(CoreDispatcherPriority.Low, () => ViewItems.Add(fse));
             }
 
             s2.Stop();
             Debug.WriteLine("ExpandSearch took: " + s.ElapsedMilliseconds + "ms");
         }
-
-        #region Internal Methods
-
-        private void RestoreItems()
-        {
-            ViewItems.Clear();
-            foreach (FileSystemElement fse in items)
-            {
-                ViewItems.Add(fse);
-            }
-        }
+        #endregion
 
         private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
@@ -444,11 +453,12 @@ namespace Explorer.Logic
         private async Task AddFileAsync(StorageFile item)
         {
             var basicProps = await item.GetBasicPropertiesAsync();
-            var image = new BitmapImage();
 
-            var ti = await item.GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, ThumbnailOptions.UseCurrentScale);
+            BitmapImage image = null;
+            var ti = await item.GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
             if (ti != null)
             {
+                image = new BitmapImage();
                 _ = image.SetSourceAsync(ti.CloneStream());
             }
 

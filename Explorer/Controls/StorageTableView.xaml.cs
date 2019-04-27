@@ -136,7 +136,8 @@ namespace Explorer.Controls
                 for (int i = 0; i < e.OldItems.Count; i++)
                 {
                     var fse = (FileSystemElement)e.OldItems[i];
-                    var hitbox = selectedElements.First(f => f.Tag == fse);
+                    var hitbox = selectedElements.FirstOrDefault(f => f.Tag == fse);
+                    if (hitbox == null) continue;
 
                     StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
                 }

@@ -273,7 +273,7 @@ namespace Explorer.Models
             //but only when it has been set, else enable TableView
             uint thumbnailSize = 20;
             var mode = ThumbnailMode.ListView;
-            if (ViewMode != null)
+            if (ViewMode != null && ViewMode.Type == ThumbnailMode.PicturesView)
             {
                 GridViewItemWidth = FileBrowserWidth / 3 - 50;
                 thumbnailSize = (uint)GridViewItemWidth - 50;

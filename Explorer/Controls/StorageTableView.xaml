@@ -165,6 +165,14 @@
                     <ItemsControl x:Name="ItemsSourceIcon" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.Row="0" IsHitTestVisible="False" IsTabStop="False">
                         <ItemsControl.ItemTemplateSelector>
                             <entities:StorageItemTemplateSelector>
+                                <entities:StorageItemTemplateSelector.FileNoImgTemplate>
+                                    <DataTemplate x:DataType="entities:FileSystemElement">
+                                        <Grid>
+                                            <FontIcon Glyph="&#xE8A5;" Height="20" Margin="0,5,0,5"></FontIcon>
+                                            <FontIcon Glyph="&#xE8E3;" Height="10" Width="8" Margin="0,5,0,5"></FontIcon>
+                                        </Grid>
+                                    </DataTemplate>
+                                </entities:StorageItemTemplateSelector.FileNoImgTemplate>
                                 <entities:StorageItemTemplateSelector.FileTemplate>
                                     <DataTemplate x:DataType="entities:FileSystemElement">
                                         <Image Source="{x:Bind Image}" Height="20" Margin="0,5,0,5"></Image>
