@@ -242,6 +242,23 @@ namespace Explorer.Models
             }
         }
 
+        public async void NavigateOrOpen(string path)
+        {
+            var fse = await FileSystem.GetFileSystemElementAsync(path);
+            if (fse == null)
+            {
+                Path = CurrentFolder.Path;
+                return;
+            }
+
+            if (fse.IsFolder) NavigateTo(fse);
+            else
+            {
+                if (fse.Type == ".exe") FileSystem.LaunchExeAsync(fse.Path, "");
+                else FileSystem.OpenFileWithDefaultApp(fse.Path);
+            }
+        }
+
         /// <summary>
         /// Navigate without history to the passed Folder (internal use e.g. nav buttons)
         /// </summary>
@@ -494,7 +511,7 @@ namespace Explorer.Models
             if (!TextBoxPathIsFocused || (Path == null || Path == "")) return;
 
             var folders = Path.Split('\\');
-            var searchString = folders[folders.Length - 1];
+            var searchString = folders[folders.Length - 1].ToLower();
 
             string path = Path;
             if (!FileSystem.DirectoryExists(path) && folders.Length > 1) path = Path.Substring(0, Path.LastIndexOf("\\"));
@@ -505,9 +522,11 @@ namespace Explorer.Models
                 PathSuggestions.Clear();
                 foreach (FileSystemElement fse in folderContent)
                 {
-                    if (fse.Name.Contains(searchString))
+                    if (fse.Name.ToLower().Contains(searchString))
                         PathSuggestions.Add(fse);
                 }
+
+                if (PathSuggestions.Count == 1 && PathSuggestions[0].Name.ToLower() == searchString) PathSuggestions.RemoveAt(0);
             }
             catch (Exception)
             {

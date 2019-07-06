@@ -16,6 +16,7 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
+using Windows.UI.Xaml.Media.Imaging;
 using FileAttributes = Windows.Storage.FileAttributes;
 
 namespace Explorer.Logic
@@ -85,6 +86,7 @@ namespace Explorer.Logic
             return drives;
         }
 
+        [Obsolete]
         public static bool DirectoryExists(string path)
         {
             return Directory.Exists(path);
@@ -293,6 +295,34 @@ namespace Explorer.Logic
         }
 
 
+        /// <summary>
+        /// Tries to get the folder/file from the given path.
+        /// </summary>
+        /// <param name="path">The full path to the element</param>
+        /// <returns>The folder/file or null if not found</returns>
+        public static async Task<FileSystemElement> GetFileSystemElementAsync(string path)
+        {
+            try
+            {
+                var folder = await GetFolderAsync(path);
+                return new FileSystemElement(folder.Name, folder.Path, folder.DateCreated, 0);
+            }
+            catch(Exception) { }
+            
+            try
+            {
+                var file = await GetFileAsync(path);
+                var props = await file.GetBasicPropertiesAsync();
+                var tn = await file.GetThumbnailAsync(ThumbnailMode.ListView);
+                var bitmap = new BitmapImage();
+                await bitmap.SetSourceAsync(tn.CloneStream());
+                return new FileSystemElement(file.Name, file.Path, props.DateModified, props.Size, bitmap, file.FileType, file.DisplayType);
+            }
+            catch (Exception) { }
+
+            return null;
+        }
+
         public static async Task<IStorageItem> GetStorageItemAsync(FileSystemElement fse)
         {
             if (fse.IsFolder)
@@ -359,14 +389,7 @@ namespace Explorer.Logic
             {
                 var props = await element.GetBasicPropertiesAsync();
 
-                resultList.Add(new FileSystemElement
-                {
-                    Name = element.Name,
-                    Size = props.Size,
-                    DisplayType = element.Attributes.ToString(),
-                    DateModified = props.DateModified,
-                    Path = element.Path,
-                });
+                resultList.Add(new FileSystemElement(element.Name, element.Path, props.DateModified, props.Size));
             }
 
             return resultList;

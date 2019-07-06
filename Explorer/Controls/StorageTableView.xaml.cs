@@ -195,7 +195,7 @@ namespace Explorer.Controls
 
             fe.CapturePointer(e.Pointer);
 
-            currentColumnIndex = (int) columnHeader.GetValue(Grid.ColumnProperty);
+            currentColumnIndex = (int)columnHeader.GetValue(Grid.ColumnProperty);
             startPos = Window.Current.CoreWindow.PointerPosition;
             isResizing = true;
         }
@@ -283,12 +283,12 @@ namespace Explorer.Controls
 
                     var index = up ? lastFocusedIndex - 1 : lastFocusedIndex + 1;                  //Find next index depending on which button has been pressed
                     var condBoundings = up ? index >= 0 : index < ItemsSource.Count;               //Check bounding 0 <= index < ItemsSource.Count 
-                    
+
                     if (!condBoundings) break;                                  //Cancel move focus if next item would be out of bounds
                     if (ctrlDown)
                     {
                         //Select next row if ctrl was pressed
-                        ToggleSelect(ItemsSource[index]);            
+                        ToggleSelect(ItemsSource[index]);
 
                         //Select LastFocusedItem if its not selected
                         if (!SelectedItems.Contains(ItemsSource[lastFocusedIndex]))
@@ -529,8 +529,8 @@ namespace Explorer.Controls
                 //if (i == lastTappedRowIndex) continue;
 
                 var item = ItemsSource[i];
-                var container = (ContentPresenter) ItemsSourceRowHitbox.ContainerFromItem(item);
-                var row = (FrameworkElement) VisualTreeHelper.GetChild(container, 0);
+                var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(item);
+                var row = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
 
                 if (!SelectedItems.Contains(item)) ToggleSelect(item, row);
             }
@@ -648,11 +648,7 @@ namespace Explorer.Controls
             ScrollViewer.ChangeView(null, 30 * index, null);
         }
 
-        private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)
-        {
-            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
-            else MultipleItemFlyout.ShowAt(row, position);
-        }
+        #region Drag&Drop
 
         private async void Row_Drop(object sender, DragEventArgs e)
         {
@@ -740,7 +736,9 @@ namespace Explorer.Controls
             //args.DragUI.SetContentFromDataPackage();
             deferral.Complete();
         }
+        #endregion
 
+        #region SelectionRect
         private void ContentGrid_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             var pointer = e.GetCurrentPoint(ContentGrid);
@@ -798,12 +796,12 @@ namespace Explorer.Controls
 
             //if (pointer.Properties.IsRightButtonPressed)
             //{
-                isDraggingSelection = true;
-                pressedPos = e.GetCurrentPoint((FrameworkElement)sender);
-                ContentGrid.CapturePointer(e.Pointer);
+            isDraggingSelection = true;
+            pressedPos = e.GetCurrentPoint((FrameworkElement)sender);
+            ContentGrid.CapturePointer(e.Pointer);
 
-                Canvas.SetLeft(SelectionRect, pressedPos.Position.X);
-                Canvas.SetTop(SelectionRect, pressedPos.Position.Y);
+            Canvas.SetLeft(SelectionRect, pressedPos.Position.X);
+            Canvas.SetTop(SelectionRect, pressedPos.Position.Y);
             //}
         }
 

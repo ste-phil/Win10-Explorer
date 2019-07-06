@@ -97,7 +97,7 @@ namespace Explorer.Controls
             if (chosen != null)
                 ViewModel.NavigateOrOpen(chosen);
             else
-                ViewModel.NavigateTo(new FileSystemElement { Path = args.QueryText, IsFolder = true });
+                ViewModel.NavigateOrOpen(args.QueryText);
         }
 
         private void StorageTableView_KeyDown(object sender, KeyRoutedEventArgs e)
