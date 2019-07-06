@@ -144,7 +144,7 @@
                 <Rectangle Grid.ColumnSpan="6" Grid.Row="1" Stroke="Gray" StrokeThickness="1" Height="1"></Rectangle>
             </Grid>
             <ScrollViewer Grid.Row="1" Name="ScrollViewer">
-                <Grid Name="ContentGrid">
+                <Grid Name="ContentGrid" PointerMoved="ContentGrid_PointerMoved" PointerPressed="ContentGrid_PointerPressed" PointerReleased="ContentGrid_PointerReleased">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
                         <ColumnDefinition Width="*"    MinWidth="100"></ColumnDefinition>
@@ -230,10 +230,12 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    
+                    <Rectangle Grid.ColumnSpan="5" Grid.Row="1" Fill="Transparent" RightTapped="{x:Bind OpenBackgroundFlyout}"></Rectangle>
 
-                    <Rectangle
-                               Grid.ColumnSpan="5" Grid.Row="1" Fill="Transparent" RightTapped="{x:Bind OpenBackgroundFlyout}">
-                    </Rectangle>
+                    <Canvas x:Name="SelectionCanvas" Grid.ColumnSpan="5" Grid.RowSpan="2" IsHitTestVisible="False">
+                        <Rectangle x:Name="SelectionRect" Stroke="AliceBlue" StrokeThickness="2"></Rectangle>
+                    </Canvas>
                 </Grid>
             </ScrollViewer>
         </Grid>
