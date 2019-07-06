@@ -10,7 +10,8 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:system="using:System"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    KeyDown="Page_KeyDown">
     <Page.Resources>
         <DataTemplate x:Key="FileSystemLinkTemplate" x:DataType="entities:NavigationLink">
             <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind}">
@@ -83,10 +84,30 @@
                     IsBackButtonVisible="Collapsed" IsBackEnabled="False"
                     SelectionChanged="{x:Bind ViewModel.NavigateNavigationFSE}"
                     OpenPaneLength="200"
-                    MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}" >
+                    MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}" IsSettingsVisible="False">
         <NavigationView.AutoSuggestBox>
-            <AutoSuggestBox></AutoSuggestBox>
+            <AutoSuggestBox Name="SearchBox" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}"></AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
+        <NavigationView.PaneFooter>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent" Height="50">
+                    <SymbolIcon Symbol="Setting"></SymbolIcon>
+                </Button>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{ThemeResource MyButtonRevealStyle}" Width="50" Height="50" Command="{x:Bind ViewModel.LaunchUrl}" CommandParameter="OUTLOOKMAIL:">
+                        <SymbolIcon Symbol="Mail"></SymbolIcon>
+                    </Button>
+                    <Button Style="{ThemeResource MyButtonRevealStyle}" Width="50" Height="50" Command="{x:Bind ViewModel.LaunchUrl}" CommandParameter="OUTLOOKCAL:">
+                        <SymbolIcon Symbol="Calendar"></SymbolIcon>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </NavigationView.PaneFooter>
         
         <Grid Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
@@ -102,7 +123,7 @@
 
 
              <!--Content First-->
-            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}"></local:FileBrowser>
+            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FileBrowser>
 
             <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"

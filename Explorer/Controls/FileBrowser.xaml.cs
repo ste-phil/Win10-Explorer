@@ -23,6 +23,8 @@ namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
+        public event EventHandler<FileSystemElement> RequestedTabOpen;
+
         public class ViewMode : ObservableEntity
         {
             private ThumbnailMode type;
@@ -106,6 +108,11 @@ namespace Explorer.Controls
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (ViewModel != null) ViewModel.FileBrowserWidth = e.NewSize.Width;
+        }
+
+        private void TableView_RequestedTabOpen(object sender, FileSystemElement e)
+        {
+            RequestedTabOpen?.Invoke(sender, e);
         }
 
         private void TextBoxPath_GotFocus(object sender, RoutedEventArgs e)

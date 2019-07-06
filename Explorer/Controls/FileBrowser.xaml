@@ -8,7 +8,6 @@
     xmlns:entities="using:Explorer.Entities"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
-    xmlns:gif="using:XamlAnimatedGif"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400" SizeChanged="UserControl_SizeChanged">
@@ -118,7 +117,8 @@
             ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
             SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
             DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}"
-            Visibility="{x:Bind ViewModel.ViewModes[0].Visibility, Mode=OneWay}">
+            Visibility="{x:Bind ViewModel.ViewModes[0].Visibility, Mode=OneWay}"
+            RequestedTabOpen="TableView_RequestedTabOpen">
             <local:StorageTableView.ItemFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Text="Open" Icon="OpenFile" Click="{x:Bind ViewModel.NavigateOrOpenSelected}">
@@ -224,7 +224,7 @@
         </local:StorageTableView>
         
         
-        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Center" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
+        <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Stretch" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
                                    animations:ReorderGridAnimation.Duration="250"
                                    ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}" DesiredWidth="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}" 
                                    SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"

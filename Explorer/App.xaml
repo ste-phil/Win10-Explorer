@@ -16,7 +16,7 @@
 
             <!--Style for Button-->
             <Style TargetType="Button" x:Key="MyButtonRevealStyle">
-                <Setter Property="Background" Value="{ThemeResource ButtonRevealBackground}" />
+                <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}" />
                 <Setter Property="BorderBrush" Value="{ThemeResource ButtonRevealBorderBrush}" />
                 <Setter Property="BorderThickness" Value="2" />

@@ -18,6 +18,7 @@ namespace Explorer.Entities
     public class FileSystemElement : ObservableEntity
     {
         private string name;
+        private string lowerName;
         private string path;
         private DateTimeOffset dateModified;
         private ulong size;
@@ -26,6 +27,56 @@ namespace Explorer.Entities
         private BitmapImage image;
         private string type;
 
+        public FileSystemElement()
+        {
+            
+        }
+
+        /// <summary>
+        /// Creates a folder
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="dateModified"></param>
+        /// <param name="size"></param>
+        /// <param name="displayType"></param>
+        /// <param name="isFolder"></param>
+        /// <param name="image"></param>
+        /// <param name="type"></param>
+        public FileSystemElement(string name, string path, DateTimeOffset dateModified, ulong size)
+        {
+            IsFolder = true;
+            Name = name;
+            Path = path;
+            DateModified = dateModified;
+            Size = size;
+            DisplayType = displayType;
+        }
+
+        /// <summary>
+        // Creates a file 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="dateModified"></param>
+        /// <param name="size"></param>
+        /// <param name="displayType"></param>
+        /// <param name="isFolder"></param>
+        /// <param name="image"></param>
+        /// <param name="type"></param>
+        public FileSystemElement(string name, string path, DateTimeOffset dateModified, ulong size, BitmapImage image, string type, string displayTyp)
+        {
+            Name = name;
+            Path = path;
+            DateModified = dateModified;
+            Size = size;
+            DisplayType = "Folder";
+            Image = image;
+            Type = type;
+        }
+
+
+        #region Properties
         public string DisplayType
         {
             get { return displayType; }
@@ -57,7 +108,7 @@ namespace Explorer.Entities
         public string Name
         {
             get { return name; }
-            set { name = value; OnPropertyChanged(); }
+            set { name = value; lowerName = value.ToLower(); OnPropertyChanged(); OnPropertyChanged("LowerName"); }
         }
 
         public BitmapImage Image
@@ -75,7 +126,8 @@ namespace Explorer.Entities
         public string DateModifiedString => DateModified.ToString("dd.MM.yyyy HH:MM");
         public string SizeString => GetReadableSize(Size);
         public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
-
+        public string LowerName => lowerName;
+        #endregion
 
         private string GetReadableSize(ulong bytes)
         {

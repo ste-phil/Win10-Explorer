@@ -8,6 +8,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,7 +22,9 @@ namespace Explorer.Models
 
         private CoreDispatcher dispatcher;
         private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
         private FileBrowserModel currentFileBrowser;
+        private string searchText;
 
         public MainPageModel()
         {
@@ -31,6 +35,7 @@ namespace Explorer.Models
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
             AddTabCmd = new Command(() => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            LaunchUrl = new GenericCommand<string>(async url => await Launcher.LaunchUriAsync(new Uri(url)), url => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
             FavNavLinkUpCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveUpFavorite(x), x => Favorites.IndexOf(x) > 0);
@@ -55,10 +60,20 @@ namespace Explorer.Models
         public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
         public bool AllowCloseTabs => FileBrowserModels.Count > 1;
 
+        public string SearchText
+        {
+            get { return searchText; }
+            set {
+                searchText = value;
+                OnPropertyChanged();
+                CurrentFileBrowser.SearchFolder(searchText);
+            }
+        }
+
         public FileBrowserModel CurrentFileBrowser
         {
             get { return currentFileBrowser; }
-            set { currentFileBrowser = value; OnPropertyChanged(); }
+            set { currentFileBrowser = value; OnPropertyChanged(); OnPropertyChanged("SearchPlaceholder"); }
         }
 
         public FileBrowserModel SelectedTab
@@ -67,7 +82,8 @@ namespace Explorer.Models
             set { CurrentFileBrowser = value; }
         }
 
-        public Command AddTabCmd { get; }
+        public ICommand AddTabCmd { get; }
+        public ICommand LaunchUrl { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkUpCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkDownCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkRemoveCmd { get; }
@@ -207,6 +223,11 @@ namespace Explorer.Models
         }
 
         #endregion
+
+        public void FileBrowser_RequestedTabOpen(object sender, FileSystemElement e)
+        {
+            FileBrowserModels.Add(new FileBrowserModel(e));
+        }
 
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {

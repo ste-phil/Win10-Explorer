@@ -29,6 +29,8 @@ namespace Explorer.Controls
 {
     public sealed partial class StorageTableView : Page
     {
+        public event EventHandler<FileSystemElement> RequestedTabOpen;
+
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
         private const string ROW_DROP_STYLE_NAME = "RowDrop";
@@ -121,15 +123,27 @@ namespace Explorer.Controls
         /// <param name="e"></param>
         private void SelectedItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                for (int i = 0; i < selectedElements.Count; i++)
+                {
+                    var hitbox = selectedElements[i];
+
+                    if (hitbox == focusedRow) hitbox.Style = (Style)Resources[ROW_DEFAULT_STYLE_NAME + "FocusedStyle"];
+                    else hitbox.Style = (Style)Resources[ROW_DEFAULT_STYLE_NAME + "Style"];
+                }
+
+                selectedElements.Clear();
+                return;
+            }
+
             if (e.OldItems != null)
             {
                 for (int i = 0; i < e.OldItems.Count; i++)
                 {
                     var fse = (FileSystemElement)e.OldItems[i];
-                    var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
-                    if (container == null) break;
-
-                    var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+                    var hitbox = selectedElements.FirstOrDefault(f => f.Tag == fse);
+                    if (hitbox == null) continue;
 
                     StyleHitbox(fse, hitbox, ROW_DEFAULT_STYLE_NAME);
                 }
@@ -139,11 +153,14 @@ namespace Explorer.Controls
             {
                 var fse = SelectedItems[i];
                 var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
-                if (container == null) break;
-
+                if (container == null) continue;
                 var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
 
-                StyleHitbox(fse, hitbox, ROW_SELECTED_STYLE_NAME);
+                selectedElements.Add(hitbox);
+
+                //When item which is going to be selected and is focused apply different style
+                if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
+                else hitbox.Style = (Style)Resources["RowSelectedStyle"];
             }
         }
 
@@ -223,6 +240,8 @@ namespace Explorer.Controls
             RemoveFocus();
         }
 
+        #region User Events
+
         private void Window_KeyDown(object sender, KeyRoutedEventArgs args)
         {
             if (ItemsSource.Count == 0) return;
@@ -245,7 +264,8 @@ namespace Explorer.Controls
                     DoubleTappedItem = FocusedItem;
                     break;
                 case VirtualKey.Menu:
-                    OpenItemFlyout(FocusedItem, focusedRow, new Point(0, focusedRow.Height));
+                    if (focusedRow != null)
+                        OpenItemFlyout(FocusedItem, focusedRow, new Point(0, focusedRow.Height));
                     break;
                 //Move focus to next/previous element and keep it in view
                 case VirtualKey.Up:
@@ -312,6 +332,21 @@ namespace Explorer.Controls
             }
         }
 
+        private void Row_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            var hitbox = (FrameworkElement)sender;
+            var item = (FileSystemElement)hitbox.Tag;
+
+            var point = e.GetCurrentPoint(hitbox);
+            if (point.PointerDevice.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                if (point.Properties.IsMiddleButtonPressed && item.IsFolder)
+                {
+                    RequestedTabOpen?.Invoke(this, item);
+                }
+            }
+        }
+
         private void Row_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var hitbox = (FrameworkElement)sender;
@@ -319,8 +354,6 @@ namespace Explorer.Controls
 
             var shiftDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
             var controlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
-
-            FocusRow(item);
 
             //Begin new selection
             if (!controlDown && !shiftDown)
@@ -330,6 +363,8 @@ namespace Explorer.Controls
                 SelectRowsBetween(item);
             else
                 ToggleSelect(item, hitbox);
+
+            FocusRow(item);
         }
 
         private void Row_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -359,11 +394,19 @@ namespace Explorer.Controls
             DoubleTappedItem = item;
         }
 
+
         private void OpenBackgroundFlyout(object sender, RightTappedRoutedEventArgs e)
         {
             var s = (FrameworkElement)sender;
             BackgroundFlyout.ShowAt(s, e.GetPosition(s));
         }
+
+        private void OpenItemFlyout(FileSystemElement fse, FrameworkElement row, Point position)
+        {
+            if (SelectedItems.Count == 1) ItemFlyout.ShowAt(row, position);
+            else MultipleItemFlyout.ShowAt(row, position);
+        }
+        #endregion
 
         private void TryScrollFocusSelect(FileSystemElement fse)
         {
@@ -393,6 +436,22 @@ namespace Explorer.Controls
             FocusRow(fse, hitbox);
         }
 
+        private void SelectRow(FileSystemElement fse)
+        {
+            if (SelectedItems.Contains(fse)) return;
+
+            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            if (container == null) return;
+            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+            SelectedItems.Add(fse);
+            selectedElements.Add(hitbox);
+
+            //When item which is going to be selected and is focused apply different style
+            if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
+            else hitbox.Style = (Style)Resources["RowSelectedStyle"];
+        }
+
         private void SelectRow(FileSystemElement fse, FrameworkElement hitbox)
         {
             if (SelectedItems.Contains(fse)) return;
@@ -405,20 +464,6 @@ namespace Explorer.Controls
             else hitbox.Style = (Style)Resources["RowSelectedStyle"];
         }
 
-        private void SelectRow(FileSystemElement fse)
-        {
-            if (SelectedItems.Contains(fse)) return;
-
-            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
-            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
-
-            SelectedItems.Add(fse);
-            selectedElements.Add(hitbox);
-
-            //When item which is going to be selected and is focused apply different style
-            if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
-            else hitbox.Style = (Style)Resources["RowSelectedStyle"];
-        }
 
         private void ToggleSelect(FileSystemElement fse, FrameworkElement hitbox)
         {
@@ -474,14 +519,14 @@ namespace Explorer.Controls
 
         private void SelectRowsBetween(FileSystemElement fse)
         {
-            var lastTappedRowIndex = SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last());
+            var lastTappedRowIndex = FocusedItem == null ? 0 : ItemsSource.IndexOf(FocusedItem); //SelectedItems.Count == 0 ? -1 : ItemsSource.IndexOf(SelectedItems.Last());
             var tappedRowIndex = ItemsSource.IndexOf(fse);
 
             var from = Math.Min(lastTappedRowIndex, tappedRowIndex);
             var to = Math.Max(lastTappedRowIndex, tappedRowIndex);
             for (int i = from; i <= to; i++)
             {
-                if (i == lastTappedRowIndex) continue;
+                //if (i == lastTappedRowIndex) continue;
 
                 var item = ItemsSource[i];
                 var container = (ContentPresenter) ItemsSourceRowHitbox.ContainerFromItem(item);
@@ -521,9 +566,11 @@ namespace Explorer.Controls
 
         private void StyleHitbox(FrameworkElement hitbox, string style)
         {
-            hitbox.Style = (Style)Resources[style + "Style"];
+            if (hitbox == focusedRow) hitbox.Style = (Style)Resources[style + "FocusedStyle"];
+            else hitbox.Style = (Style)Resources[style + "Style"];
         }
 
+        #region Focus Methods
         private void FocusRow(FileSystemElement fse, bool usedKeyboard = false)
         {
             //Remove focus highlight from old row
@@ -542,6 +589,8 @@ namespace Explorer.Controls
 
             //Fetch row (border) from hitboxes (see xaml)
             var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            if (container == null) return;
+
             var row = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
 
             //Store FileSystemElement(for checking if its selected) and Border (for styling)
@@ -587,6 +636,7 @@ namespace Explorer.Controls
             FocusedItem = null;
             focusedRow = null;
         }
+        #endregion
 
         private void ScrollTo(FileSystemElement fse)
         {
@@ -765,5 +815,6 @@ namespace Explorer.Controls
             SelectionRect.Width = 0;
             SelectionRect.Height = 0;
         }
+        #endregion
     }
 }

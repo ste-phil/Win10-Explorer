@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Explorer.Helper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,14 +7,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
-using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -21,6 +21,9 @@ namespace Explorer.Logic
 {
     public class FileSystemRetrieveService
     {
+        private const int FILE_RETRIEVE_STEPSIZE = 200;
+        private readonly CoreDispatcher dispatcher;
+
         public class ThumbnailFetchOptions
         {
             public ThumbnailMode Mode { get; set; } = ThumbnailMode.ListView;
@@ -37,20 +40,31 @@ namespace Explorer.Logic
         private QueryOptions fileQueryOptions;
 
         private Stopwatch s = new Stopwatch();
-        private CancellationTokenSource cts;
+        private CancellationTokenSource browseCts;
+        private CancellationTokenSource searchCts;
 
         private bool refreshRunning;
         private ThumbnailFetchOptions thumbnailOptions;
 
-        private int loadedFolderCount;
-        private List<StorageFile> loadedFiles;
+        private string currentSearch;
+        private bool deepSearchRunning;
 
-        public ObservableCollection<FileSystemElement> Items { get; set; }
+        private int folderCount;
+        private List<StorageFile> files;
+        private List<FileSystemElement> items;
 
-        public FileSystemRetrieveService()
+        public ObservableCollection<FileSystemElement> ViewItems { get; set; }
+        //public ObservableDictionary<string, FileSystemElement> ViewItems { get; set; }
+
+        public FileSystemRetrieveService(CoreDispatcher dispatcher)
         {
-            Items = new ObservableCollection<FileSystemElement>();
-            loadedFiles = new List<StorageFile>();
+            ViewItems = new ObservableRangeCollection<FileSystemElement>();
+            //ViewItems = new ObservableDictionary<string, FileSystemElement>();
+            items = new List<FileSystemElement>();
+            files = new List<StorageFile>();
+
+            currentSearch = "";
+            this.dispatcher = dispatcher;
 
             fileQueryOptions = new QueryOptions();
             folderQueryOptions = new QueryOptions();
@@ -71,42 +85,177 @@ namespace Explorer.Logic
 
         public async Task LoadFolderAsync(string path, ThumbnailFetchOptions thumbnailOptions = default)
         {
-            this.thumbnailOptions = thumbnailOptions;
+            if (thumbnailOptions == default) this.thumbnailOptions = new ThumbnailFetchOptions();
+            else this.thumbnailOptions = thumbnailOptions;
 
             s.Restart();
 
-            cts?.Cancel();  //Cancel previously scheduled browse
-            cts = new CancellationTokenSource();    //Create new cancel token for this request
+            browseCts?.Cancel();                          //Cancel previously scheduled browse
+            browseCts = new CancellationTokenSource();    //Create new cancel token for this request
+            deepSearchRunning = false;                    //Current load might be a deep search so stop it
 
-            if (currentPath == path) await ReloadFolderAsync(path, cts.Token);
-            else await SwitchFolderAsync(path, cts.Token);
+            folderQueryOptions.FolderDepth = FolderDepth.Shallow;  
+            fileQueryOptions.FolderDepth = FolderDepth.Shallow;
+
+            if (currentPath == path) await ReloadFolderAsync(path, browseCts.Token);
+            else await SwitchFolderAsync(path, browseCts.Token);
+        }
+
+        public async Task LoadFolderDeepAsync(string path, ThumbnailFetchOptions thumbnailOptions = default)
+        {
+            if (thumbnailOptions == default) this.thumbnailOptions = new ThumbnailFetchOptions();
+            else this.thumbnailOptions = thumbnailOptions;
+
+            s.Restart();
+
+            browseCts?.Cancel();                          //Cancel previously scheduled browse
+            browseCts = new CancellationTokenSource();    //Create new cancel token for this request
+
+            folderQueryOptions.FolderDepth = FolderDepth.Deep;      //Request any subfolders
+            fileQueryOptions.FolderDepth = FolderDepth.Deep;        //Request any files in subfolders
+
+            deepSearchRunning = true;
+            if (currentPath == path) await ReloadFolderAsync(path, browseCts.Token);
+            else await SwitchFolderAsync(path, browseCts.Token);
+        }
+
+        public void StopLoad()
+        {
+            browseCts?.Cancel();
+            s.Stop();
+        }
+
+        public void Clear()
+        {
+            folderCount = 0;
+            ViewItems.Clear();
+            files.Clear();
+            items.Clear();
         }
 
         public async Task RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions = default)
         {
             this.thumbnailOptions = thumbnailOptions;
 
-            for (int i = loadedFolderCount; i < loadedFiles.Count; i++)
+            for (int i = 0; i < files.Count; i++)
             {
-                if (cts.Token.IsCancellationRequested) break;
+                if (browseCts.Token.IsCancellationRequested) break;
 
-                var ti = await loadedFiles[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
+                var ti = await files[i].GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
                 if (ti != null)
                 {
                     try
                     {
-                        await Items[i].Image.SetSourceAsync(ti.CloneStream());
-                    } catch(Exception) { /*Supress Task canceled exception*/ }
+                        await ViewItems[folderCount + i].Image.SetSourceAsync(ti.CloneStream());
+                    }
+                    catch (Exception) { /*Supress Task canceled exception*/ }
                 }
             }
         }
 
-        public void Clear()
+        /// <summary>
+        /// Deletes passed FileSystemElement and removes it from the list
+        /// </summary>
+        /// <param name="fse"></param>
+        /// <returns></returns>
+        public async Task DeleteFileSystemElement(FileSystemElement fse)
         {
-            loadedFolderCount = 0;
-            Items.Clear();
-            loadedFiles.Clear();
+            try
+            {
+                await FileSystem.DeleteStorageItemAsync(fse);
+
+                ViewItems.Remove(fse);
+                if (!fse.IsFolder) files.Remove(files.First(s => s.Path == fse.Path));
+            }
+            catch (Exception) { /*e.g. NotFound / Unauthorized Exception*/}
         }
+
+        public async Task SearchFolder(string search)
+        {
+            s.Restart();
+
+            searchCts?.Cancel();
+            searchCts = new CancellationTokenSource();
+
+            //Lower search input to find not capitalized results
+            var oldSearch = currentSearch;
+            currentSearch = search.ToLower();
+
+            //Begin deep search when user puts d_* and if its not already running
+            if (Regex.Match(currentSearch, @"^d\s{1}").Success)
+            {
+                currentSearch = currentSearch.Substring(2, currentSearch.Length - 2);
+                if (!deepSearchRunning) _ = LoadFolderDeepAsync(currentPath);
+            }
+
+            //Searchs currently loaded items
+            //If no input found reset search
+            if (currentSearch == "") RestoreItems();
+            //When the user adds one character to the existing search
+            else if (currentSearch.Length > oldSearch.Length && currentSearch.Contains(oldSearch)) await Task.Run(() => LimitSearchFolderShallowAsync(currentSearch, searchCts.Token));
+            //When the user remove one character from the existing search
+            else if (currentSearch.Length < oldSearch.Length && oldSearch.Contains(currentSearch)) await Task.Run(() => ExpandSearchFolderShallowAsync(currentSearch, searchCts.Token));
+            //If the use pastes a completely new search
+            else
+            {
+                ViewItems.Clear();
+                await ExpandSearchFolderShallowAsync(currentSearch, searchCts.Token);
+            }
+            
+
+            s.Stop();
+            Debug.WriteLine("******Search took: " + s.ElapsedMilliseconds + "ms");
+            Debug.WriteLine("----");
+        }
+
+
+
+        #region Internal Methods
+
+        #region Search
+        private void RestoreItems()
+        {
+            ViewItems.Clear();
+            foreach (FileSystemElement fse in items)
+            {
+                ViewItems.Add(fse);
+            }
+        }
+        private async Task LimitSearchFolderShallowAsync(string search, CancellationToken token)
+        {
+            var s2 = new Stopwatch();
+            s2.Restart();
+            for (int i = ViewItems.Count - 1; i >= 0; i--)
+            {
+                if (token.IsCancellationRequested) return;
+                if (!ViewItems[i].LowerName.Contains(search))
+                {
+                    await dispatcher.RunAsync(CoreDispatcherPriority.Low, () => {
+                        if (i < ViewItems.Count)
+                            ViewItems.RemoveAt(i);
+                    });
+                }
+            }
+
+            s2.Stop();
+            Debug.WriteLine("*LimitSearch took: " + s.ElapsedMilliseconds + "ms");
+        }
+
+        private async Task ExpandSearchFolderShallowAsync(string search, CancellationToken token)
+        {
+            var s2 = new Stopwatch();
+            s2.Restart();
+            for (int i = 0; i < items.Count; i++)
+            {
+                FileSystemElement fse = items[i];
+                if (token.IsCancellationRequested) return;
+                if (fse.LowerName.Contains(search) && !ViewItems.Contains(fse)) await dispatcher.RunAsync(CoreDispatcherPriority.Low, () => ViewItems.Add(fse));
+            }
+
+            s2.Stop();
+            Debug.WriteLine("ExpandSearch took: " + s.ElapsedMilliseconds + "ms");
+        }
+        #endregion
 
         private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
@@ -115,12 +264,9 @@ namespace Explorer.Logic
             folderQuery.ApplyNewQueryOptions(folderQueryOptions);
             fileQuery.ApplyNewQueryOptions(fileQueryOptions);
 
-            var folders = await folderQuery.GetFoldersAsync();
-            var files = await fileQuery.GetFilesAsync();
-
             Clear();
-            await AddFoldersAsync(folders, cancellationToken);
-            await AddFilesAsync(files, cancellationToken);
+            await LoadFoldersAsync(cancellationToken);
+            await LoadFilesAsync(cancellationToken);
 
             s.Stop();
             Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
@@ -148,12 +294,15 @@ namespace Explorer.Logic
             folderQuery = folder.CreateFolderQueryWithOptions(folderQueryOptions);
             fileQuery = folder.CreateFileQueryWithOptions(fileQueryOptions);
 
-            var folders = await folderQuery.GetFoldersAsync();
-            var files = await fileQuery.GetFilesAsync();
-
             Clear();
-            await AddFoldersAsync(folders, cancellationToken);
-            await AddFilesAsync(files, cancellationToken);
+            await LoadFoldersAsync(cancellationToken);
+            await LoadFilesAsync(cancellationToken);
+
+            //var folders = await folderQuery.GetFoldersAsync();
+            //var files = await fileQuery.GetFilesAsync();
+
+            //await AddFoldersAsync(folders, cancellationToken);
+            //await AddFilesAsync(files, cancellationToken);
 
             fileQuery.ContentsChanged += ItemQuery_ContentsChanged;
 
@@ -171,7 +320,7 @@ namespace Explorer.Logic
 
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                await AddDifference(items, cts.Token);
+                await AddDifference(items, browseCts.Token);
             });
 
             refreshRunning = false;
@@ -179,7 +328,7 @@ namespace Explorer.Logic
 
         private async Task AddDifference(IReadOnlyList<IStorageItem> newList, CancellationToken cancellationToken)
         {
-            var currentFiles = Items.Where(i => !i.IsFolder).ToList();
+            var currentFiles = ViewItems.Where(i => !i.IsFolder).ToList();
             for (int i = 0; i < currentFiles.Count; i++)
             {
                 bool found = false;
@@ -195,7 +344,10 @@ namespace Explorer.Logic
                 if (!found)
                 {
                     if (cancellationToken.IsCancellationRequested) return;
-                    Items.Remove(currentFiles[i]);
+
+                    var fileToRemove = currentFiles[i];
+                    ViewItems.Remove(fileToRemove);
+                    files.Remove(files.First(f => f.Path == fileToRemove.Path));
                 }
             }
 
@@ -219,6 +371,34 @@ namespace Explorer.Logic
                 }
             }
 
+        }
+
+        private async Task LoadFoldersAsync(CancellationToken cancellationToken)
+        {
+            uint si = 0;
+            IReadOnlyList<StorageFolder> folders;
+            do
+            {
+                if (cancellationToken.IsCancellationRequested) return;
+
+                folders = await folderQuery.GetFoldersAsync(si, FILE_RETRIEVE_STEPSIZE);
+                await AddFoldersAsync(folders, cancellationToken);
+                si += FILE_RETRIEVE_STEPSIZE;
+            } while (folders.Count != 0);
+        }
+
+        private async Task LoadFilesAsync(CancellationToken cancellationToken)
+        {
+            uint si = 0;
+            IReadOnlyList<StorageFile> files;
+            do
+            {
+                if (cancellationToken.IsCancellationRequested) return;
+
+                files = await fileQuery.GetFilesAsync(si, FILE_RETRIEVE_STEPSIZE);
+                await AddFilesAsync(files, cancellationToken);
+                si += FILE_RETRIEVE_STEPSIZE;
+            } while (files.Count != 0);
         }
 
         private async Task AddFoldersAsync(IReadOnlyList<StorageFolder> items, CancellationToken cancellationToken)
@@ -273,120 +453,38 @@ namespace Explorer.Logic
         private async Task AddFileAsync(StorageFile item)
         {
             var basicProps = await item.GetBasicPropertiesAsync();
-            var image = new BitmapImage();
 
-            var ti = await item.GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, ThumbnailOptions.UseCurrentScale);
+            BitmapImage image = null;
+            var ti = await item.GetThumbnailAsync(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
             if (ti != null)
             {
-                await image.SetSourceAsync(ti.CloneStream());
+                image = new BitmapImage();
+                _ = image.SetSourceAsync(ti.CloneStream());
             }
 
-            Items.Add(new FileSystemElement
-            {
-                IsFolder = false,
-                Name = item.Name,
-                Size = basicProps.Size,
-                DisplayType = item.DisplayType,
-                Type = item.FileType,
-                DateModified = basicProps.DateModified,
-                Path = item.Path,
-                Image = image
-            });
+            var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size, image, item.DisplayType, item.FileType);
 
-            loadedFiles.Add(item);
+            //If there is a search going on check if the items fits the search
+            if (currentSearch != "" && fse.LowerName.Contains(currentSearch)) ViewItems.Add(fse);
+            else if (currentSearch == "") ViewItems.Add(fse);
+
+            items.Add(fse);
+            files.Add(item);
         }
 
         private async Task AddFolderAsync(StorageFolder item)
         {
             var basicProps = await item.GetBasicPropertiesAsync();
 
-            Items.Add(new FileSystemElement
-            {
-                IsFolder = true,
-                Name = item.Name,
-                Size = basicProps.Size,
-                DisplayType = "Folder",
-                DateModified = basicProps.DateModified,
-                Path = item.Path
-            });
+            var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size);
 
-            loadedFolderCount++;
+            //If there is a search going on check if the items fits the search
+            if (currentSearch != "" && fse.LowerName.Contains(currentSearch)) ViewItems.Add(fse);
+            else if (currentSearch == "") ViewItems.Add(fse);
+
+            items.Add(fse);
+            folderCount++;
         }
-
-        //public async Task<FileSystemElement[]> ReloadFolderAsync()
-        //{
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    var result = new FileSystemElement[folders.Count + files.Count];
-        //    queryTasks[0] = LoadFoldersAsync(result, 0);
-        //    queryTasks[1] = LoadFilesAsync(result, folders.Count);
-        //    await Task.WhenAll(queryTasks);
-
-        //    s.Stop();
-        //    Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
-
-        //    return result;
-        //}
-
-        //public async Task<FileSystemElement[]> SwitchFolderAsync(string path)
-        //{
-        //    var folder = await FileSystem.GetFolderAsync(path);
-
-        //    folderQuery = folder.CreateFolderQuery();
-        //    fileQuery = folder.CreateFileQuery();
-
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    var result = new FileSystemElement[folders.Count + files.Count];
-        //    queryTasks[0] = LoadFoldersAsync(result, 0);
-        //    queryTasks[1] = LoadFilesAsync(result, folders.Count);
-        //    await Task.WhenAll(queryTasks);
-
-        //    s.Stop();
-        //    Debug.WriteLine("Load took: " + s.ElapsedMilliseconds + "ms");
-
-        //    return result;
-        //}
-
-        //private async Task LoadFoldersAsync(FileSystemElement[] arr, int startIndex)
-        //{
-        //    var folders = await folderQuery.GetFoldersAsync();
-        //    for (int i = 0; i < folders.Count; i++)
-        //    {
-        //        StorageFolder element = folders[i];
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        arr[startIndex + i] = new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        };
-        //    }
-        //}
-
-        //private async Task LoadFilesAsync(FileSystemElement[] arr, int startIndex)
-        //{
-        //    var files = await fileQuery.GetFilesAsync();
-
-        //    for (int i = 0; i < files.Count; i++)
-        //    {
-        //        StorageFile element = files[i];
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        arr[startIndex + i] = new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        };
-        //    }
-        //}
+        #endregion
     }
 }

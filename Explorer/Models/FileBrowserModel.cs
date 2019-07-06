@@ -55,21 +55,38 @@ namespace Explorer.Models
 
         public double FileBrowserWidth { get; set; }
 
-        public FileBrowserModel()
+        public FileBrowserModel(FileSystemElement folder)
         {
-            //Set start folder to windows disk
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
-            SelectedItems = new ObservableCollection<FileSystemElement>();
+            CurrentFolder = folder;
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
             ToggleView = new Command(async () => await ToggleViewMode(), () => true);
 
+            Init();
+        }
+
+        public FileBrowserModel()
+        {
+            //Set start folder to windows disk if it has not been set
+            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
+
+            NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
+            NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
+            ToggleView = new Command(async () => await ToggleViewMode(), () => true);
+
+            Init();
+        }
+
+        private void Init()
+        {
+            SelectedItems = new ObservableCollection<FileSystemElement>();
+
             history = new List<FileSystemElement>();
             HistoryPosition = -1;
 
-            retrieveService = new FileSystemRetrieveService();
-            FileSystemElements = retrieveService.Items;
+            retrieveService = new FileSystemRetrieveService(Window.Current.CoreWindow.Dispatcher);
+            FileSystemElements = retrieveService.ViewItems;
 
             operationSerivce = FileSystemOperationService.Instance;
 
@@ -102,6 +119,7 @@ namespace Explorer.Models
                 OnPropertyChanged();
                 OnPropertyChanged("Path");
                 OnPropertyChanged("Name");
+                OnPropertyChanged("SearchPlaceholder");
                 UpdatePathSuggestions();
             }
         }
@@ -109,8 +127,10 @@ namespace Explorer.Models
         public string Name
         {
             get { return currentFolder?.Name; }
-            set { currentFolder.Name = value; OnPropertyChanged(); }
+            set { currentFolder.Name = value; OnPropertyChanged(); OnPropertyChanged("SearchPlaceholder"); }
         }
+
+        public string SearchPlaceholder => "Search " + Name;
 
         public string Path
         {
@@ -190,6 +210,8 @@ namespace Explorer.Models
             HistoryPosition = -1;
         }
 
+        
+
         /// <summary>
         /// Navigate to the passed Folder
         /// </summary>
@@ -241,13 +263,18 @@ namespace Explorer.Models
             FileSystem.LaunchExeAsync(path, arguments);
         }
 
+        public async void SearchFolder(string search)
+        {
+            await retrieveService.SearchFolder(search);
+        }
+
         private ThumbnailFetchOptions GetThumbnailFetchOptions()
         {
             //Set thumbnail size depending in which viewmode the user is
             //but only when it has been set, else enable TableView
             uint thumbnailSize = 20;
             var mode = ThumbnailMode.ListView;
-            if (ViewMode != null)
+            if (ViewMode != null && ViewMode.Type == ThumbnailMode.PicturesView)
             {
                 GridViewItemWidth = FileBrowserWidth / 3 - 50;
                 thumbnailSize = (uint)GridViewItemWidth - 50;
@@ -370,12 +397,10 @@ namespace Explorer.Models
         /// </summary>
         public async void DeleteStorageItemSelected()
         {
-            try
+            while (SelectedItems.Count > 0)
             {
-                await FileSystem.DeleteStorageItemsAsync(SelectedItems);
-                FileSystemElements.RemoveRange(SelectedItems);
+                await retrieveService.DeleteFileSystemElement(SelectedItems[0]);
             }
-            catch (Exception) { /*e.g. UnauthorizedAccessException*/}
         }
 
         public async void CopyStorageItemSelected()
@@ -542,6 +567,19 @@ namespace Explorer.Models
                     break;
                 case VirtualKey.V:
                     PasteStorageItemSelected();
+                    break;
+                case VirtualKey.A:
+                    if (SelectedItems.Count == FileSystemElements.Count)
+                        SelectedItems.Clear();
+                    else
+                    {
+                        for (int i = 0; i < FileSystemElements.Count; i++)
+                        {
+                            if (!SelectedItems.Contains(FileSystemElements[i]))
+                                SelectedItems.Add(FileSystemElements[i]);
+                        }
+                    }
+                    
                     break;
             }
         }

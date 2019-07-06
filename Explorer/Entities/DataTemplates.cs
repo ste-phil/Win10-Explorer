@@ -28,6 +28,7 @@ namespace Explorer.Entities
     {
         public DataTemplate FolderTemplate { get; set; }
         public DataTemplate FileTemplate { get; set; }
+        public DataTemplate FileNoImgTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
@@ -39,6 +40,7 @@ namespace Explorer.Entities
             var fse = (FileSystemElement)item;
 
             if (fse.IsFolder) return FolderTemplate;
+            else if (fse.Image == null) return FileNoImgTemplate;
             return FileTemplate;
         }
     }
