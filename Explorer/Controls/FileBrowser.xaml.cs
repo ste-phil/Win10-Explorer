@@ -95,7 +95,7 @@ namespace Explorer.Controls
             if (chosen != null)
                 ViewModel.NavigateOrOpen(chosen);
             else
-                ViewModel.NavigateTo(new FileSystemElement { Path = args.QueryText });
+                ViewModel.NavigateTo(new FileSystemElement { Path = args.QueryText, IsFolder = true });
         }
 
         private void StorageTableView_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -106,6 +106,16 @@ namespace Explorer.Controls
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (ViewModel != null) ViewModel.FileBrowserWidth = e.NewSize.Width;
+        }
+
+        private void TextBoxPath_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.TextBoxPathIsFocused = true;
+        }
+
+        private void TextBoxPath_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.TextBoxPathIsFocused = false;
         }
     }
 }

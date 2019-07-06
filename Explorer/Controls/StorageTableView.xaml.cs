@@ -637,10 +637,13 @@ namespace Explorer.Controls
 
         private async void Row_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
+            //Cancel drawing selection rect when item is dragged
+            isDraggingSelection = false;
+            SelectionRect.Width = 0;
+            SelectionRect.Height = 0;
+
             var row = (Border)sender;
             var fse = (FileSystemElement)row.Tag;
-
-            Debug.WriteLine("Drag started");
 
             var deferral = args.GetDeferral();
             if (!fse.IsFolder)
@@ -741,12 +744,17 @@ namespace Explorer.Controls
 
         private void ContentGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            isDraggingSelection = true;
-            pressedPos = e.GetCurrentPoint((FrameworkElement)sender);
-            ContentGrid.CapturePointer(e.Pointer);
+            var pointer = e.GetCurrentPoint(ContentGrid);
 
-            Canvas.SetLeft(SelectionRect, pressedPos.Position.X);
-            Canvas.SetTop(SelectionRect, pressedPos.Position.Y);
+            //if (pointer.Properties.IsRightButtonPressed)
+            //{
+                isDraggingSelection = true;
+                pressedPos = e.GetCurrentPoint((FrameworkElement)sender);
+                ContentGrid.CapturePointer(e.Pointer);
+
+                Canvas.SetLeft(SelectionRect, pressedPos.Position.X);
+                Canvas.SetTop(SelectionRect, pressedPos.Position.Y);
+            //}
         }
 
         private void ContentGrid_PointerReleased(object sender, PointerRoutedEventArgs e)

@@ -15,6 +15,7 @@ using Windows.System;
 using static Explorer.Logic.FileSystemRetrieveService;
 using static Explorer.Controls.FileBrowser;
 using Windows.Storage.FileProperties;
+using Windows.UI.Xaml.Input;
 
 namespace Explorer.Models
 {

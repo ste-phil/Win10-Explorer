@@ -64,12 +64,14 @@
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
             <AutoSuggestBox Style="{StaticResource MyAutoSuggestBoxRevealStyle}"
-                            Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" IsFocusEngaged="{x:Bind ViewModel.TextBoxPathIsFocused, Mode=TwoWay}"
+                            Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" 
                             Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
                             ItemsSource="{x:Bind ViewModel.PathSuggestions}"
                             TextMemberPath="Path" DisplayMemberPath="Name"
                             QuerySubmitted="TextBoxPath_QuerySubmitted"
                             UpdateTextOnSelect="False"
+                            GotFocus="TextBoxPath_GotFocus"
+                            LostFocus="TextBoxPath_LostFocus"
             >
                 <AutoSuggestBox.TextBoxStyle>
                     <Style TargetType="TextBox">
