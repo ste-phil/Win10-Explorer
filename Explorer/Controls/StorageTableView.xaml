@@ -20,6 +20,11 @@
                 <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
                 <Setter Property="Background" Value="Transparent"></Setter>
             </Style>
+            <Style x:Key="RowDropStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
+                <Setter Property="BorderBrush" Value="White"></Setter>
+                <Setter Property="BorderThickness" Value="2"></Setter>
+                <Setter Property="Background" Value="{StaticResource SystemBaseMediumColor}"></Setter>
+            </Style>
             <Style x:Key="RowDefaultFocusedStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
                 <Setter Property="BorderBrush" Value="White"></Setter>
                 <Setter Property="BorderThickness" Value="2"></Setter>
@@ -28,7 +33,7 @@
                 <Setter Property="BorderBrush" Value="White"></Setter>
                 <Setter Property="BorderThickness" Value="2"></Setter>
             </Style>
-            <Style x:Key="RowDropStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
+            <Style x:Key="RowDropFocusedStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
                 <Setter Property="BorderBrush" Value="White"></Setter>
                 <Setter Property="BorderThickness" Value="2"></Setter>
                 <Setter Property="Background" Value="{StaticResource SystemBaseMediumColor}"></Setter>
@@ -165,7 +170,7 @@
                                         AllowDrop="True" Drop="Row_Drop" 
                                         Height="30" AllowFocusOnInteraction="True"
                                         Tag="{x:Bind}" 
-                                        Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped">
+                                        Tapped="Row_Tapped" RightTapped="Row_RightTapped" DoubleTapped="Row_DoubleTapped" PointerPressed="Row_PointerPressed">
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

@@ -50,7 +50,7 @@ namespace Explorer.Entities
             Path = path;
             DateModified = dateModified;
             Size = size;
-            DisplayType = displayType;
+            DisplayType = "Folder";
         }
 
         /// <summary>
@@ -64,15 +64,15 @@ namespace Explorer.Entities
         /// <param name="isFolder"></param>
         /// <param name="image"></param>
         /// <param name="type"></param>
-        public FileSystemElement(string name, string path, DateTimeOffset dateModified, ulong size, BitmapImage image, string type, string displayTyp)
+        public FileSystemElement(string name, string path, DateTimeOffset dateModified, ulong size, BitmapImage image, string type, string displayType)
         {
             Name = name;
             Path = path;
             DateModified = dateModified;
             Size = size;
-            DisplayType = "Folder";
             Image = image;
             Type = type;
+            DisplayType = displayType;
         }
 
 

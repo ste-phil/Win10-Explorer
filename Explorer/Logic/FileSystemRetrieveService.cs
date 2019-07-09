@@ -32,6 +32,7 @@ namespace Explorer.Logic
         }
 
         private string currentPath;
+        private StorageFolder currentFolder;
 
         private StorageFolderQueryResult folderQuery;
         private StorageFileQueryResult fileQuery;
@@ -165,9 +166,46 @@ namespace Explorer.Logic
                 await FileSystem.DeleteStorageItemAsync(fse);
 
                 ViewItems.Remove(fse);
+                items.Remove(fse);
                 if (!fse.IsFolder) files.Remove(files.First(s => s.Path == fse.Path));
             }
-            catch (Exception) { /*e.g. NotFound / Unauthorized Exception*/}
+            catch (Exception e) {
+                /*e.g. NotFound / Unauthorized Exception*/
+                if (e is FileNotFoundException)
+                {
+                    ViewItems.Remove(fse);
+                    items.Remove(fse);
+                    if (!fse.IsFolder) files.Remove(files.First(s => s.Path == fse.Path));
+                }
+            }
+        }
+
+        public async Task<bool> CreateFolder(string name)
+        {
+            try
+            {
+                var folder = await FileSystem.CreateFolder(currentFolder, name);
+                await AddFolderAsync(folder);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> CreateFile(string name)
+        {
+            try
+            {
+                var file = await FileSystem.CreateOrOpenFileAsync(currentFolder, name);
+                await AddFileAsync(file);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public async Task SearchFolder(string search)
@@ -221,6 +259,7 @@ namespace Explorer.Logic
                 ViewItems.Add(fse);
             }
         }
+
         private async Task LimitSearchFolderShallowAsync(string search, CancellationToken token)
         {
             var s2 = new Stopwatch();
@@ -259,7 +298,7 @@ namespace Explorer.Logic
 
         private async Task ReloadFolderAsync(string path, CancellationToken cancellationToken)
         {
-            currentPath = path;
+            //currentPath = path;
 
             folderQuery.ApplyNewQueryOptions(folderQueryOptions);
             fileQuery.ApplyNewQueryOptions(fileQueryOptions);
@@ -276,8 +315,8 @@ namespace Explorer.Logic
         {
             currentPath = path;
 
-            var folder = await FileSystem.GetFolderAsync(path);
-            var indexedState = await folder.GetIndexedStateAsync();
+            currentFolder = await FileSystem.GetFolderAsync(path);
+            var indexedState = await currentFolder.GetIndexedStateAsync();
 
             fileQueryOptions.SetThumbnailPrefetch(thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
             if (indexedState == IndexedState.FullyIndexed)
@@ -291,8 +330,8 @@ namespace Explorer.Logic
                 folderQueryOptions.IndexerOption = IndexerOption.UseIndexerWhenAvailable;
             }
 
-            folderQuery = folder.CreateFolderQueryWithOptions(folderQueryOptions);
-            fileQuery = folder.CreateFileQueryWithOptions(fileQueryOptions);
+            folderQuery = currentFolder.CreateFolderQueryWithOptions(folderQueryOptions);
+            fileQuery = currentFolder.CreateFileQueryWithOptions(fileQueryOptions);
 
             Clear();
             await LoadFoldersAsync(cancellationToken);

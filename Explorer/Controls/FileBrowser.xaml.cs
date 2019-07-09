@@ -18,12 +18,14 @@ using System.Diagnostics;
 using Windows.Storage.FileProperties;
 using System.Threading.Tasks;
 using Windows.UI.Core;
+using Explorer.Logic;
 
 namespace Explorer.Controls
 {
     public sealed partial class FileBrowser : UserControl
     {
         public event EventHandler<FileSystemElement> RequestedTabOpen;
+        public event FSEEventHandler FavoriteAdded;
 
         public class ViewMode : ObservableEntity
         {
@@ -57,8 +59,6 @@ namespace Explorer.Controls
             }
         }
 
-        public event FSEEventHandler FavoriteAdded;
-
         public FileBrowserModel ViewModel
         {
             get { return (FileBrowserModel) GetValue(ViewModelProperty); }
@@ -69,7 +69,8 @@ namespace Explorer.Controls
                 if (ViewModel != null)
                 {
                     ViewModel.FileBrowserWidth = ActualWidth;
-                    ViewModel.RenameDialog = RenameDialog;
+                    //ViewModel.RenameDialog = TextDialog;
+                    ViewModel.DialogService = DialogService;
 
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
                     Bindings.Update();
@@ -80,10 +81,15 @@ namespace Explorer.Controls
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
             "ViewModel", typeof (FileBrowserModel), typeof (FileBrowser), new PropertyMetadata(null));
 
+        public DialogService DialogService { get; set; } = new DialogService();
+
+
         public FileBrowser()
         {
             this.InitializeComponent();
             ((FrameworkElement)this.Content).DataContext = this;
+
+            DialogService.TextDialog = TextDialog;
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

@@ -374,7 +374,6 @@ namespace Explorer.Controls
 
             var controlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
 
-            FocusRow(item);
             if (!SelectedItems.Contains(item))
             {
                 if (!controlDown)
@@ -383,6 +382,7 @@ namespace Explorer.Controls
                 ToggleSelect(item, hitbox);
             }
 
+            FocusRow(item);
             OpenItemFlyout(item, hitbox, e.GetPosition(hitbox));
         }
 

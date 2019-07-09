@@ -8,6 +8,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.DataTransfer.ShareTarget;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -116,6 +118,18 @@ namespace Explorer
         private void TryEnablePrelaunch()
         {
             CoreApplication.EnablePrelaunch(true);
+        }
+
+        protected override async void OnShareTargetActivated(ShareTargetActivatedEventArgs args)
+        {
+            ShareOperation shareOperation = args.ShareOperation;
+            if (shareOperation.Data.Contains(StandardDataFormats.StorageItems))
+            {
+                var sis = await shareOperation.Data.GetStorageItemsAsync();
+                shareOperation.ReportStarted();
+            }
+
+            shareOperation.ReportCompleted();
         }
 
         /// <summary>

@@ -150,6 +150,7 @@
     <Compile Include="Helper\Extensions.cs" />
     <Compile Include="Helper\ObservableDictionary.cs" />
     <Compile Include="Helper\ObservableRangeCollection.cs" />
+    <Compile Include="Logic\DialogService.cs" />
     <Compile Include="Logic\FileSystemOperationService.cs" />
     <Compile Include="Logic\FileSystemRetrieveService.cs" />
     <Compile Include="Logic\WindowManagerService.cs" />

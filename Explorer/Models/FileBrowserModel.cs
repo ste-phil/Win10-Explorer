@@ -42,7 +42,7 @@ namespace Explorer.Models
 
         private ObservableCollection<FileSystemElement> selectedItems;
         private FileSystemElement doubleTappedItem;
-        private string renameName;
+        //private string renameName;
 
         private short viewModeCurrent;
         private ViewMode[] viewModes;
@@ -50,8 +50,10 @@ namespace Explorer.Models
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
-        [JsonIgnore] public ContentDialog RenameDialog { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
+        //[JsonIgnore] public ContentDialog RenameDialog { get; set; }
+        [JsonIgnore] public DialogService DialogService { get; set; }
+
 
         public double FileBrowserWidth { get; set; }
 
@@ -164,11 +166,11 @@ namespace Explorer.Models
             set { doubleTappedItem = value; OnPropertyChanged(); NavigateOrOpen(doubleTappedItem); }
         }
 
-        public string RenameName
-        {
-            get { return renameName; }
-            set { renameName = value; OnPropertyChanged(); }
-        }
+        //public string RenameName
+        //{
+        //    get { return renameName; }
+        //    set { renameName = value; OnPropertyChanged(); }
+        //}
 
         public short ViewModeCurrent
         {
@@ -382,31 +384,19 @@ namespace Explorer.Models
         {
             if (SelectedItems.Count == 0) return;
 
-            RenameName = SelectedItems[0].Name;
-
-            var result = await RenameDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            var userInputName = await DialogService.ShowDialog("Rename", "Rename", "Cancel", SelectedItems[0].Name);
+            if (userInputName != null)
             {
-                try
+                for (int i = 0; i < selectedItems.Count; i++)
                 {
-                    var userInputName = RenameName;
-                    for (int i = 0; i < selectedItems.Count; i++)
-                    {
-                        var newName = selectedItems.Count == 1 ? userInputName : $"{userInputName}_{i + 1}";
+                    var newName = selectedItems.Count == 1 ? userInputName : $"{userInputName}_{i + 1}";
 
-                        await FileSystem.RenameStorageItemAsync(SelectedItems[i], newName);
+                    await FileSystem.RenameStorageItemAsync(SelectedItems[i], newName);
 
-                        SelectedItems[i].Name = newName;
-                        SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
-                    }
-
-
-                    OnPropertyChanged("FileSystemElements");
+                    SelectedItems[i].Name = newName;
+                    SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
                 }
-                catch (Exception) { }
             }
-
-            RenameName = "";
         }
 
         /// <summary>
@@ -462,6 +452,18 @@ namespace Explorer.Models
                     data.ReportOperationCompleted(DataPackageOperation.Move);
                 }
             }
+        }
+
+        public async void CreateFolder()
+        {
+            var folderName = await DialogService.ShowDialog("Create Folder", "Create", "Cancel");
+            if (folderName != null) await retrieveService.CreateFolder(folderName);
+        }
+
+        public async void CreateFile()
+        {
+            var fileName = await DialogService.ShowDialog("Create File", "Create", "Cancel");
+            if (fileName != null) await retrieveService.CreateFile(fileName);
         }
 
         /// <summary>

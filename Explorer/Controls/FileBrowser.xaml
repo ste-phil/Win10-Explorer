@@ -102,14 +102,14 @@
             </Button>
         </Grid>
 
-        <ContentDialog Name="RenameDialog" Grid.Row="2"  PrimaryButtonText="Rename" SecondaryButtonText="Cancel">
+        <ContentDialog Name="TextDialog" Grid.Row="2" PrimaryButtonText="{x:Bind DialogService.PrimaryButtonText, Mode=OneWay}" SecondaryButtonText="{x:Bind DialogService.SecondaryButtonText, Mode=OneWay}">
             <ContentDialog.Title>
                     <TextBlock>
-                        <Run Text="Rename"></Run>
+                        <Run Text="{x:Bind DialogService.DialogName, Mode=OneWay}"></Run>
                         <!--<Run Text="{x:Bind ViewModel.SelectedItems.Name, Mode=OneWay}"></Run>-->
                     </TextBlock>
             </ContentDialog.Title>
-            <TextBox Text="{x:Bind ViewModel.RenameName, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
+            <TextBox Text="{x:Bind DialogService.InputText, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
         </ContentDialog>
 
         <local:StorageTableView x:Name="TableView" Grid.Row="2"
@@ -214,6 +214,9 @@
                     </MenuFlyoutItem>
                     <MenuFlyoutItem Text="Paste" Icon="Paste" Click="{x:Bind ViewModel.PasteStorageItemSelected}"></MenuFlyoutItem>
                     <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Create Folder" Icon="NewFolder" Click="{x:Bind ViewModel.CreateFolder}"></MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Create File" Icon="Document" Click="{x:Bind ViewModel.CreateFile}"></MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
                     <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE946;"/>
@@ -237,6 +240,9 @@
                             <StackPanel>
                                 <controls:DropShadowPanel Margin="25" HorizontalAlignment="Center">
                                     <Image Source="{x:Bind Image, Mode=OneWay}"></Image>
+                                    <!--<controls:ImageEx>
+                                        
+                                    </controls:ImageEx>-->
                                 </controls:DropShadowPanel>
                                 <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-20,0,10"></TextBlock>
                             </StackPanel>

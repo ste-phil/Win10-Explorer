@@ -30,6 +30,11 @@ namespace Explorer.Logic
             return await folder.CreateFileAsync(name, option);
         }
 
+        public static async Task<StorageFolder> CreateFolder(StorageFolder folder, string folderName, CreationCollisionOption option = CreationCollisionOption.GenerateUniqueName)
+        {
+            return await folder.CreateFolderAsync(folderName, option);
+        }
+
         public static async void SerializeObject(object data, string name)
         {
             var sData = JsonConvert.SerializeObject(data);
