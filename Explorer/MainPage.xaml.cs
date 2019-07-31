@@ -114,6 +114,12 @@ namespace Explorer
                 case VirtualKey.F:
                     SearchBox.Focus(FocusState.Programmatic);
                     break;
+                case VirtualKey.T:
+                    ViewModel.OpenTab(@switch: true);
+                    break;
+                case VirtualKey.W:
+                    ViewModel.CloseCurrentTab();
+                    break;
             }
         }
 

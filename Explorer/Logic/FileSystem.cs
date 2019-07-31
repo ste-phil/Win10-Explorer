@@ -363,26 +363,6 @@ namespace Explorer.Logic
 
             return folder.CreateItemQueryWithOptions(query);
         }
-        //public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(StorageItemQueryResult query)
-        //{
-        //    var itemsList = await query.GetItemsAsync();
-        //    var resultList = new List<FileSystemElement>(itemsList.Count);
-        //    foreach (var element in itemsList)
-        //    {
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        resultList.Add(new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        });
-        //    }
-
-        //    return resultList;
-        //}
 
         public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path)
         {

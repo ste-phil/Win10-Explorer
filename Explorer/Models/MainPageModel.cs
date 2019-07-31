@@ -34,7 +34,7 @@ namespace Explorer.Models
             Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
-            AddTabCmd = new Command(() => FileBrowserModels.Add(new FileBrowserModel()), () => true);
+            AddTabCmd = new Command(() => OpenTab(@switch: true), () => true);
             LaunchUrl = new GenericCommand<string>(async url => await Launcher.LaunchUriAsync(new Uri(url)), url => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -109,6 +109,35 @@ namespace Explorer.Models
 
             NavigationItems.Add(new NavigationViewItemSeparator());
         }
+
+        public void OpenTab(FileSystemElement directory = null, bool @switch = false)
+        {
+            var newTab = directory == null ? new FileBrowserModel() : new FileBrowserModel(directory);
+            FileBrowserModels.Add(newTab);
+
+            if (@switch)
+            {
+                CurrentFileBrowser = newTab;
+                OnPropertyChanged("SelectedTab");
+            }
+        }
+
+        
+        public void CloseTab(FileBrowserModel fbm)
+        {
+            FileBrowserModels.Remove(fbm);
+            if (fbm == CurrentFileBrowser)
+            {
+                CurrentFileBrowser = FileBrowserModels[FileBrowserModels.Count - 1];
+                SelectedTab = FileBrowserModels[FileBrowserModels.Count - 1];
+            }
+        }
+
+        public void CloseCurrentTab()
+        {
+            CloseTab(CurrentFileBrowser);
+        }
+
 
         private async void AddDrivesToNavigation()
         {

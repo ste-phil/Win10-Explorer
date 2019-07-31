@@ -116,7 +116,7 @@
             KeyDown="{x:Bind StorageTableView_KeyDown}"
             ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}"
             SelectedItems="{x:Bind ViewModel.SelectedItems, Mode=TwoWay}"
-            DoubleTappedItem="{x:Bind ViewModel.DoubleTappedItem, Mode=TwoWay}"
+            ItemDoubleTapped="TableView_DoubleTappedItem"
             Visibility="{x:Bind ViewModel.ViewModes[0].Visibility, Mode=OneWay}"
             RequestedTabOpen="TableView_RequestedTabOpen">
             <local:StorageTableView.ItemFlyout>

@@ -30,6 +30,7 @@ namespace Explorer.Controls
     public sealed partial class StorageTableView : Page
     {
         public event EventHandler<FileSystemElement> RequestedTabOpen;
+        public event EventHandler<FileSystemElement> ItemDoubleTapped;
 
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
@@ -96,15 +97,6 @@ namespace Explorer.Controls
 
         public static readonly DependencyProperty SelectedItemsProperty = DependencyProperty.Register(nameof(SelectedItems), typeof(ObservableCollection<FileSystemElement>),
             typeof(StorageTableView), new PropertyMetadata(new ObservableCollection<FileSystemElement>()));
-
-        public FileSystemElement DoubleTappedItem
-        {
-            get { return (FileSystemElement)GetValue(DoubleTappedItemProperty); }
-            set { SetValue(DoubleTappedItemProperty, value); }
-        }
-
-        public static readonly DependencyProperty DoubleTappedItemProperty = DependencyProperty.Register(nameof(DoubleTappedItem), typeof(FileSystemElement),
-            typeof(StorageTableView), new PropertyMetadata(DependencyProperty.UnsetValue));
 
         #endregion
 
@@ -261,7 +253,7 @@ namespace Explorer.Controls
                     break;
                 //Open/Navigate currently focused item
                 case VirtualKey.Enter:
-                    DoubleTappedItem = FocusedItem;
+                    ItemDoubleTapped?.Invoke(this, FocusedItem);
                     break;
                 case VirtualKey.Menu:
                     if (focusedRow != null)
@@ -391,7 +383,7 @@ namespace Explorer.Controls
             var hitbox = (FrameworkElement)sender;
             var item = (FileSystemElement)hitbox.Tag;
 
-            DoubleTappedItem = item;
+            ItemDoubleTapped?.Invoke(this, item);
         }
 
 

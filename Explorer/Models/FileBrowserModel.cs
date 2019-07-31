@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.UI.Xaml.Controls;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
@@ -15,7 +14,6 @@ using Windows.System;
 using static Explorer.Logic.FileSystemRetrieveService;
 using static Explorer.Controls.FileBrowser;
 using Windows.Storage.FileProperties;
-using Windows.UI.Xaml.Input;
 
 namespace Explorer.Models
 {
@@ -42,7 +40,6 @@ namespace Explorer.Models
 
         private ObservableCollection<FileSystemElement> selectedItems;
         private FileSystemElement doubleTappedItem;
-        //private string renameName;
 
         private short viewModeCurrent;
         private ViewMode[] viewModes;
@@ -51,7 +48,6 @@ namespace Explorer.Models
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
-        //[JsonIgnore] public ContentDialog RenameDialog { get; set; }
         [JsonIgnore] public DialogService DialogService { get; set; }
 
 
@@ -239,7 +235,7 @@ namespace Explorer.Models
             if (fse.IsFolder) NavigateTo(fse);
             else
             {
-                if (fse.Type == ".exe") FileSystem.LaunchExeAsync(fse.Path, "");
+                if (fse.Type == "Application") FileSystem.LaunchExeAsync(fse.Path, "");
                 else FileSystem.OpenFileWithDefaultApp(fse.Path);
             }
         }

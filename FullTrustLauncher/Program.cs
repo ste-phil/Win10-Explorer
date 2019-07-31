@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Windows.Storage;
 
 namespace FullTrustLauncher
@@ -27,8 +28,10 @@ namespace FullTrustLauncher
             }
             catch (Exception e)
             {
+#if DEBUG
                 Console.WriteLine(e.Message);
                 Console.ReadLine();
+#endif
             }
         }
     }

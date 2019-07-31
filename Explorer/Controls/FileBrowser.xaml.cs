@@ -121,6 +121,12 @@ namespace Explorer.Controls
             RequestedTabOpen?.Invoke(sender, e);
         }
 
+        private void TableView_DoubleTappedItem(object sender, FileSystemElement e)
+        {
+            ViewModel.NavigateOrOpen(e);
+        }
+
+
         private void TextBoxPath_GotFocus(object sender, RoutedEventArgs e)
         {
             ViewModel.TextBoxPathIsFocused = true;
