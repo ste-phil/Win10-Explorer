@@ -23,13 +23,13 @@ namespace Explorer.Models
         private CoreDispatcher dispatcher;
         private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
-        private FileBrowserModel currentFileBrowser;
+        private FSEBrowserModel currentFileBrowser;
         private string searchText;
 
         public MainPageModel()
         {
             NavigationItems = new ObservableCollection<object>();
-            FileBrowserModels = new ObservableCollection<FileBrowserModel>();
+            FileBrowserModels = new ObservableCollection<FSEBrowserModel>();
             FileBrowserModels.CollectionChanged += FileBrowserModels_CollectionChanged;
             Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
             Favorites.CollectionChanged += Favorites_CollectionChanged;
@@ -57,7 +57,7 @@ namespace Explorer.Models
 
         public ObservableRangeCollection<FavoriteNavigationLink> Favorites { get; set; }
         public ObservableCollection<object> NavigationItems { get; set; }
-        public ObservableCollection<FileBrowserModel> FileBrowserModels { get; set; }
+        public ObservableCollection<FSEBrowserModel> FileBrowserModels { get; set; }
         public bool AllowCloseTabs => FileBrowserModels.Count > 1;
 
         public string SearchText
@@ -66,17 +66,17 @@ namespace Explorer.Models
             set {
                 searchText = value;
                 OnPropertyChanged();
-                CurrentFileBrowser.SearchFolder(searchText);
+                CurrentFileBrowser.Search(searchText);
             }
         }
 
-        public FileBrowserModel CurrentFileBrowser
+        public FSEBrowserModel CurrentFileBrowser
         {
             get { return currentFileBrowser; }
             set { currentFileBrowser = value; OnPropertyChanged(); OnPropertyChanged("SearchPlaceholder"); }
         }
 
-        public FileBrowserModel SelectedTab
+        public FSEBrowserModel SelectedTab
         {
             get { return CurrentFileBrowser; }
             set { CurrentFileBrowser = value; }
@@ -112,7 +112,7 @@ namespace Explorer.Models
 
         public void OpenTab(FileSystemElement directory = null, bool @switch = false)
         {
-            var newTab = directory == null ? new FileBrowserModel() : new FileBrowserModel(directory);
+            var newTab = directory == null ? new FSEBrowserModel() : new FSEBrowserModel(directory);
             FileBrowserModels.Add(newTab);
 
             if (@switch)
@@ -123,7 +123,7 @@ namespace Explorer.Models
         }
 
         
-        public void CloseTab(FileBrowserModel fbm)
+        public void CloseTab(FSEBrowserModel fbm)
         {
             FileBrowserModels.Remove(fbm);
             if (fbm == CurrentFileBrowser)
@@ -161,7 +161,7 @@ namespace Explorer.Models
                 }
 
                 //Redirect to first drive (mainly windows) when current drive is not available anymore
-                if (CurrentFileBrowser != null && !FileSystem.DirectoryExists(CurrentFileBrowser.Path))
+                if (CurrentFileBrowser != null)
                 {
                     var drive = drives[0];
 
@@ -255,7 +255,7 @@ namespace Explorer.Models
 
         public void FileBrowser_RequestedTabOpen(object sender, FileSystemElement e)
         {
-            FileBrowserModels.Add(new FileBrowserModel(e));
+            FileBrowserModels.Add(new FSEBrowserModel(e));
         }
 
         public void NavigateNavigationFSE(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -263,15 +263,15 @@ namespace Explorer.Models
             var item = ((NavigationViewItem)args.SelectedItemContainer).Tag;
             if (item is Drive drive)
             {
-                CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = drive.RootDirectory, Name = drive.Name });
+                CurrentFileBrowser.NavigateTo(new FileSystemElement(drive.Name, drive.RootDirectory, DateTime.Now, 0));
             }
             else if (item is NavigationLink link)
             {
-                CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = link.Path, Name = link.Name });
+                CurrentFileBrowser.NavigateTo(new FileSystemElement(link.Name, link.Path, DateTime.Now, 0));
             }
             else if (item is FavoriteNavigationLink favLink)
             {
-                CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = favLink.Path, Name = favLink.Name });
+                CurrentFileBrowser.NavigateTo(new FileSystemElement(favLink.Name, favLink.Path, DateTime.Now, 0));
             }
         }
     }

@@ -42,7 +42,7 @@ namespace Explorer.Logic
             set { inputText = value; OnPropertyChanged(); }
         }
 
-        public async Task<string> ShowDialog(string dialogName, string primaryAction, string secondaryAction, string inputText = "")
+        public async Task<string> ShowTextDialog(string dialogName, string primaryAction, string secondaryAction, string inputText = "")
         {
             DialogName = dialogName;
             PrimaryButtonText = primaryAction;

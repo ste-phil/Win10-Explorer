@@ -127,6 +127,8 @@ namespace Explorer.Entities
         public string SizeString => GetReadableSize(Size);
         public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
         public string LowerName => lowerName;
+
+        public bool IsArchive => Type == ".zip" || Type == ".rar" || Type == ".GZip" || Type == ".tar.gz";
         #endregion
 
         private string GetReadableSize(ulong bytes)
@@ -140,6 +142,68 @@ namespace Explorer.Entities
             }
 
             return $"{bytes:0.##} {sizes[order]}";
+        }
+    }
+    
+    public class ZipFileElement : FileSystemElement
+    {
+        private string elementKey;
+        private int elementDepth;
+        private Stream elementStream;
+
+        /// <summary>
+        /// Creates a folder
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="dateModified"></param>
+        /// <param name="size"></param>
+        /// <param name="displayType"></param>
+        /// <param name="isFolder"></param>
+        /// <param name="image"></param>
+        /// <param name="type"></param>
+        public ZipFileElement(string name, string path, DateTimeOffset dateModified, ulong size, string elementKey, int elementDepth)
+            :base(name, path, dateModified, size)
+        {
+            ElementKey = elementKey;
+            ElementDepth = elementDepth;
+        }
+
+        /// <summary>
+        // Creates a file 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="path"></param>
+        /// <param name="dateModified"></param>
+        /// <param name="size"></param>
+        /// <param name="displayType"></param>
+        /// <param name="isFolder"></param>
+        /// <param name="image"></param>
+        /// <param name="type"></param>
+        public ZipFileElement(string name, string path, DateTimeOffset dateModified, ulong size, BitmapImage image, string type, string displayType, string elementKey, int elementDepth, Stream elementStream)
+            : base(name, path, dateModified, size, image, type, displayType)
+        {
+            ElementKey = elementKey;
+            ElementDepth = elementDepth;
+            ElementStream = elementStream;
+        }
+
+        public Stream ElementStream
+        {
+            get { return elementStream; }
+            set { elementStream = value; OnPropertyChanged(); }
+        }
+
+        public string ElementKey
+        {
+            get { return elementKey; }
+            set { elementKey = value; OnPropertyChanged(); }
+        }
+
+        public int ElementDepth
+        {
+            get { return elementDepth; }
+            set { elementDepth = value; OnPropertyChanged(); }
         }
     }
 

@@ -86,8 +86,29 @@
                     OpenPaneLength="200"
                     MenuItemTemplateSelector="{StaticResource NVMenuItemsSelector}" IsSettingsVisible="False">
         <NavigationView.AutoSuggestBox>
-            <AutoSuggestBox Name="SearchBox" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}"></AutoSuggestBox>
+            <AutoSuggestBox
+                Name="SearchBox" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" 
+                PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}">
+            </AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
+        <!--<NavigationView.PaneCustomContent>-->
+            <!--<Grid Padding="0,0,5,0" ColumnSpacing="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" BorderThickness="2" BorderBrush="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Viewbox Width="16">
+                        <SymbolIcon Symbol="Find" ></SymbolIcon>
+                    </Viewbox>
+                </Button>
+                <AutoSuggestBox 
+                    Grid.Column="1" HorizontalAlignment="Stretch"
+                    Name="SearchBox2" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" 
+                    PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}">
+                </AutoSuggestBox>
+            </Grid>-->
+        <!--</NavigationView.PaneCustomContent>-->
         <NavigationView.PaneFooter>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -123,7 +144,7 @@
 
 
              <!--Content First-->
-            <local:FileBrowser  Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FileBrowser>
+            <local:FSEBrowser Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FSEBrowser>
 
             <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"
@@ -160,7 +181,7 @@
                     </StackPanel>
                 </controls:TabView.TabStartHeader>-->
                 <controls:TabView.ItemHeaderTemplate>
-                    <DataTemplate x:DataType="models:FileBrowserModel">
+                    <DataTemplate x:DataType="models:FSEBrowserModel">
                         <TextBlock Text="{x:Bind Name, Mode=OneWay}"/>
                     </DataTemplate>
                 </controls:TabView.ItemHeaderTemplate>

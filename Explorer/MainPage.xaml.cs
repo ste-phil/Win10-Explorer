@@ -72,13 +72,13 @@ namespace Explorer
         {
             if (e.Parameter == "") 
             {
-                ViewModel.FileBrowserModels.Add(new FileBrowserModel()); 
+                ViewModel.FileBrowserModels.Add(new FSEBrowserModel()); 
             }
             else
             {
                 var vlc = e.Parameter as ViewLifetimeControl;
-                if (vlc.Context != "") ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FileBrowserModel>(vlc.Context));
-                else ViewModel.FileBrowserModels.Add(new FileBrowserModel());
+                if (vlc.Context != "") ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FSEBrowserModel>(vlc.Context));
+                else ViewModel.FileBrowserModels.Add(new FSEBrowserModel());
 
                 vlc.Released += (s, ev) => { };
             }
@@ -89,13 +89,12 @@ namespace Explorer
 
         private async void Tabs_TabDraggedOutsideAsync(object sender, Microsoft.Toolkit.Uwp.UI.Controls.TabDraggedOutsideEventArgs e)
         {
-            var tabModel = (FileBrowserModel) e.Item;
+            var tabModel = (FSEBrowserModel) e.Item;
 
             if (ViewModel.FileBrowserModels.Count > 1)
             {
                 //Remove tab from current window
                 ViewModel.FileBrowserModels.Remove(tabModel);
-                
                 
                 // Need to serialize item to better provide transfer across window threads.
                 var lifetimecontrol = await WindowManagerService.Current.TryShowAsStandaloneAsync("Explorer", typeof(MainPage), JsonConvert.SerializeObject(tabModel));

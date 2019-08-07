@@ -39,6 +39,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>preview</LangVersion>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -113,6 +114,7 @@
     <LangVersion>preview</LangVersion>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
     <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -134,8 +136,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\FileBrowser.xaml.cs">
-      <DependentUpon>FileBrowser.xaml</DependentUpon>
+    <Compile Include="Controls\FSEBrowser.xaml.cs">
+      <DependentUpon>FSEBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FileSystemOperationView.xaml.cs">
       <DependentUpon>FileSystemOperationView.xaml</DependentUpon>
@@ -149,8 +151,304 @@
     <Compile Include="Helper\Commands.cs" />
     <Compile Include="Helper\EnvironmentPaths.cs" />
     <Compile Include="Helper\Extensions.cs" />
+    <Compile Include="Helper\MultiDictionary.cs" />
     <Compile Include="Helper\ObservableDictionary.cs" />
     <Compile Include="Helper\ObservableRangeCollection.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\AbstractArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\AbstractWritableArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\ArchiveFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\GZip\GZipArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\GZip\GZipArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\GZip\GZipWritableArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IArchiveEntryExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IArchiveExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IArchiveExtractionListener.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IWritableArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IWritableArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\IWritableArchiveExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\FileInfoRarArchiveVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\FileInfoRarFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\RarArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\RarArchive.Extensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\RarArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\RarArchiveEntryFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\RarArchiveVolumeFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\SeekableFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Rar\StreamRarArchiveVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\SevenZip\SevenZipArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\SevenZip\SevenZipArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Tar\TarArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Tar\TarArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Tar\TarWritableArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Zip\ZipArchive.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Zip\ZipArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Archives\Zip\ZipWritableArchiveEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\AssemblyInfo.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ArchiveEncoding.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ArchiveException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ArchiveExtractionEventArgs.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ArchiveType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\CompressedBytesReadEventArgs.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\CompressionType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\CryptographicException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Entry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\EntryStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ExtractionException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\FilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\FilePartExtractionBeginEventArgs.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\FlagUtility.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\GZip\GZipEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\GZip\GZipFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\GZip\GZipVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\IEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\IEntry.Extensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\IExtractionListener.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\IncompleteArchiveException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\InvalidFormatException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\IVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\MultipartStreamRequiredException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\MultiVolumeExtractionException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\OptionsBase.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\PasswordProtectedException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\ArchiveHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\AVHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\CommentHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\EndArchiveHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\FileHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\FileNameDecoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\Flags.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\MarkHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\NewSubHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\ProtectHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\RarHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\RarHeaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\Headers\SignHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarCrcBinaryReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarCryptoBinaryReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarCryptoWrapper.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarRijndael.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Rar\RarVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\ReaderExtractionEventArgs.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\ArchiveDatabase.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\ArchiveReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CBindPair.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CCoderInfo.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CFileItem.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CFolder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CMethodId.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\CStreamSwitch.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\DataReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\SevenZipEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\SevenZipFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\SevenZip\SevenZipVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\Headers\EntryType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\Headers\TarHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\TarEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\TarFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\TarHeaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\TarReadOnlySubStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Tar\TarVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Volume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\DirectoryEndHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\DirectoryEntryHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\HeaderFlags.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\IgnoreHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\LocalEntryHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\LocalEntryHeaderExtraFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\SplitHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\Zip64DirectoryEndHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\Zip64DirectoryEndLocatorHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\ZipFileEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\ZipHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\Headers\ZipHeaderType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\PkwareTraditionalCryptoStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\PkwareTraditionalEncryptionData.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\SeekableZipFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\SeekableZipHeaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\StreamingZipFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\StreamingZipHeaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\WinzipAesCryptoStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\WinzipAesEncryptionData.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\WinzipAesKeySize.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\ZipCompressionMethod.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\ZipEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\ZipFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\ZipHeaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Common\Zip\ZipVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\ADC\ADCBase.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\ADC\ADCStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\BZip2\BZip2Constants.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\BZip2\BZip2Stream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\BZip2\CBZip2InputStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\BZip2\CBZip2OutputStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\BZip2\CRC.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\CompressionMode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\CRC32.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\DeflateManager.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\DeflateStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\FlushType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\GZipStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\Inflate.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\InfTree.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\Tree.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\Zlib.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\ZlibBaseStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\ZlibCodec.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\ZlibConstants.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Deflate\ZlibStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Filters\BCJ2Filter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Filters\BCJFilter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Filters\Filter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\AesDecoderStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Bcj2DecoderStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\BitVector.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\CRC.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\DecoderStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\ICoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Log.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LZipStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LzmaBase.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LzmaDecoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LzmaEncoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LzmaEncoderProperties.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LzmaStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LZ\CRC.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LZ\LzBinTree.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LZ\LzInWindow.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\LZ\LzOutWindow.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\RangeCoder\RangeCoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Registry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Utilites\CrcBuilderStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Utilites\CrcCheckStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Utilites\IPasswordProvider.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\LZMA\Utilites\Utils.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\FreqData.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\ModelPPM.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\Pointer.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\PPMContext.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\RangeCoder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\RarMemBlock.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\RarNode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\SEE2Context.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\State.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\StateRef.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\H\SubAllocator.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\Allocator.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\Coder.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\MemoryNode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\Model.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\ModelRestorationMethod.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\Pointer.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\PpmContext.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\PpmState.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\I1\See2Context.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\PpmdProperties.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\PpmdStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\PPMd\PpmdVersion.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\AudioVariables.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\BitDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\CodeType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\Compress.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\Decode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\DistDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\FilterType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\LitDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\LowDistDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\MultDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Decode\RepDecode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\MultiVolumeReadOnlyStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\PPM\BlockTypes.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\RarCRC.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\RarCrcStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\RarStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Unpack.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Unpack15.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\Unpack20.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\UnpackFilter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\UnpackUtility.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\BitInput.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\RarVM.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMCmdFlags.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMCommands.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMFlags.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMOpType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMPreparedCommand.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMPreparedOperand.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMPreparedProgram.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMStandardFilters.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Rar\VM\VMStandardFilterSignature.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\BinaryUtils.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\CheckType.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\Crc32.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\Crc64.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\Filters\BlockFilter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\Filters\Lzma2Filter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\MultiByteIntegers.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\ReadOnlyStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZBlock.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZFooter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZHeader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZIndex.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZIndexMarkerReachedException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZIndexRecord.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZReadOnlyStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Compressors\Xz\XZStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Converters\DataConverter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\Crc32Stream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\CryptoException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\DataLengthException.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\IBlockCipher.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\ICipherParameters.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\KeyParameter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Crypto\RijndaelEngine.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\EnumExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\AppendingStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\BufferedSubStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\CountingWritableSubStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\ListeningStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\MarkingBinaryReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\NonDisposingStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\ReadOnlySubStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\RewindableStream.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\IO\StreamingMode.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\LazyReadOnlyCollection.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\AbstractReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\ExtractionOptions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\GZip\GZipReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\IReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\IReaderExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\IReaderExtractionListener.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\MultiVolumeRarReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\NonSeekableStreamFilePart.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\RarReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\RarReaderEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\RarReaderVolume.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Rar\SingleVolumeRarReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\ReaderFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\ReaderOptions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\ReaderProgress.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Tar\TarReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Readers\Zip\ZipReader.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\ReadOnlyCollection.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Utility.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\AbstractWriter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\GZip\GZipWriter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\GZip\GZipWriterOptions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\IWriter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\IWriterExtensions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Tar\TarWriter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\WriterFactory.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\WriterOptions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipCentralDirectoryEntry.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriter.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriterEntryOptions.cs" />
+    <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriterOptions.cs" />
     <Compile Include="Logic\DialogService.cs" />
     <Compile Include="Logic\FileSystemOperationService.cs" />
     <Compile Include="Logic\FileSystemRetrieveService.cs" />
@@ -161,8 +459,11 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
-    <Compile Include="Models\FileBrowserModel.cs" />
+    <Compile Include="Models\FSEBrowserModel.cs" />
+    <Compile Include="Logic\BrowserServices\FileBrowserService.cs" />
+    <Compile Include="Logic\BrowserServices\IBrowserService.cs" />
     <Compile Include="Models\MainPageModel.cs" />
+    <Compile Include="Logic\BrowserServices\ZipBrowserService.cs" />
     <Compile Include="PermissionPage.xaml.cs">
       <DependentUpon>PermissionPage.xaml</DependentUpon>
     </Compile>
@@ -175,7 +476,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Explorer_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\BadgeLogo.scale-100.png" />
@@ -225,6 +525,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <None Include="Libs\sharpcompress-0.18\src\SharpCompress\SharpCompress.csproj" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -232,13 +533,14 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <None Include="Libs\sharpcompress-0.18\src\SharpCompress\SharpCompress.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Controls\FileBrowser.xaml">
+    <Page Include="Controls\FSEBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -275,6 +577,7 @@
       <Name>Windows Desktop Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

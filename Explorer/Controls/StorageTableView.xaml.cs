@@ -1,20 +1,16 @@
 ﻿using Explorer.Entities;
 using Explorer.Logic;
+using Explorer.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.BulkAccess;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Input;
@@ -23,7 +19,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Shapes;
 
 namespace Explorer.Controls
 {
@@ -31,6 +26,8 @@ namespace Explorer.Controls
     {
         public event EventHandler<FileSystemElement> RequestedTabOpen;
         public event EventHandler<FileSystemElement> ItemDoubleTapped;
+        public event FileDragEvent ItemsDragged;
+        public event FileDropEvent ItemsDropped;
 
         private const string ROW_SELECTED_STYLE_NAME = "RowSelected";
         private const string ROW_DEFAULT_STYLE_NAME = "RowDefault";
@@ -651,7 +648,7 @@ namespace Explorer.Controls
             if (fse.IsFolder && e.DataView.Contains(StandardDataFormats.StorageItems))
             {
                 var items = await e.DataView.GetStorageItemsAsync();
-
+                ItemsDropped?.Invoke(fse, items);
                 //FileSystem.MoveStorageItemsAsync(fse, items.ToList());
             }
         }
@@ -673,7 +670,7 @@ namespace Explorer.Controls
             StyleHitbox(row, ROW_DEFAULT_STYLE_NAME);
         }
 
-        private async void Row_DragStarting(UIElement sender, DragStartingEventArgs args)
+        private void Row_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
             //Cancel drawing selection rect when item is dragged
             isDraggingSelection = false;
@@ -684,48 +681,9 @@ namespace Explorer.Controls
             var fse = (FileSystemElement)row.Tag;
 
             var deferral = args.GetDeferral();
-            if (!fse.IsFolder)
-            {
-                var storageItem = await FileSystem.GetFileAsync(fse);
-                args.Data.SetStorageItems(new List<IStorageItem> { storageItem }, false);
+            ItemsDragged?.Invoke(args.Data, args.DragUI);
 
-                var ti = await storageItem.GetThumbnailAsync(ThumbnailMode.SingleItem, 30);
-                if (ti != null)
-                {
-                    var stream = ti.CloneStream();
-                    var img = new BitmapImage();
-
-                    await img.SetSourceAsync(stream);
-
-                    args.Data.RequestedOperation = DataPackageOperation.Move;
-                    args.DragUI.SetContentFromBitmapImage(img, new Point(-1, 0));
-
-                    //args.Data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromStream(stream);
-                    //args.DragUI.SetContentFromDataPackage();
-                }
-            }
-            else
-            {
-                var storageItem = await FileSystem.GetFolderAsync(fse);
-                args.Data.SetStorageItems(new List<IStorageItem> { storageItem }, false);
-
-                var ti = await storageItem.GetThumbnailAsync(ThumbnailMode.SingleItem, 30);
-                if (ti != null)
-                {
-                    var stream = ti.CloneStream();
-                    var img = new BitmapImage();
-
-                    await img.SetSourceAsync(stream);
-
-                    args.Data.RequestedOperation = DataPackageOperation.Move;
-                    args.DragUI.SetContentFromBitmapImage(img, new Point(-1, 0));
-
-                    //args.Data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromStream(stream);
-                    //args.DragUI.SetContentFromDataPackage();
-                }
-            }
-
-            //args.DragUI.SetContentFromDataPackage();
+            
             deferral.Complete();
         }
         #endregion

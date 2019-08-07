@@ -91,11 +91,17 @@ namespace Explorer.Logic
             return drives;
         }
 
-        [Obsolete]
-        public static bool DirectoryExists(string path)
+        public async static Task<BitmapImage> GetFileExtensionThumbnail(string extension, ThumbnailMode mode, uint size, ThumbnailOptions options)
         {
-            return Directory.Exists(path);
+            var dummy = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("dummy." + extension, CreationCollisionOption.ReplaceExisting); //may overwrite existing
+            var thumbnail = await dummy.GetThumbnailAsync(mode, size, options);
+            if (thumbnail == null) return null;
+
+            var bitmap = new BitmapImage();
+            bitmap.SetSource(thumbnail);
+            return bitmap;
         }
+
 
         #region File CRUD ops
         public static async Task<bool> StorageItemExists(StorageFolder folder, string name)
@@ -151,6 +157,20 @@ namespace Explorer.Logic
         {
             var file = await GetStorageItemAsync(fse);
             await file.RenameAsync(newName);
+        }
+
+        public static async Task<StorageFile> CreateStorageFile(StorageFolder folder, string name, Stream stream)
+        {
+            var file = await folder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
+
+            stream.Position = 0;
+            using (var writeStream = await file.OpenStreamForWriteAsync())
+            {
+                await stream.CopyToAsync(writeStream);
+                await writeStream.FlushAsync();
+            }
+
+            return file;
         }
         #endregion
 
@@ -407,7 +427,7 @@ namespace Explorer.Logic
         //    return resultList;
         //}
 
-        public static async void LaunchExeAsync(string appPath, string arguments)
+        public static async void LaunchExeAsync(string appPath, string arguments = "")
         {
             Debug.WriteLine("Launching EXE in FullTrustProcess");
             ApplicationData.Current.LocalSettings.Values["LaunchPath"] = appPath;

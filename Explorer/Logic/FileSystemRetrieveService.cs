@@ -1,12 +1,10 @@
 ﻿using Explorer.Entities;
-using Explorer.Helper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,12 +53,10 @@ namespace Explorer.Logic
         private List<FileSystemElement> items;
 
         public ObservableCollection<FileSystemElement> ViewItems { get; set; }
-        //public ObservableDictionary<string, FileSystemElement> ViewItems { get; set; }
 
-        public FileSystemRetrieveService(CoreDispatcher dispatcher)
+        public FileSystemRetrieveService(ObservableCollection<FileSystemElement> viewItems, CoreDispatcher dispatcher)
         {
-            ViewItems = new ObservableRangeCollection<FileSystemElement>();
-            //ViewItems = new ObservableDictionary<string, FileSystemElement>();
+            ViewItems = viewItems;
             items = new List<FileSystemElement>();
             files = new List<StorageFile>();
 
@@ -133,7 +129,7 @@ namespace Explorer.Logic
             files.Clear();
             items.Clear();
         }
-
+        
         public async Task RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions = default)
         {
             this.thumbnailOptions = thumbnailOptions;
@@ -501,7 +497,7 @@ namespace Explorer.Logic
                 _ = image.SetSourceAsync(ti.CloneStream());
             }
 
-            var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size, image, item.DisplayType, item.FileType);
+            var fse = new FileSystemElement(item.Name, item.Path, basicProps.DateModified, basicProps.Size, image, item.FileType, item.DisplayType);
 
             //If there is a search going on check if the items fits the search
             if (currentSearch != "" && fse.LowerName.Contains(currentSearch)) ViewItems.Add(fse);
