@@ -142,6 +142,9 @@
     <Compile Include="Controls\FileSystemOperationView.xaml.cs">
       <DependentUpon>FileSystemOperationView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PathBox.xaml.cs">
+      <DependentUpon>PathBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StorageAdaptiveGridView.cs" />
     <Compile Include="Entities\DataTemplates.cs" />
     <Compile Include="Entities\FileSystemElements.cs" />
@@ -545,6 +548,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FileSystemOperationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PathBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

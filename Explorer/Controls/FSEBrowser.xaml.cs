@@ -128,15 +128,9 @@ namespace Explorer.Controls
             ViewModel.NavigateOrOpen(e);
         }
 
-
-        private void TextBoxPath_GotFocus(object sender, RoutedEventArgs e)
+        private void PathBox_NavigationRequested(object sender, string path)
         {
-            ViewModel.TextBoxPathIsFocused = true;
-        }
-
-        private void TextBoxPath_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ViewModel.TextBoxPathIsFocused = false;
+            ViewModel.NavigateOrOpen(path);
         }
     }
 }

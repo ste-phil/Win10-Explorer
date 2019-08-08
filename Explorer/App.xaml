@@ -44,6 +44,7 @@
                                         <VisualState x:Name="PointerOver">
                                             <VisualState.Setters>
                                                 <Setter Target="RootGrid.(RevealBrush.State)" Value="PointerOver" />
+                                                <Setter Target="RootGrid.CornerRadius" Value="1" />
                                                 <Setter Target="RootGrid.Background" Value="{ThemeResource ButtonRevealBackgroundPointerOver}" />
                                                 <Setter Target="ContentPresenter.BorderBrush" Value="Transparent"/>
                                                 <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundPointerOver}" />
@@ -57,6 +58,7 @@
                                         <VisualState x:Name="Pressed">
                                             <VisualState.Setters>
                                                 <Setter Target="RootGrid.(RevealBrush.State)" Value="Pressed" />
+                                                <Setter Target="RootGrid.CornerRadius" Value="1" />
                                                 <Setter Target="RootGrid.Background" Value="{ThemeResource ButtonRevealBackgroundPressed}" />
                                                 <Setter Target="ContentPresenter.BorderBrush" Value="{ThemeResource ButtonRevealBackgroundPressed}" />
                                                 <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundPressed}" />
@@ -70,6 +72,7 @@
                                         <VisualState x:Name="Disabled">
                                             <VisualState.Setters>
                                                 <Setter Target="RootGrid.Background" Value="Transparent" />
+                                                <Setter Target="RootGrid.CornerRadius" Value="1" />
                                                 <Setter Target="ContentPresenter.BorderBrush" Value="Transparent" />
                                                 <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource ButtonForegroundDisabled}" />
                                             </VisualState.Setters>
@@ -78,15 +81,16 @@
 
                                 </VisualStateManager.VisualStateGroups>
                                 <ContentPresenter x:Name="ContentPresenter"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    Content="{TemplateBinding Content}"
-                    ContentTransitions="{TemplateBinding ContentTransitions}"
-                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                    Padding="{TemplateBinding Padding}"
-                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                    AutomationProperties.AccessibilityView="Raw" />
+                                    CornerRadius="1"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTransitions="{TemplateBinding ContentTransitions}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Padding="{TemplateBinding Padding}"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    AutomationProperties.AccessibilityView="Raw" /> 
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>

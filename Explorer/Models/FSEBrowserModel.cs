@@ -455,7 +455,7 @@ namespace Explorer.Models
 
         public async void UpdatePathSuggestions()
         {
-            //Skip if Path has not been initialized or not focues
+            //Skip if Path has not been initialized or not focused
             if (!TextBoxPathIsFocused || (Path == null || Path == "")) return;
 
             var folders = Path.Split('\\');

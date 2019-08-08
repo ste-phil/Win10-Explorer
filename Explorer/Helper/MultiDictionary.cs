@@ -24,7 +24,6 @@ namespace Explorer.Helper
                 list.Add(value);
             else
                 data.Add(key, new List<TValue>() { value });
-
         }
 
         public void AddFirst(TKey key, TValue value)
@@ -33,6 +32,11 @@ namespace Explorer.Helper
                 list.Insert(0, value);
             else
                 data.Add(key, new List<TValue>() { value });
+        }
+
+        public void Clear()
+        {
+            data.Clear();
         }
     }
 }

@@ -5,7 +5,12 @@ using System.IO;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
+using SharpCompress.Archives;
+using SharpCompress.Archives.Zip;
+using SharpCompress.Common;
 using SharpCompress.Readers;
+using SharpCompress.Writers;
+using SharpCompress.Writers.Zip;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -14,7 +19,8 @@ namespace Explorer.Models
 {
     public class ZipBrowserService : IBrowserService
     {
-        private FileSystemElement currentZipFile;
+        private StorageFile currentZIPFile;
+        private FileSystemElement currentFSE;
         private int currentDepth;
 
         private MultiDictionary<int, ZipFileElement> elements;
@@ -52,10 +58,11 @@ namespace Explorer.Models
         /// <param name="thumbnailOptions"></param>
         private async void LoadZip(FileSystemElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
         {
-            elements = new MultiDictionary<int, ZipFileElement>();
+            elements.Clear();
+            currentZIPFile = await FileSystem.GetFileAsync(fse);
+            currentFSE = fse;
 
-            var storageFile = await FileSystem.GetFileAsync(fse);
-            using (Stream stream = await storageFile.OpenStreamForReadAsync())
+            using (Stream stream = await currentZIPFile.OpenStreamForReadAsync())
             {
                 var reader = ReaderFactory.Open(stream);
                 while (reader.MoveToNextEntry())
@@ -95,12 +102,7 @@ namespace Explorer.Models
                         //Store fileStream to access it later
                         var elementStream = new MemoryStream();
                         reader.WriteEntryTo(elementStream);
-                        //reader.WriteEntryToDirectory(ApplicationData.Current.TemporaryFolder.Path, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
                         await elementStream.FlushAsync();
-
-                        //var entryStream = reader.OpenEntryStream();
-                        //entryStream.CopyTo(elementStream);
-                        //entryStream.SkipEntry();
 
                         var thumbnail = await FileSystem.GetFileExtensionThumbnail(fileExtension, thumbnailOptions.Mode, thumbnailOptions.Size, thumbnailOptions.Scale);
                         element = new ZipFileElement(
@@ -122,8 +124,6 @@ namespace Explorer.Models
                     if (depth == currentDepth) FileSystemElements.Add(element);
                 }
             }
-
-            currentZipFile = fse;
         }
 
         /// <summary> 
@@ -145,58 +145,70 @@ namespace Explorer.Models
 
         public void SearchAsync(string search)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void RenameFileSystemElement(FileSystemElement fse, string newName)
         {
-            throw new NotImplementedException();
+            
         }
+
         public void DeleteFileSystemElement(FileSystemElement fse)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void RefetchThumbnails(FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
         {
-            throw new NotImplementedException();
+            
         }
 
-        public void CreateFolder(string folderName)
+        public async void CreateFolder(string folderName)
         {
-            throw new NotImplementedException();
+            //using (var stream = await currentZIPFile.OpenStreamForWriteAsync())
+            //using (var writer = WriterFactory.Open(stream,
+            //    ArchiveType.Zip,
+            //    new WriterOptions(CompressionType.Deflate)))
+            //{
+            //    writer.Write(folderName + "\\", new MemoryStream());
+            //}
+
+            //using (var stream = await currentZIPFile.OpenStreamForWriteAsync())
+            //{
+            //    var archive = ZipArchive.Open(stream);
+            //    archive.AddEntry(folderName + "\\", new MemoryStream());
+            //    archive.SaveTo(stream);
+            //    stream.Flush();
+            //}
         }
 
-        public void CreateFile(string fileName)
+        public async void CreateFile(string fileName)
         {
-            throw new NotImplementedException();
+            using (var stream = await currentZIPFile.OpenStreamForWriteAsync())
+            using (var writer = WriterFactory.Open(stream, ArchiveType.Zip, new WriterOptions(CompressionType.Deflate)))
+            {
+                writer.Write(fileName, new MemoryStream());
+            }
         }
 
         public void CopyFileSystemElement(Collection<FileSystemElement> files)
         {
-            throw new NotImplementedException();
         }
 
         public void CutFileSystemElement(Collection<FileSystemElement> files)
         {
-            throw new NotImplementedException();
         }
 
         public void PasteFileSystemElement(FileSystemElement currentFolder)
         {
-            throw new NotImplementedException();
         }
-
-
 
         public void DragStorageItems(DataPackage dataPackage, DragUI dragUI, Collection<FileSystemElement> draggedItems)
         {
-            throw new NotImplementedException();
         }
 
         public void DropStorageItems(FileSystemElement droppedTo, IEnumerable<IStorageItem> droppeditems)
         {
-            throw new NotImplementedException();
         }
     }
 }

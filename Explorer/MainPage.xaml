@@ -141,7 +141,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="{Binding Width, ElementName=RightPaddingColumn}"/>
             </Grid.ColumnDefinitions>
-
+            
 
              <!--Content First-->
             <local:FSEBrowser Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FSEBrowser>

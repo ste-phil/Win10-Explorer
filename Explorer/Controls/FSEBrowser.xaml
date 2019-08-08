@@ -62,7 +62,7 @@
             <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{StaticResource MyButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <AutoSuggestBox Style="{StaticResource MyAutoSuggestBoxRevealStyle}"
+            <!--<AutoSuggestBox Style="{StaticResource MyAutoSuggestBoxRevealStyle}"
                             Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" 
                             Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
                             ItemsSource="{x:Bind ViewModel.PathSuggestions}"
@@ -77,7 +77,12 @@
                         <Setter Property="FontSize" Value="30"></Setter>
                     </Style>
                 </AutoSuggestBox.TextBoxStyle>
-            </AutoSuggestBox>
+            </AutoSuggestBox>-->
+            <local:PathBox Grid.Column="2" Path="{x:Bind Mode=TwoWay, Path=ViewModel.Path}" 
+                           NavigationRequested="PathBox_NavigationRequested"
+                           PathSuggestions="{x:Bind ViewModel.PathSuggestions}"
+                           IsTextBoxPathEnabled="{x:Bind ViewModel.TextBoxPathIsFocused, Mode=TwoWay}">
+            </local:PathBox>
             <Button Grid.Column="3" Background="Transparent">
                 <Button.Flyout>
                     <MenuFlyout Placement="Bottom">

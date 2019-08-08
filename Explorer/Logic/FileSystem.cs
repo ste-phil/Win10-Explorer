@@ -93,6 +93,8 @@ namespace Explorer.Logic
 
         public async static Task<BitmapImage> GetFileExtensionThumbnail(string extension, ThumbnailMode mode, uint size, ThumbnailOptions options)
         {
+            if (extension == null || extension == "") return null;
+
             var dummy = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("dummy." + extension, CreationCollisionOption.ReplaceExisting); //may overwrite existing
             var thumbnail = await dummy.GetThumbnailAsync(mode, size, options);
             if (thumbnail == null) return null;
