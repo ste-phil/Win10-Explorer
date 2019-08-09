@@ -168,10 +168,12 @@
                               TabDraggedOutside="Tabs_TabDraggedOutsideAsync">
                 <controls:TabView.Resources>
                     <x:Double x:Key="TabViewItemHeaderMinHeight">32</x:Double>
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackground" Color="{ThemeResource SystemChromeLowColor}"></SolidColorBrush>
+                    <SolidColorBrush x:Key="TabViewItemHeaderBackgroundSelected" Color="Transparent" />
                 </controls:TabView.Resources>
-
                 <controls:TabView.ItemTemplate>
-                    <DataTemplate />
+                    <DataTemplate>
+                    </DataTemplate>
                 </controls:TabView.ItemTemplate>
 
                 <!--<controls:TabView.TabStartHeader>
@@ -182,7 +184,7 @@
                 </controls:TabView.TabStartHeader>-->
                 <controls:TabView.ItemHeaderTemplate>
                     <DataTemplate x:DataType="models:FSEBrowserModel">
-                        <TextBlock Text="{x:Bind Name, Mode=OneWay}"/>
+                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"/>
                     </DataTemplate>
                 </controls:TabView.ItemHeaderTemplate>
                 <controls:TabView.TabActionHeader>
@@ -190,7 +192,7 @@
                             Height="{StaticResource TabViewItemHeaderMinHeight}"
                             Margin="-1,0,0,0"
                             BorderThickness="1"
-                            Background="Transparent"
+                            Background="{ThemeResource SystemChromeLowColor}"
                             Style="{StaticResource ButtonRevealStyle}"
                             Command="{x:Bind ViewModel.AddTabCmd}">
                         <Viewbox MaxWidth="16" MaxHeight="16">
