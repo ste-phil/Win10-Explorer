@@ -9,8 +9,9 @@ It uses the new Fluent Design from Microsoft to integrate seamingless into the n
  * View Zip Archives directly via the Explorer
 
 ![File Explorer](https://i.gyazo.com/e3355c6227c5355dc1732ebebd8c6b20.jpg)
-![File Explorer](https://i.gyazo.com/56c23c2661a181314e7ea7e320f2dd54.png)
-![File Explorer](https://i.gyazo.com/8eb622cc59bb30de41fd5656650cdd91.gif)
+[![Image from Gyazo](https://i.gyazo.com/f0c129fa5fba7e40886e6cfe99be7226.jpg)](https://gyazo.com/f0c129fa5fba7e40886e6cfe99be7226)
+[![Image from Gyazo](https://i.gyazo.com/ad3a646396c96ab8d1ada9cb313c0e38.jpg)](https://gyazo.com/ad3a646396c96ab8d1ada9cb313c0e38)
+[![Gif from Gyazo](https://i.gyazo.com/8eb622cc59bb30de41fd5656650cdd91.gif)](https://gyazo.com/8eb622cc59bb30de41fd5656650cdd91)
 
 ## Usage:
   * Download or clone the repo
