@@ -10,14 +10,14 @@
     d:DesignWidth="400">
 
     <Grid Tapped="Grid_Tapped" Background="Transparent" AllowFocusOnInteraction="True">
-        <AutoSuggestBox x:Name="TextBoxPath" 
+        <AutoSuggestBox x:Name="TextBoxPath"
                         Text="{x:Bind Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                         ItemsSource="{x:Bind PathSuggestions, Mode=OneWay}"
                         Visibility="{x:Bind Path=TextPathVisibility, Mode=OneWay}" 
                         QuerySubmitted="TextBoxPath_QuerySubmitted"
                         TextMemberPath="Path" DisplayMemberPath="Name"
                         UpdateTextOnSelect="False"
-                        LostFocus="Grid_LostFocus">
+                        LostFocus="TextPath_LostFocus">
             <AutoSuggestBox.TextBoxStyle>
                 <Style TargetType="TextBox">
                     <Setter Property="FontSize" Value="30"></Setter>

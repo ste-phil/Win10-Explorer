@@ -26,7 +26,6 @@ namespace Explorer.Controls
 {
     public sealed partial class PathBox : UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<string> NavigationRequested;
 
         #region Dependency Properties
@@ -44,6 +43,7 @@ namespace Explorer.Controls
 
         public PathBox()
         {
+            TextPathVisibility = Visibility.Visible;
             this.InitializeComponent();
 
             openedFolders = new ObservableCollection<Tuple<int, string>>();
@@ -118,10 +118,16 @@ namespace Explorer.Controls
             IsTextBoxPathEnabled = true;
             Bindings.Update();
 
-            TextBoxPath.Focus(FocusState.Programmatic);
+            TextBoxPath.LayoutUpdated += TextBoxPath_LayoutUpdated;
         }
 
-        private void Grid_LostFocus(object sender, RoutedEventArgs e)
+        private void TextBoxPath_LayoutUpdated(object sender, object e)
+        {
+            TextBoxPath.Focus(FocusState.Programmatic);
+            TextBoxPath.LayoutUpdated -= TextBoxPath_LayoutUpdated;
+        }
+
+        private void TextPath_LostFocus(object sender, RoutedEventArgs e)
         {
             TextPathVisibility = Visibility.Collapsed;
             FolderListVisibility = Visibility.Visible;
@@ -140,5 +146,6 @@ namespace Explorer.Controls
         }
 
         #endregion
+
     }
 }
