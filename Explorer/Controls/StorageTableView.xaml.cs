@@ -140,18 +140,11 @@ namespace Explorer.Controls
 
             for (int i = 0; i < SelectedItems.Count; i++)
             {
-                var fse = SelectedItems[i];
-                var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
-                if (container == null) continue;
-                var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
-
-                selectedElements.Add(hitbox);
-
-                //When item which is going to be selected and is focused apply different style
-                if (fse == FocusedItem) hitbox.Style = (Style)Resources["RowSelectedFocusedStyle"];
-                else hitbox.Style = (Style)Resources["RowSelectedStyle"];
+                ApplySelectedStyle(SelectedItems[i]);
             }
         }
+
+        
 
         #region TableHeader Actions
 
@@ -545,6 +538,18 @@ namespace Explorer.Controls
 
             selectedElements.Clear();
             SelectedItems.Clear();
+        }
+
+        private void ApplySelectedStyle(FileSystemElement fse)
+        {
+            var container = (ContentPresenter)ItemsSourceRowHitbox.ContainerFromItem(fse);
+            if (container == null) return;
+            var hitbox = (FrameworkElement)VisualTreeHelper.GetChild(container, 0);
+
+            selectedElements.Add(hitbox);
+
+            //When item which is going to be selected is focused apply different style
+            StyleHitbox(hitbox, "RowSelected");
         }
 
         private void StyleHitbox(FileSystemElement fse, FrameworkElement hitbox, string style)

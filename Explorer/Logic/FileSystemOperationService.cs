@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Explorer.Logic.FileSystemService;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,12 +24,12 @@ namespace Explorer.Logic
             //Operations.Add(new FileSystemOperation(FileSystemOperations.Copy, sourceItem: null, new FileSystemElement { Name = "2." }));
         }
 
-        public async Task BeginMoveOperation(IStorageItem sourceItem, FileSystemElement targetFolder)
+        public async Task BeginMoveOperation(FileSystemElement targetFolder, IStorageItem sourceItem)
         {
-            await BeginMoveOperation(new List<IStorageItem> { sourceItem }, targetFolder);
+            await BeginMoveOperation(targetFolder, new List<IStorageItem> { sourceItem });
         }
 
-        public async Task BeginMoveOperation(List<IStorageItem> sourceItems, FileSystemElement targetFolder)
+        public async Task BeginMoveOperation(FileSystemElement targetFolder, List<IStorageItem> sourceItems)
         {
             var itemsString = sourceItems.Count > 1 ? sourceItems.Count.ToString() : sourceItems[0].Name;
             var operation = new FileSystemOperation(FileSystemOperations.Move, itemsString, targetFolder);
@@ -38,12 +39,12 @@ namespace Explorer.Logic
             Operations.Remove(operation);
         }
 
-        public async Task BeginCopyOperation(IStorageItem sourceItem, FileSystemElement targetFolder)
+        public async Task BeginCopyOperation(FileSystemElement targetFolder, IStorageItem sourceItem)
         {
-            await BeginMoveOperation(new List<IStorageItem> { sourceItem }, targetFolder);
+            await BeginMoveOperation(targetFolder, new List<IStorageItem> { sourceItem });
         }
 
-        public async Task BeginCopyOperation(List<IStorageItem> sourceItems, FileSystemElement targetFolder)
+        public async Task BeginCopyOperation(FileSystemElement targetFolder, List<IStorageItem> sourceItems)
         {
             var itemsString = sourceItems.Count > 1 ? sourceItems.Count.ToString() : sourceItems[0].Name;
             var operation = new FileSystemOperation(FileSystemOperations.Copy, itemsString, targetFolder);

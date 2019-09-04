@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:local="using:Explorer">
+    
     <Application.Resources>
         <ResourceDictionary>
             <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
@@ -205,6 +206,27 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+            </Style>
+
+            <Style TargetType="TextBox">
+                <Setter Property="CornerRadius" Value="1"></Setter>
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="CornerRadius" Value="1"></Setter>
+            </Style>
+
+            <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}" x:Name="RoundedAccentButtonStyle">
+                <Setter Property="CornerRadius" Value="1"></Setter>
+            </Style>
+
+
+            <Style TargetType="TextBox" x:Name="ReadOnlyTextBox">
+                <Setter Property="BorderThickness" Value="0"></Setter>
+                <Setter Property="Background" Value="Transparent"></Setter>
+                <Setter Property="TextWrapping" Value="Wrap"></Setter>
+                <Setter Property="IsReadOnly" Value="True"></Setter>
+                <Setter Property="CornerRadius" Value="1"></Setter>
             </Style>
 
             <ResourceDictionary.ThemeDictionaries>

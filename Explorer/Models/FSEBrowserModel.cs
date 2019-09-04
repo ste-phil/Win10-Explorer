@@ -16,6 +16,9 @@ using static Explorer.Controls.FSEBrowser;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Foundation;
+using Explorer.Controls;
+using Windows.UI.Xaml.Controls;
+using Explorer.Logic.FileSystemService;
 
 namespace Explorer.Models
 {
@@ -39,6 +42,9 @@ namespace Explorer.Models
         private List<FileSystemElement> history;
         private int historyPosition;
 
+        //Model for the different dialogs
+        private DialogModel dialog;
+
         private ObservableCollection<FileSystemElement> selectedItems;
 
         private short viewModeCurrent;
@@ -46,10 +52,10 @@ namespace Explorer.Models
         private double gridViewItemWidth;
 
         public IBrowserService BrowserService;
+
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
         public bool TextBoxPathIsFocused { get; set; }
-        [JsonIgnore] public DialogService DialogService { get; set; }
         public double FileBrowserWidth { get; set; }
 
         public FSEBrowserModel(FileSystemElement folder)
@@ -171,6 +177,12 @@ namespace Explorer.Models
             set { gridViewItemWidth = value; OnPropertyChanged(); }
         }
 
+        public DialogModel Dialog
+        {
+            get { return dialog; }
+            set { dialog = value; OnPropertyChanged(); }
+        }
+
         public string ViewModeIcon => ViewMode?.Icon;
 
         public ViewMode ViewMode => ViewModes?[ViewModeCurrent];
@@ -289,6 +301,8 @@ namespace Explorer.Models
         {
             try
             {
+                BrowserService.CancelLoading();
+
                 var options = GetThumbnailFetchOptions();
                 BrowserService.LoadFolder(fse, options);
 
@@ -358,19 +372,18 @@ namespace Explorer.Models
         {
             if (SelectedItems.Count == 0) return;
 
-            var userInputName = await DialogService.ShowTextDialog("Rename", "Rename", "Cancel", SelectedItems[0].Name);
-            if (userInputName != null)
+            Dialog = Dialogs.ShowEditDialog("Rename", "Rename", "Cancel", SelectedItems[0].Name, userInputName =>
             {
-                for (int i = 0; i < selectedItems.Count; i++)
+                for (int i = 0; i < SelectedItems.Count; i++)
                 {
-                    var newName = selectedItems.Count == 1 ? userInputName : $"{userInputName}_{i + 1}";
+                    var newName = SelectedItems.Count == 1 ? userInputName : $"{userInputName}_{i + 1}";
 
                     BrowserService.RenameFileSystemElement(SelectedItems[i], newName);
 
                     SelectedItems[i].Name = newName;
                     SelectedItems[i].Path = SelectedItems[i].Path.Substring(0, SelectedItems[i].Path.LastIndexOf("\\") + 1) + newName;
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -381,8 +394,10 @@ namespace Explorer.Models
             while (SelectedItems.Count > 0)
             {
                 BrowserService.DeleteFileSystemElement(SelectedItems[0]);
+                Notifications.Show($"Deleted {SelectedItems[0].Name}", Symbol.Delete, "Undo", () => { });
                 SelectedItems.RemoveAt(0);
             }
+
         }
 
         public void CopyStorageItemSelected()
@@ -407,22 +422,39 @@ namespace Explorer.Models
 
         public async void CreateFolder()
         {
-            var folderName = await DialogService.ShowTextDialog("Create Folder", "Create", "Cancel");
-            if (folderName != null) BrowserService.CreateFolder(folderName);
+            Dialog = Dialogs.ShowEditDialog("Create Folder", "Create", "Cancel", "", folderName =>
+            {
+                if (folderName != null) BrowserService.CreateFolder(folderName);
+            });
         }
 
         public async void CreateFile()
         {
-            var fileName = await DialogService.ShowTextDialog("Create File", "Create", "Cancel");
-            if (fileName != null) BrowserService.CreateFile(fileName);
+            Dialog = Dialogs.ShowEditDialog("Create File", "Create", "Cancel", "", fileName =>
+            {
+                if (fileName != null) BrowserService.CreateFile(fileName);
+            });
         }
 
         /// <summary>
         /// Shows a popup with the properties of the selected file system element
         /// </summary>
-        public void ShowPropertiesStorageItemSelected()
+        public async void ShowPropertiesStorageItemSelected()
         {
-            //var props = await FileSystem.GetPropertiesOfFile(SelectedItems.Path);
+            if (SelectedItems.Count != 1) return;
+
+            var fse = SelectedItems[0];
+            Dialog = await Dialogs.ShowPropertiesDialog(fse, async x =>
+            {
+                await FileSystem.RenameStorageItemAsync(fse, fse.Name);
+            });
+        }
+
+        public void ShowHistoryStorageItemSelected()
+        {
+            var selectedElement = SelectedItems[0];
+
+            var history = HistoryService.Instance.GetHistory(selectedElement);
         }
 
         /// <summary>
@@ -558,7 +590,7 @@ namespace Explorer.Models
                                 SelectedItems.Add(FileSystemElements[i]);
                         }
                     }
-                    
+
                     break;
             }
         }

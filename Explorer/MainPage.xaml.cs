@@ -30,9 +30,13 @@ namespace Explorer
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        public static Grid RootGrid;
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            RootGrid = xRootGrid;
 
             var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             coreTitleBar.ExtendViewIntoTitleBar = true;

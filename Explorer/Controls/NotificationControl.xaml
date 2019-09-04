@@ -1,0 +1,57 @@
+﻿<UserControl
+    x:Class="Explorer.Controls.NotificationControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Explorer.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    Translation="0,100,0">
+    <UserControl.TranslationTransition>
+        <Vector3Transition />
+    </UserControl.TranslationTransition>
+    <UserControl.Resources>
+        <Storyboard x:Key="GradientAnimation" SpeedRatio="3" FillBehavior="HoldEnd" Duration="0:0:1">
+            <ColorAnimationUsingKeyFrames
+            Storyboard.TargetName="NotificationGrid"
+            Storyboard.TargetProperty="(UIElement.Background).(LinearGradientBrush.GradientStops)[0].(GradientStop.Color)"
+            EnableDependentAnimation="True"
+            BeginTime="-0:0:0.5">
+                <LinearColorKeyFrame KeyTime="0:0:0" Value="{ThemeResource SystemChromeLowColor}"/>
+                <LinearColorKeyFrame KeyTime="0:0:1" Value="#06c600"/>
+            </ColorAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames
+            Storyboard.TargetName="NotificationGrid"
+            Storyboard.TargetProperty="(UIElement.Background).(LinearGradientBrush.GradientStops)[1].(GradientStop.Color)"
+            EnableDependentAnimation="True">
+                <LinearColorKeyFrame KeyTime="0:0:0" Value="{ThemeResource SystemChromeLowColor}"/>
+                <LinearColorKeyFrame KeyTime="0:0:1" Value="#58ed53"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <controls:DropShadowPanel 
+        Grid.Row="2"
+        VerticalAlignment="Bottom" HorizontalAlignment="Center" 
+        Margin="0,0,0,10" BlurRadius="8"
+        ShadowOpacity="1" OffsetX="1" OffsetY="2" Color="Black">
+        <Grid x:Name="NotificationGrid" BorderBrush="Gray" BorderThickness="0,0.5,0,0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="{ThemeResource SystemChromeLowColor}"/>
+                    <GradientStop Offset="1" Color="{ThemeResource SystemChromeLowColor}"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+            <StackPanel Orientation="Horizontal" Padding="10,5,10,5" Spacing="30">
+                <Viewbox Width="20">
+                    <SymbolIcon x:Name="NotificationType"></SymbolIcon>
+                </Viewbox>
+                <TextBlock x:Name="NotificationText" VerticalAlignment="Center" FontSize="18" Text="Notification"></TextBlock>
+                <Button x:Name="ActionBtn" Style="{ThemeResource AccentButtonStyle}" Content="Action"></Button>
+            </StackPanel>
+        </Grid>
+    </controls:DropShadowPanel>
+</UserControl>

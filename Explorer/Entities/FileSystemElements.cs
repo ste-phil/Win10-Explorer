@@ -131,14 +131,14 @@ namespace Explorer.Entities
         public bool IsArchive => Type == ".zip" || Type == ".rar" || Type == ".GZip" || Type == ".tar.gz";
         #endregion
 
-        private string GetReadableSize(ulong bytes)
+        private string GetReadableSize(double bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
             int order = 0;
             while (bytes >= 1024 && order < sizes.Length - 1)
             {
                 order++;
-                bytes = bytes / 1024;
+                bytes /= 1024;
             }
 
             return $"{bytes:0.##} {sizes[order]}";

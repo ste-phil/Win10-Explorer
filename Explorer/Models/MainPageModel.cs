@@ -1,6 +1,7 @@
 ﻿using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
+using Explorer.Logic.FileSystemService;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -106,6 +107,7 @@ namespace Explorer.Models
             NavigationItems.Add(new NavigationLink(Symbol.Video, "Videos", EnvironmentPaths.VideosPath));
             NavigationItems.Add(new NavigationLink(Symbol.MusicInfo, "Music", EnvironmentPaths.MusicPath));
             NavigationItems.Add(new NavigationLink((Symbol)0xE753, "OneDrive Personal", EnvironmentPaths.OneDrivePath));
+            NavigationItems.Add(new NavigationLink(Symbol.Delete, "Recycling Bin", EnvironmentPaths.RecyclePath));
 
             NavigationItems.Add(new NavigationViewItemSeparator());
         }
@@ -148,7 +150,7 @@ namespace Explorer.Models
                 var favoriteLinkCount = Favorites.Count != 0 ? Favorites.Count + 1 : 0;
 
                 //Remove only drive navigation items
-                var staticNavigationIndices = 8 + favoriteLinkCount;
+                var staticNavigationIndices = 9 + favoriteLinkCount;
                 while (staticNavigationIndices < NavigationItems.Count)
                 {
                     NavigationItems.RemoveAt(staticNavigationIndices);

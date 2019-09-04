@@ -136,17 +136,24 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DialogControl.xaml.cs">
+      <DependentUpon>DialogControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FSEBrowser.xaml.cs">
       <DependentUpon>FSEBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FileSystemOperationView.xaml.cs">
       <DependentUpon>FileSystemOperationView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\NotificationControl.xaml.cs">
+      <DependentUpon>NotificationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PathBox.xaml.cs">
       <DependentUpon>PathBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\StorageAdaptiveGridView.cs" />
-    <Compile Include="Entities\DataTemplates.cs" />
+    <Compile Include="Helper\DataConverters.cs" />
+    <Compile Include="Helper\DataTemplates.cs" />
     <Compile Include="Entities\FileSystemElements.cs" />
     <Compile Include="Entities\FileSystemOperation.cs" />
     <Compile Include="Entities\NavigationLinks.cs" />
@@ -452,12 +459,13 @@
     <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriter.cs" />
     <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriterEntryOptions.cs" />
     <Compile Include="Libs\sharpcompress-0.18\src\SharpCompress\Writers\Zip\ZipWriterOptions.cs" />
-    <Compile Include="Logic\DialogService.cs" />
     <Compile Include="Logic\FileSystemOperationService.cs" />
     <Compile Include="Logic\FileSystemRetrieveService.cs" />
+    <Compile Include="Logic\History\HistoryEntities.cs" />
+    <Compile Include="Logic\History\HistoryService.cs" />
     <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
-    <Compile Include="Logic\FileSystem.cs" />
+    <Compile Include="Logic\FileSystemService\FileSystem.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -537,17 +545,27 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <None Include="Libs\sharpcompress-0.18\src\SharpCompress\SharpCompress.pfx" />
+    <Compile Include="Logic\FileSystemService\FileSystem.ElementOperations.cs" />
+    <Compile Include="Logic\FileSystemService\FileSystem.Serialize.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\DialogControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\FSEBrowser.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\FileSystemOperationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\NotificationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

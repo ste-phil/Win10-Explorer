@@ -31,12 +31,8 @@ namespace Explorer.Controls
             }
         }
 
-        
-
         public static readonly DependencyProperty SelectedItemsProperty = DependencyProperty.Register(
           "SelectedItems", typeof(ObservableCollection<FileSystemElement>), typeof(StorageAdaptiveGridView), new PropertyMetadata(null));
-        
-
 
         public StorageAdaptiveGridView()
         {
@@ -45,34 +41,34 @@ namespace Explorer.Controls
 
         private void SelectedItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            sourceChanging = true;
+            //sourceChanging = true;
 
-            var iss = (ObservableCollection<FileSystemElement>)ItemsSource;
+            //var iss = (ObservableCollection<FileSystemElement>)ItemsSource;
 
-            base.SelectedItems.Clear();
-            for (int i = 0; i < SelectedItems.Count; i++)
-            {
-                SelectRange(new ItemIndexRange(iss.IndexOf(SelectedItems[i]), 1));
-            }
+            //base.SelectedItems.Clear();
+            //for (int i = 0; i < SelectedItems.Count; i++)
+            //{
+            //    SelectRange(new ItemIndexRange(iss.IndexOf(SelectedItems[i]), 1));
+            //}
 
-            sourceChanging = false;
+            //sourceChanging = false;
         }
 
         private void MultiAdaptiveGridView_SelectionChanged(object sender, Windows.UI.Xaml.Controls.SelectionChangedEventArgs e)
         {
-            if (sourceChanging) return;
+            //if (sourceChanging) return;
 
-            var added = e.AddedItems.ToList();
-            var removed = e.RemovedItems.ToList();
-            for (int i = 0; i < added.Count; i++)
-            {
-                SelectedItems.Add((FileSystemElement)added[i]);
-            }
+            //var added = e.AddedItems.ToList();
+            //var removed = e.RemovedItems.ToList();
+            //for (int i = 0; i < added.Count; i++)
+            //{
+            //    SelectedItems.Add((FileSystemElement)added[i]);
+            //}
 
-            for (int i = 0; i < removed.Count; i++)
-            {
-                SelectedItems.Remove((FileSystemElement)removed[i]);
-            }
+            //for (int i = 0; i < removed.Count; i++)
+            //{
+            //    SelectedItems.Remove((FileSystemElement)removed[i]);
+            //}
         }
     }
 }

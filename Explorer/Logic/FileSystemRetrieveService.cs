@@ -1,4 +1,5 @@
 ﻿using Explorer.Entities;
+using Explorer.Logic.FileSystemService;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -116,7 +117,7 @@ namespace Explorer.Logic
             else await SwitchFolderAsync(path, browseCts.Token);
         }
 
-        public void StopLoad()
+        public void CancelLoading()
         {
             browseCts?.Cancel();
             s.Stop();

@@ -18,6 +18,7 @@ namespace Explorer.Models
 
         void OpenFileSystemElement(FileSystemElement fse);
         void RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions);
+        void CancelLoading();
         void LoadFolder(FileSystemElement fse, ThumbnailFetchOptions thumbnailOptions);
         void SearchAsync(string search);
         

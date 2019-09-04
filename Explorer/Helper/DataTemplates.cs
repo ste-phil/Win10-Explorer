@@ -3,7 +3,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Explorer.Entities
 {
-    public class NavigationItemTemplateSelector : DataTemplateSelector
+    class NavigationItemTemplateSelector : DataTemplateSelector
     {
         public DataTemplate DriveTemplate { get; set; }
         public DataTemplate PathTemplate { get; set; }
@@ -23,8 +23,7 @@ namespace Explorer.Entities
             return base.SelectTemplateCore(item);
         }
     }
-
-    public class StorageItemTemplateSelector : DataTemplateSelector
+    class StorageItemTemplateSelector : DataTemplateSelector
     {
         public DataTemplate FolderTemplate { get; set; }
         public DataTemplate FileTemplate { get; set; }

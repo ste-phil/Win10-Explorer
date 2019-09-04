@@ -1,17 +1,13 @@
 ﻿using Explorer.Entities;
 using Microsoft.Win32.SafeHandles;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Foundation;
-using Windows.Security.Cryptography;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -19,38 +15,34 @@ using Windows.System;
 using Windows.UI.Xaml.Media.Imaging;
 using FileAttributes = Windows.Storage.FileAttributes;
 
-namespace Explorer.Logic
+namespace Explorer.Logic.FileSystemService
 {
-    public class FileSystem
+    public static partial class FileSystem
     {
+        private static StorageFolder recyclingBinFolder;
+
         public static StorageFolder AppDataFolder = ApplicationData.Current.LocalFolder;
-        
-        public static async Task<StorageFile> CreateOrOpenFileAsync(StorageFolder folder, string name, CreationCollisionOption option = CreationCollisionOption.OpenIfExists)
+
+        public static StorageFolder RecyclingBinFolder
         {
-            return await folder.CreateFileAsync(name, option);
+            get
+            {
+                if (recyclingBinFolder == null)
+                    CreateOrOpenRecyclingBin();
+
+                return recyclingBinFolder;
+            }
+            private set => recyclingBinFolder = value;
         }
 
-        public static async Task<StorageFolder> CreateFolder(StorageFolder folder, string folderName, CreationCollisionOption option = CreationCollisionOption.GenerateUniqueName)
+        private static async void CreateOrOpenRecyclingBin()
         {
-            return await folder.CreateFolderAsync(folderName, option);
-        }
+            var array = AppDataFolder.Path.Split('\\');
+            var username = array[2];
+            string userFolderPath = @"C:\Users\" + username;
 
-        public static async void SerializeObject(object data, string name)
-        {
-            var sData = JsonConvert.SerializeObject(data);
-            var buffer = CryptographicBuffer.ConvertStringToBinary(sData, BinaryStringEncoding.Utf8);
-
-            var file = await CreateOrOpenFileAsync(AppDataFolder, name, CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteBufferAsync(file, buffer);
-        }
-
-        public static async Task<T> DeserializeObject<T>(string name)
-        {
-            var file = await CreateOrOpenFileAsync(AppDataFolder, name);
-            var buffer = await FileIO.ReadBufferAsync(file);
-
-            var serializedObject = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, buffer);
-            return JsonConvert.DeserializeObject<T>(serializedObject);
+            var userFolder = await StorageFolder.GetFolderFromPathAsync(userFolderPath);
+            RecyclingBinFolder = await userFolder.CreateFolderAsync("Recycling Bin", CreationCollisionOption.OpenIfExists);
         }
 
         public static async Task<Drive[]> GetDrivesAsync()
@@ -91,6 +83,12 @@ namespace Explorer.Logic
             return drives;
         }
 
+        public static async Task<BasicProperties> GetPropertiesOfFile(string path)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            return await file.GetBasicPropertiesAsync();
+        }
+
         public async static Task<BitmapImage> GetFileExtensionThumbnail(string extension, ThumbnailMode mode, uint size, ThumbnailOptions options)
         {
             if (extension == null || extension == "") return null;
@@ -100,86 +98,10 @@ namespace Explorer.Logic
             if (thumbnail == null) return null;
 
             var bitmap = new BitmapImage();
-            bitmap.SetSource(thumbnail);
+            bitmap.SetSource(thumbnail.CloneStream());
+
+            await dummy.DeleteAsync();
             return bitmap;
-        }
-
-
-        #region File CRUD ops
-        public static async Task<bool> StorageItemExists(StorageFolder folder, string name)
-        {
-            return (await folder.TryGetItemAsync(name)) != null;
-        }
-
-        public static async void OpenFileWithDefaultApp(string path)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            await Launcher.LaunchFileAsync(file);
-        }
-
-        public static async void OpenFileWith(string path)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            await Launcher.LaunchFileAsync(file, new LauncherOptions{DisplayApplicationPicker = true});
-        }
-
-        public static async Task DeleteStorageItemAsync(FileSystemElement fse)
-        {
-            var storageItem = await GetStorageItemAsync(fse);
-            await storageItem.DeleteAsync();
-        }
-
-        public static async Task DeleteStorageItemsAsync(Collection<FileSystemElement> fses)
-        {
-            for (int i = 0; i < fses.Count; i++)
-            {
-                await DeleteStorageItemAsync(fses[i]);
-            }
-        }
-
-        public static async Task DeleteFolderAsync(string path)
-        {
-            var si = await GetFolderAsync(path);
-            await si.DeleteAsync();
-        }
-
-        public static async Task DeleteFileAsync(string path)
-        {
-            var si = await GetFileAsync(path);
-            await si.DeleteAsync();
-        }
-
-        public static async Task DeleteStorageItemAsync(string path, bool folder)
-        {
-            if (folder) await DeleteFolderAsync(path);
-            else await DeleteFileAsync(path);
-        }
-
-        public static async Task RenameStorageItemAsync(FileSystemElement fse, string newName)
-        {
-            var file = await GetStorageItemAsync(fse);
-            await file.RenameAsync(newName);
-        }
-
-        public static async Task<StorageFile> CreateStorageFile(StorageFolder folder, string name, Stream stream)
-        {
-            var file = await folder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
-
-            stream.Position = 0;
-            using (var writeStream = await file.OpenStreamForWriteAsync())
-            {
-                await stream.CopyToAsync(writeStream);
-                await writeStream.FlushAsync();
-            }
-
-            return file;
-        }
-        #endregion
-
-        public static async Task<BasicProperties> GetPropertiesOfFile(string path)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            return await file.GetBasicPropertiesAsync();
         }
 
         #region Copy/Move
@@ -190,10 +112,10 @@ namespace Explorer.Logic
             s.Start();
 
             var tasks = new Task[storageItems.Count];
-            var targetFolder = (StorageFolder)await GetFolderAsync(folder);
+            var targetFolder = await GetFolderAsync(folder);
             for (int i = 0; i < storageItems.Count; i++)
             {
-                tasks[i] = CopyStorageItemAsync(targetFolder, storageItems[i], true);
+                tasks[i] = CopyStorageItemAsync(targetFolder, storageItems[i]);
             }
             await Task.WhenAll(tasks);
 
@@ -213,10 +135,10 @@ namespace Explorer.Logic
             s.Start();
 
             var tasks = new Task[storageItems.Count];
-            var targetFolder = (StorageFolder)await GetFolderAsync(folder);
+            var targetFolder = await GetFolderAsync(folder);
             for (int i = 0; i < storageItems.Count; i++)
             {
-                tasks[i] = CopyStorageItemAsync(targetFolder, storageItems[i], true);
+                tasks[i] = CopyStorageItemAsync(targetFolder, storageItems[i]);
             }
             await Task.WhenAll(tasks);
             
@@ -224,20 +146,15 @@ namespace Explorer.Logic
             Debug.WriteLine("Copy took: " + s.ElapsedMilliseconds + "ms");
         }
 
-        public static async Task CopyStorageItemAsync(StorageFolder target, IStorageItem storageItem, bool isRoot = false)
+        public static async Task CopyStorageItemAsync(StorageFolder target, IStorageItem storageItem)
         {
             if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
             {
                 var storageFolder = (StorageFolder)storageItem;
                 var queryResult = GetFolderQuery(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
-                //Rename storage item if item exists
-                var name = storageItem.Name;
-                while (isRoot && await StorageItemExists(target, name))
-                    name += " Copy";
-
                 //Create folder
-                var copiedFolder = await target.CreateFolderAsync(name);
+                var copiedFolder = await target.CreateFolderAsync(storageFolder.Name, CreationCollisionOption.GenerateUniqueName);
 
                 uint index = 0;
                 const uint stepSize = 100;
@@ -261,19 +178,15 @@ namespace Explorer.Logic
             }
         }
 
-        public static async Task MoveStorageItemAsync(StorageFolder target, IStorageItem storageItem, bool isRoot = false)
+        public static async Task MoveStorageItemAsync(StorageFolder target, IStorageItem storageItem)
         {
             if (storageItem.Attributes.HasFlag(FileAttributes.Directory))
             {
                 var storageFolder = (StorageFolder)storageItem;
                 var queryResult = GetFolderQuery(storageFolder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
 
-                //Rename folder if item exists
-                var name = storageFolder.Name;
-                while (isRoot && await StorageItemExists(target, name)) name += " Copy";
-
                 //Create folder
-                var copiedFolder = await target.CreateFolderAsync(name);
+                var copiedFolder = await target.CreateFolderAsync(storageFolder.Name, CreationCollisionOption.GenerateUniqueName);
 
                 uint index = 0;
                 const uint stepSize = 100;
@@ -300,7 +213,6 @@ namespace Explorer.Logic
         #endregion
 
         #region Get Files/Folders Actions
-
         public static async Task<StorageFile> GetFileAsync(FileSystemElement fse)
         {
             return await StorageFile.GetFileFromPathAsync(fse.Path);
@@ -401,33 +313,6 @@ namespace Explorer.Logic
 
             return resultList;
         }
-
-        //public static async Task<IEnumerable<FileSystemElement>> GetFolderContentSimple(string path, TypedEventHandler<IStorageQueryResultBase, object> changedCallback)
-        //{
-        //    var folder = await StorageFolder.GetFolderFromPathAsync(path);
-        //    var query = GetFolderQuery(folder, FolderDepth.Shallow, IndexerOption.UseIndexerWhenAvailable);
-
-        //    //subscribe on query's ContentsChanged event
-        //    query.ContentsChanged += changedCallback;
-
-        //    var itemsList = await query.GetItemsAsync();
-        //    var resultList = new List<FileSystemElement>(itemsList.Count);
-        //    foreach (var element in itemsList)
-        //    {
-        //        var props = await element.GetBasicPropertiesAsync();
-
-        //        resultList.Add(new FileSystemElement
-        //        {
-        //            Name = element.Name,
-        //            Size = props.Size,
-        //            Type = element.Attributes,
-        //            DateModified = props.DateModified,
-        //            Path = element.Path,
-        //        });
-        //    }
-
-        //    return resultList;
-        //}
 
         public static async void LaunchExeAsync(string appPath, string arguments = "")
         {
@@ -570,74 +455,5 @@ namespace Explorer.Logic
         }
 
         #endregion
-
-        //public static async IEnumerable<FileSystemElement> GetFolderContent(string path)
-        //{
-        //    var storageFolder = await StorageFolder.GetFolderFromPathAsync(path);   //Get the folder
-
-        //    // Check if the folder is indexed before doing anything. 
-        //    IndexedState folderIndexedState = await storageFolder.GetIndexedStateAsync();
-        //    if (folderIndexedState == IndexedState.NotIndexed || folderIndexedState == IndexedState.Unknown)
-        //    {
-        //        // Only possible in indexed directories.  
-        //        return;
-        //    }
-
-        //    QueryOptions query = new QueryOptions()
-        //    {
-        //        FolderDepth = FolderDepth.Shallow,
-        //        ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",  // Filter out all files that have WIP enabled
-        //        IndexerOption = IndexerOption.OnlyUseIndexerAndOptimizeForIndexedProperties
-        //    };
-
-        //    //query.FileTypeFilter.Add(".jpg");
-        //    //string[] otherProperties = new string[]
-        //    //{
-        //    //SystemProperties.GPS.LatitudeDecimal,
-        //    //SystemProperties.GPS.LongitudeDecimal
-        //    //};
-
-        //    query.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, Array.Empty<string>());
-        //    SortEntry sortOrder = new SortEntry()
-        //    {
-        //        AscendingOrder = true,
-        //        PropertyName = "System.FileName" // FileName property is used as an example. Any property can be used here.  
-        //    };
-        //    query.SortOrder.Add(sortOrder);
-
-        //    // Create the query and get the results 
-        //    uint index = 0;
-        //    const uint stepSize = 100;
-        //    if (!storageFolder.AreQueryOptionsSupported(query))
-        //    {
-        //        query.SortOrder.Clear();
-        //        throw new Exception("Querying for a sort order is not supported in this location");
-        //    }
-
-        //    StorageFileQueryResult queryResult = storageFolder.CreateFileQueryWithOptions(query);
-        //    IReadOnlyList<StorageFile> images = await queryResult.GetFilesAsync(index, stepSize);
-        //    while (images.Count != 0 || index < 10000)
-        //    {
-        //        foreach (StorageFile file in images)
-        //        {
-        //            // With the OnlyUseIndexerAndOptimizeForIndexedProperties set, this won't  
-        //            // be async. It will run synchronously. 
-        //            var basicProps = await file.GetBasicPropertiesAsync();
-
-        //            yield return new FileSystemElement()
-        //            {
-        //                Name 
-        //            };
-        //            // Build the UI 
-        //            //log(String.Format("{0} at {1}, {2}",
-        //            //     file.Path,
-        //            //     imageProps.Latitude,
-        //            //     imageProps.Longitude));
-        //            //}
-        //            index += stepSize;
-        //            images = await queryResult.GetFilesAsync(index, stepSize);
-        //        }
-        //    }
-        //}
     }
 }

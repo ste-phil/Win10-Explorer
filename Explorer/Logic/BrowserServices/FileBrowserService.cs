@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Explorer.Entities;
 using Explorer.Logic;
+using Explorer.Logic.FileSystemService;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
@@ -39,6 +38,11 @@ namespace Explorer.Models
         {
             if (fse.DisplayType == "Application") FileSystem.LaunchExeAsync(fse.Path);
             else FileSystem.OpenFileWithDefaultApp(fse.Path);
+        }
+
+        public void CancelLoading()
+        {
+            retrieveService.CancelLoading();
         }
 
         public async void LoadFolder(FileSystemElement fse, ThumbnailFetchOptions thumbnailOptions)
@@ -104,12 +108,12 @@ namespace Explorer.Models
                 var items = await data.GetStorageItemsAsync();
                 if (data.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                 {
-                    await operationSerivce.BeginCopyOperation(items.ToList(), folder);
+                    await operationSerivce.BeginCopyOperation(folder, items.ToList());
                     data.ReportOperationCompleted(DataPackageOperation.Copy);
                 }
                 else if (data.RequestedOperation.HasFlag(DataPackageOperation.Move))
                 {
-                    await operationSerivce.BeginMoveOperation(items.ToList(), folder);
+                    await operationSerivce.BeginMoveOperation(folder, items.ToList());
                     data.ReportOperationCompleted(DataPackageOperation.Move);
                 }
             }

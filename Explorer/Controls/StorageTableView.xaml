@@ -154,7 +154,7 @@
                         <ColumnDefinition x:Name="ColumnIcon" Width="30px"></ColumnDefinition>
                         <ColumnDefinition Width="*"    MinWidth="100"></ColumnDefinition>
                         <ColumnDefinition Width="Auto" MinWidth="120"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto" MinWidth="65"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto" MinWidth="70"></ColumnDefinition>
                         <ColumnDefinition Width="Auto" MinWidth="100"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>

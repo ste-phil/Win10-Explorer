@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Explorer.Entities;
 using Explorer.Helper;
 using Explorer.Logic;
+using Explorer.Logic.FileSystemService;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
@@ -19,9 +22,11 @@ namespace Explorer.Models
 {
     public class ZipBrowserService : IBrowserService
     {
+        private CancellationTokenSource browseCts;
         private StorageFile currentZIPFile;
         private FileSystemElement currentFSE;
         private int currentDepth;
+        private int folderIndex;
 
         private MultiDictionary<int, ZipFileElement> elements;
 
@@ -43,12 +48,19 @@ namespace Explorer.Models
             else FileSystem.OpenFileWithDefaultApp(file.Path);
         }
 
-        public void LoadFolder(FileSystemElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
+        public void CancelLoading()
         {
+            browseCts?.Cancel();              
+        }
+
+        public async void LoadFolder(FileSystemElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
+        {
+            browseCts?.Cancel();
+            browseCts = new CancellationTokenSource();
             FileSystemElements.Clear();
 
-            if (fse is ZipFileElement) LoadZipItem((ZipFileElement) fse, thumbnailOptions);
-            else LoadZip(fse, thumbnailOptions);
+            if (fse is ZipFileElement) LoadZipItem((ZipFileElement) fse, thumbnailOptions, browseCts.Token);
+            else LoadZip(fse, thumbnailOptions, browseCts.Token);
         }
 
         /// <summary>
@@ -56,9 +68,11 @@ namespace Explorer.Models
         /// </summary>
         /// <param name="fse"></param>
         /// <param name="thumbnailOptions"></param>
-        private async void LoadZip(FileSystemElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
+        private async void LoadZip(FileSystemElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions, CancellationToken token)
         {
             elements.Clear();
+            currentDepth = 0;
+            folderIndex = 0;
             currentZIPFile = await FileSystem.GetFileAsync(fse);
             currentFSE = fse;
 
@@ -67,8 +81,9 @@ namespace Explorer.Models
                 var reader = ReaderFactory.Open(stream);
                 while (reader.MoveToNextEntry())
                 {
-                    var entry = reader.Entry;
+                    if (token.IsCancellationRequested) return;
 
+                    var entry = reader.Entry;
                     var keySplit = entry.Key.Split("/");
                     var subPath = string.Join(@"\", keySplit, 0, keySplit.Length - 1);
 
@@ -121,7 +136,7 @@ namespace Explorer.Models
                         elements.Add(depth, element);
                     }
 
-                    if (depth == currentDepth) FileSystemElements.Add(element);
+                    AddToViewItems(element);
                 }
             }
         }
@@ -131,7 +146,7 @@ namespace Explorer.Models
         /// </summary>
         /// <param name="fse"></param>
         /// <param name="thumbnailOptions"></param>
-        private void LoadZipItem(ZipFileElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions)
+        private void LoadZipItem(ZipFileElement fse, FileSystemRetrieveService.ThumbnailFetchOptions thumbnailOptions, CancellationToken token)
         {
             currentDepth = fse.ElementDepth + 1;
 
@@ -139,10 +154,24 @@ namespace Explorer.Models
             var depthElements = elements[currentDepth];
             for (int i = 0; i < depthElements.Count; i++)
             {
+                if (token.IsCancellationRequested) return;
                 if (depthElements[i].ElementKey.Contains(fse.ElementKey)) FileSystemElements.Add(depthElements[i]);
             }
         }
 
+
+        /// <summary>
+        /// Adds element to display if the item is in the current depth. Inserts sorted by name and folder
+        /// </summary>
+        /// <param name="element"></param>
+        private void AddToViewItems(ZipFileElement element)
+        {
+            if (element.ElementDepth != currentDepth) return;
+
+            if (element.IsFolder) FileSystemElements.Insert(folderIndex++, element);
+            else FileSystemElements.Add(element);
+        }
+        
         public void SearchAsync(string search)
         {
             
@@ -184,11 +213,11 @@ namespace Explorer.Models
 
         public async void CreateFile(string fileName)
         {
-            using (var stream = await currentZIPFile.OpenStreamForWriteAsync())
-            using (var writer = WriterFactory.Open(stream, ArchiveType.Zip, new WriterOptions(CompressionType.Deflate)))
-            {
-                writer.Write(fileName, new MemoryStream());
-            }
+            //using (var stream = await currentZIPFile.OpenStreamForWriteAsync())
+            //using (var writer = WriterFactory.Open(stream, ArchiveType.Zip, new WriterOptions(CompressionType.Deflate)))
+            //{
+            //    writer.Write(fileName, new MemoryStream());
+            //}
         }
 
         public void CopyFileSystemElement(Collection<FileSystemElement> files)

@@ -21,7 +21,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
+        
         <!--<Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
@@ -47,7 +47,7 @@
                 </Button>
             </StackPanel>
         </Grid>-->
-        
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -62,22 +62,6 @@
             <Button Grid.Column="1" Command="{x:Bind Path=ViewModel.NavigateForward}" Style="{StaticResource MyButtonRevealStyle}" Background="Transparent">
                 <SymbolIcon Symbol="Forward" Margin="10"></SymbolIcon>
             </Button>
-            <!--<AutoSuggestBox Style="{StaticResource MyAutoSuggestBoxRevealStyle}"
-                            Name="TextBoxPath" Grid.Column="2" VerticalAlignment="Stretch" 
-                            Text="{x:Bind Mode=TwoWay, Path=ViewModel.Path, UpdateSourceTrigger=PropertyChanged}" 
-                            ItemsSource="{x:Bind ViewModel.PathSuggestions}"
-                            TextMemberPath="Path" DisplayMemberPath="Name"
-                            QuerySubmitted="TextBoxPath_QuerySubmitted"
-                            UpdateTextOnSelect="False"
-                            GotFocus="TextBoxPath_GotFocus"
-                            LostFocus="TextBoxPath_LostFocus"
-            >
-                <AutoSuggestBox.TextBoxStyle>
-                    <Style TargetType="TextBox">
-                        <Setter Property="FontSize" Value="30"></Setter>
-                    </Style>
-                </AutoSuggestBox.TextBoxStyle>
-            </AutoSuggestBox>-->
             <local:PathBox Grid.Column="2" Path="{x:Bind Mode=TwoWay, Path=ViewModel.Path}" 
                            NavigationRequested="PathBox_NavigationRequested"
                            PathSuggestions="{x:Bind ViewModel.PathSuggestions}"
@@ -106,16 +90,6 @@
                 <SymbolIcon Symbol="More" Margin="10"></SymbolIcon>
             </Button>
         </Grid>
-
-        <ContentDialog Name="TextDialog" Grid.Row="2" PrimaryButtonText="{x:Bind DialogService.PrimaryButtonText, Mode=OneWay}" SecondaryButtonText="{x:Bind DialogService.SecondaryButtonText, Mode=OneWay}">
-            <ContentDialog.Title>
-                    <TextBlock>
-                        <Run Text="{x:Bind DialogService.DialogName, Mode=OneWay}"></Run>
-                        <!--<Run Text="{x:Bind ViewModel.SelectedItems.Name, Mode=OneWay}"></Run>-->
-                    </TextBlock>
-            </ContentDialog.Title>
-            <TextBox Text="{x:Bind DialogService.InputText, Mode=TwoWay}" VerticalAlignment="Center"></TextBox>
-        </ContentDialog>
 
         <local:StorageTableView x:Name="TableView" Grid.Row="2"
             KeyDown="{x:Bind StorageTableView_KeyDown}"
@@ -171,6 +145,11 @@
                             <FontIcon Glyph="&#xE946;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="History" Click="{x:Bind ViewModel.ShowHistoryStorageItemSelected}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE81C;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                 </MenuFlyout>
             </local:StorageTableView.ItemFlyout>
             <local:StorageTableView.MultipleItemFlyout>
@@ -204,12 +183,6 @@
                             <KeyboardAccelerator Modifiers="Control" Key="V"/>
                         </MenuFlyoutItem.KeyboardAccelerators>
                     </MenuFlyoutItem>
-                    <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Text="Properties" Click="{x:Bind ViewModel.ShowPropertiesStorageItemSelected}">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE946;"/>
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
                 </MenuFlyout>
             </local:StorageTableView.MultipleItemFlyout>
             <local:StorageTableView.BackgroundFlyout>
@@ -233,7 +206,6 @@
             </local:StorageTableView.BackgroundFlyout>
         </local:StorageTableView>
         
-        
         <local:StorageAdaptiveGridView x:Name="GridView" HorizontalAlignment="Stretch" SelectionMode="Multiple" Padding="25,25,25,0" Grid.Row="2" 
                                    animations:ReorderGridAnimation.Duration="250"
                                    ItemsSource="{x:Bind Path=ViewModel.FileSystemElements, Mode=TwoWay}" DesiredWidth="{x:Bind ViewModel.GridViewItemWidth, Mode=OneWay}" 
@@ -247,9 +219,6 @@
                             <StackPanel>
                                 <controls:DropShadowPanel Margin="25" HorizontalAlignment="Center">
                                     <Image Source="{x:Bind Image, Mode=OneWay}"></Image>
-                                    <!--<controls:ImageEx>
-                                        
-                                    </controls:ImageEx>-->
                                 </controls:DropShadowPanel>
                                 <TextBlock Text="{x:Bind Name, Mode=OneWay}" HorizontalAlignment="Center" Margin="0,-20,0,10"></TextBlock>
                             </StackPanel>
@@ -309,6 +278,8 @@
             </GridView.ItemTemplateSelector>
         </GridView>-->
         
+        <local:DialogControl Dialog="{x:Bind ViewModel.Dialog, Mode=TwoWay}" x:Name="DialogControl" Grid.ColumnSpan="10" Grid.RowSpan="10"></local:DialogControl>
+
         <Grid Grid.Row="3" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>

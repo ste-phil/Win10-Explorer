@@ -21,6 +21,7 @@ using Windows.UI.Core;
 using Explorer.Logic;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Explorer.Logic.FileSystemService;
 
 namespace Explorer.Controls
 {
@@ -71,9 +72,6 @@ namespace Explorer.Controls
                 if (ViewModel != null)
                 {
                     ViewModel.FileBrowserWidth = ActualWidth;
-                    //ViewModel.RenameDialog = TextDialog;
-                    ViewModel.DialogService = DialogService;
-
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
                     Bindings.Update();
                 }
@@ -90,8 +88,6 @@ namespace Explorer.Controls
         {
             this.InitializeComponent();
             ((FrameworkElement)this.Content).DataContext = this;
-
-            DialogService.TextDialog = TextDialog;
         }
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)

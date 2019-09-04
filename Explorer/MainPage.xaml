@@ -91,24 +91,6 @@
                 PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}">
             </AutoSuggestBox>
         </NavigationView.AutoSuggestBox>
-        <!--<NavigationView.PaneCustomContent>-->
-            <!--<Grid Padding="0,0,5,0" ColumnSpacing="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" BorderThickness="2" BorderBrush="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Viewbox Width="16">
-                        <SymbolIcon Symbol="Find" ></SymbolIcon>
-                    </Viewbox>
-                </Button>
-                <AutoSuggestBox 
-                    Grid.Column="1" HorizontalAlignment="Stretch"
-                    Name="SearchBox2" Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" 
-                    PlaceholderText="{x:Bind ViewModel.CurrentFileBrowser.SearchPlaceholder, Mode=OneWay}">
-                </AutoSuggestBox>
-            </Grid>-->
-        <!--</NavigationView.PaneCustomContent>-->
         <NavigationView.PaneFooter>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -130,7 +112,7 @@
             </Grid>
         </NavigationView.PaneFooter>
         
-        <Grid Background="{ThemeResource AppBackgroundBrush}">
+        <Grid x:Name="xRootGrid" Background="{ThemeResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
@@ -141,16 +123,16 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="{Binding Width, ElementName=RightPaddingColumn}"/>
             </Grid.ColumnDefinitions>
-            
 
-             <!--Content First-->
+            <!--Content First-->
             <local:FSEBrowser Grid.Row="1" Grid.ColumnSpan="3" ViewModel="{x:Bind ViewModel.CurrentFileBrowser, Mode=OneWay}" FavoriteAdded="{x:Bind ViewModel.AddFavorite}" RequestedTabOpen="{x:Bind ViewModel.FileBrowser_RequestedTabOpen}"></local:FSEBrowser>
+
+            <local:NotificationControl Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="30"></local:NotificationControl>
 
             <!--Then our Placeholder TitleBar--> 
             <Grid x:Name="AppTitleBar"
                   Background="Transparent"
-                  Grid.ColumnSpan="3"
-                  >
+                  Grid.ColumnSpan="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
                     <ColumnDefinition/>
@@ -159,7 +141,7 @@
             </Grid>
 
 
-             <!--Then our TabView--> 
+            <!--Then our TabView--> 
             <controls:TabView x:Name="Tabs" ItemsSource="{x:Bind ViewModel.FileBrowserModels}"
                               SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
                               Grid.Column="1"  Background="Transparent"
