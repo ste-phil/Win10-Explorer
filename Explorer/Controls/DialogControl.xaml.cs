@@ -121,8 +121,9 @@ namespace Explorer.Controls
         {
             this.InitializeComponent();
 
-            if (Instance == null) Instance = this;
-            else throw new Exception("Only one DialogControl allowed");
+            Instance = this;
+            //if (Instance == null) Instance = this;
+            //else throw new Exception("Only one DialogControl allowed");
 
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 

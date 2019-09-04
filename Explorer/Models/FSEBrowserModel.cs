@@ -53,11 +53,6 @@ namespace Explorer.Models
 
         public IBrowserService BrowserService;
 
-        public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
-        public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
-        public bool TextBoxPathIsFocused { get; set; }
-        public double FileBrowserWidth { get; set; }
-
         public FSEBrowserModel(FileSystemElement folder)
         {
             CurrentFolder = folder;
@@ -65,6 +60,13 @@ namespace Explorer.Models
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
             ToggleView = new Command(async () => await ToggleViewMode(), () => true);
+            ShowProperties = new Command(() => ShowPropertiesStorageItem(CurrentFolder), () => true);
+
+            FileSystemElements = new ObservableCollection<FileSystemElement>();
+            SelectedItems = new ObservableCollection<FileSystemElement>();
+
+            history = new List<FileSystemElement>();
+            HistoryPosition = -1;
 
             Init();
         }
@@ -72,22 +74,29 @@ namespace Explorer.Models
         public FSEBrowserModel()
         {
             //Set start folder to windows disk if it has not been set
-            CurrentFolder = new FileSystemElement { Path = "C:", Name = "Windows" };
+            CurrentFolder = new FileSystemElement("Windows", "C:", DateTimeOffset.Now, 0);
 
             NavigateBack = new Command(() => NavigateToNoHistory(history[--HistoryPosition]), () => HistoryPosition > 0);
             NavigateForward = new Command(() => NavigateToNoHistory(history[++HistoryPosition]), () => HistoryPosition < history.Count - 1);
             ToggleView = new Command(async () => await ToggleViewMode(), () => true);
+            ShowProperties = new Command(() => ShowPropertiesStorageItem(CurrentFolder), () => true);
+
+            FileSystemElements = new ObservableCollection<FileSystemElement>();
+            SelectedItems = new ObservableCollection<FileSystemElement>();
+
+            history = new List<FileSystemElement>();
+            HistoryPosition = -1;
 
             Init();
         }
 
         private void Init()
         {
-            FileSystemElements = new ObservableCollection<FileSystemElement>();
-            SelectedItems = new ObservableCollection<FileSystemElement>();
-
-            history = new List<FileSystemElement>();
-            HistoryPosition = -1;
+            //if (folder == null)
+            //{
+            //    var win = await FileSystem.GetFolderAsync("C:");
+            //    CurrentFolder = new FileSystemElement(win.Name, win.Path, win.DateCreated, 0);
+            //}
 
             BrowserService = new FileBrowserService(FileSystemElements);
             PathSuggestions = new ObservableCollection<FileSystemElement>();
@@ -183,6 +192,11 @@ namespace Explorer.Models
             set { dialog = value; OnPropertyChanged(); }
         }
 
+        public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
+        public ObservableCollection<FileSystemElement> PathSuggestions { get; set; }
+        public bool TextBoxPathIsFocused { get; set; }
+        public double FileBrowserWidth { get; set; }
+
         public string ViewModeIcon => ViewMode?.Icon;
 
         public ViewMode ViewMode => ViewModes?[ViewModeCurrent];
@@ -193,6 +207,9 @@ namespace Explorer.Models
 
         public Command ToggleView { get; }
 
+        public Command ShowProperties { get; }
+
+        
         #endregion
 
         /// <summary>
@@ -439,11 +456,15 @@ namespace Explorer.Models
         /// <summary>
         /// Shows a popup with the properties of the selected file system element
         /// </summary>
-        public async void ShowPropertiesStorageItemSelected()
+        public void ShowPropertiesStorageItemSelected()
         {
             if (SelectedItems.Count != 1) return;
 
-            var fse = SelectedItems[0];
+            ShowPropertiesStorageItem(SelectedItems[0]);
+        }
+
+        public async void ShowPropertiesStorageItem(FileSystemElement fse)
+        {
             Dialog = await Dialogs.ShowPropertiesDialog(fse, async x =>
             {
                 await FileSystem.RenameStorageItemAsync(fse, fse.Name);

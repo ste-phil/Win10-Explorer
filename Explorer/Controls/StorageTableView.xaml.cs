@@ -74,7 +74,7 @@ namespace Explorer.Controls
             {
                 if (ItemsSource != null) ItemsSource.CollectionChanged -= ItemsSource_CollectionChanged;
                 SetValue(ItemsSourceProperty, value);
-                ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
+                if (value != null) value.CollectionChanged += ItemsSource_CollectionChanged;
             }
         }
 
@@ -86,9 +86,9 @@ namespace Explorer.Controls
             get { return (ObservableCollection<FileSystemElement>)GetValue(SelectedItemsProperty); }
             set
             {
-                if (SelectedItems != null) SelectedItems.CollectionChanged -= SelectedItems_CollectionChanged;
+                if (ItemsSource != null) ItemsSource.CollectionChanged -= ItemsSource_CollectionChanged;
                 SetValue(SelectedItemsProperty, value);
-                SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+                if (value != null) value.CollectionChanged += ItemsSource_CollectionChanged;
             }
         }
 
@@ -769,5 +769,19 @@ namespace Explorer.Controls
             SelectionRect.Height = 0;
         }
         #endregion
+
+        //private void Row_PointerEntered(object sender, PointerRoutedEventArgs e)
+        //{
+        //    var hitbox = (Border)sender;
+
+        //    hitbox.Background = (Brush)Resources["RowHoverBackgroundBrush"];
+        //}
+
+        //private void Row_PointerExited(object sender, PointerRoutedEventArgs e)
+        //{
+        //    var hitbox = (Border)sender;
+
+        //    hitbox.Background = (Brush)Resources["RowDefaultBackgroundBrush"];
+        //}
     }
 }

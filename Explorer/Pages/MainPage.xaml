@@ -97,7 +97,8 @@
                     <ColumnDefinition Width="40"></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent" Height="50">
+                <Button Grid.Column="0" Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent" Height="50"
+                        Command="{x:Bind ViewModel.OpenSettings}">
                     <SymbolIcon Symbol="Setting"></SymbolIcon>
                 </Button>
                 

@@ -466,7 +466,7 @@
     <Compile Include="Logic\WindowManagerService.cs" />
     <Compile Include="Logic\DeviceWatcherService.cs" />
     <Compile Include="Logic\FileSystemService\FileSystem.cs" />
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
@@ -475,12 +475,15 @@
     <Compile Include="Logic\BrowserServices\IBrowserService.cs" />
     <Compile Include="Models\MainPageModel.cs" />
     <Compile Include="Logic\BrowserServices\ZipBrowserService.cs" />
-    <Compile Include="PermissionPage.xaml.cs">
+    <Compile Include="Pages\PermissionPage.xaml.cs">
       <DependentUpon>PermissionPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controls\StorageTableView.xaml.cs">
       <DependentUpon>StorageTableView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -573,7 +576,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainPage.xaml">
+    <Page Include="Pages\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -581,7 +584,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PermissionPage.xaml">
+    <Page Include="Pages\PermissionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -80,7 +80,7 @@
                                 <FontIcon Glyph="&#xE756;"/>
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="Properties">
+                        <MenuFlyoutItem Text="Properties" Command="{x:Bind ViewModel.ShowProperties}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE946;"/>
                             </MenuFlyoutItem.Icon>
@@ -280,7 +280,7 @@
         
         <local:DialogControl Dialog="{x:Bind ViewModel.Dialog, Mode=TwoWay}" x:Name="DialogControl" Grid.ColumnSpan="10" Grid.RowSpan="10"></local:DialogControl>
 
-        <Grid Grid.Row="3" Background="{ThemeResource AppElementBackgroundBrush}" Padding="10,0,10,0">
+        <Grid Grid.Row="3" Background="{ThemeResource AppElementBackgroundBrush}" BorderThickness="0,1,0,0" BorderBrush="Gray" Padding="10,0,10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>

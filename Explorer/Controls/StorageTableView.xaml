@@ -10,6 +10,9 @@
     mc:Ignorable="d">
     <Page.Resources>
         <ResourceDictionary>
+            <SolidColorBrush x:Key="RowHoverBackgroundBrush" Color="{ThemeResource SystemListLowColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="RowDefaultBackgroundBrush" Color="Transparent"></SolidColorBrush>
+            
             <Style x:Key="RowSelectedStyle" TargetType="Border">
                 <Setter Property="BorderThickness" Value="1"></Setter>
                 <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
@@ -19,7 +22,7 @@
                 <Setter Property="BorderThickness" Value="0,1,0,1"></Setter>
                 <Setter Property="BorderBrush" Value="{ThemeResource DefaultRevealBorderBrush}"></Setter>
                 <Setter Property="Background" Value="Transparent"></Setter>
-            </Style>
+            </Style>    
             <Style x:Key="RowDropStyle" TargetType="Border" BasedOn="{StaticResource RowDefaultStyle}">
                 <Setter Property="BorderBrush" Value="White"></Setter>
                 <Setter Property="BorderThickness" Value="2"></Setter>
@@ -161,7 +164,8 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-
+                    
+                    <!--PointerEntered="Row_PointerEntered" PointerExited="Row_PointerExited"-->
                     <ItemsControl x:Name="ItemsSourceRowHitbox" ItemsSource="{x:Bind ItemsSource, Mode=OneWay}" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="entities:FileSystemElement">

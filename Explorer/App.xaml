@@ -234,10 +234,10 @@
                     <AcrylicBrush x:Key="AppBackgroundBrush"
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
-                                  TintOpacity="0.8"
+                                  TintOpacity="0.9"
                                   FallbackColor="#181818"/>
                     <AcrylicBrush x:Key="AppElementBackgroundBrush"
-                                  BackgroundSource="HostBackdrop"
+                                  BackgroundSource="Backdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.5"
                                   FallbackColor="#171717"/>
@@ -254,10 +254,10 @@
                     <AcrylicBrush x:Key="AppBackgroundBrush"
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
-                                  TintOpacity="0.8"
+                                  TintOpacity="0.9"
                                   FallbackColor="#EAEAEA"/>
                     <AcrylicBrush x:Key="AppElementBackgroundBrush"
-                                  BackgroundSource="HostBackdrop"
+                                  BackgroundSource="Backdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.5"
                                   FallbackColor="#191919"/>

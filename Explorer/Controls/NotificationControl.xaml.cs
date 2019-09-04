@@ -32,8 +32,10 @@ namespace Explorer.Controls
             this.InitializeComponent();
             actionBtnAnimation = (Storyboard)Resources["GradientAnimation"];
 
-            if (Instance == null) Instance = this;
-            else throw new Exception("Only one NotificationControl allowed");
+            Instance = this;
+
+            //if (Instance == null) Instance = this;
+            //else throw new Exception("Only one NotificationControl allowed");
         }
 
         public void Show(string notification, Symbol symbol, string actionName = "", Action action = null, int timeout = 5000)

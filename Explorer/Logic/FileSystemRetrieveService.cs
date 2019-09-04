@@ -383,7 +383,7 @@ namespace Explorer.Logic
 
                     var fileToRemove = currentFiles[i];
                     ViewItems.Remove(fileToRemove);
-                    files.Remove(files.First(f => f.Path == fileToRemove.Path));
+                    files.Remove(files.FirstOrDefault(f => f.Path == fileToRemove.Path));
                 }
             }
 

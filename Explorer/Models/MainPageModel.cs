@@ -32,11 +32,18 @@ namespace Explorer.Models
             NavigationItems = new ObservableCollection<object>();
             FileBrowserModels = new ObservableCollection<FSEBrowserModel>();
             FileBrowserModels.CollectionChanged += FileBrowserModels_CollectionChanged;
+            //FileBrowserModels.Add(new FSEBrowserModel());
+
+            //OpenTab();
+
             Favorites = new ObservableRangeCollection<FavoriteNavigationLink>();
             Favorites.CollectionChanged += Favorites_CollectionChanged;
 
+            var frame = (Frame)Window.Current.Content;
+
             AddTabCmd = new Command(() => OpenTab(@switch: true), () => true);
             LaunchUrl = new GenericCommand<string>(async url => await Launcher.LaunchUriAsync(new Uri(url)), url => true);
+            OpenSettings = new Command(() => frame.Navigate(typeof(SettingsPage)), () => true);
             dispatcher = Window.Current.CoreWindow.Dispatcher;
 
             FavNavLinkUpCmd = new GenericCommand<FavoriteNavigationLink>(x => MoveUpFavorite(x), x => Favorites.IndexOf(x) > 0);
@@ -85,6 +92,7 @@ namespace Explorer.Models
 
         public ICommand AddTabCmd { get; }
         public ICommand LaunchUrl { get; }
+        public ICommand OpenSettings { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkUpCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkDownCmd { get; }
         public GenericCommand<FavoriteNavigationLink> FavNavLinkRemoveCmd { get; }
@@ -114,7 +122,9 @@ namespace Explorer.Models
 
         public void OpenTab(FileSystemElement directory = null, bool @switch = false)
         {
-            var newTab = directory == null ? new FSEBrowserModel() : new FSEBrowserModel(directory);
+            var win = new FileSystemElement("Windows", "C:", DateTimeOffset.Now, 0);
+
+            var newTab = directory == null ? new FSEBrowserModel(win) : new FSEBrowserModel(directory);
             FileBrowserModels.Add(newTab);
 
             if (@switch)
@@ -167,8 +177,12 @@ namespace Explorer.Models
                 {
                     var drive = drives[0];
 
-                    CurrentFileBrowser.ClearHistory();
-                    CurrentFileBrowser.NavigateTo(new FileSystemElement { Path = drive.RootDirectory, Name = drive.Name });
+                    //Check if we aren`t already on this drive
+                    if (!CurrentFileBrowser.Path.Contains(drive.RootDirectory))
+                    {
+                        CurrentFileBrowser.ClearHistory();
+                        CurrentFileBrowser.NavigateTo(new FileSystemElement(drive.Name, drive.RootDirectory, DateTimeOffset.Now, drive.TotalSpace));
+                    }
                 }
 
                 semaphore.Release();

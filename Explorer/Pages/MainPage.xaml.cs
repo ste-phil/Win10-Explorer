@@ -35,6 +35,7 @@ namespace Explorer
         public MainPage()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             RootGrid = xRootGrid;
 
@@ -74,15 +75,17 @@ namespace Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            if (e.NavigationMode == NavigationMode.Back) return;
+
             if (e.Parameter == "") 
             {
-                ViewModel.FileBrowserModels.Add(new FSEBrowserModel()); 
+                ViewModel.OpenTab();
             }
             else
             {
                 var vlc = e.Parameter as ViewLifetimeControl;
                 if (vlc.Context != "") ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FSEBrowserModel>(vlc.Context));
-                else ViewModel.FileBrowserModels.Add(new FSEBrowserModel());
+                else ViewModel.OpenTab();
 
                 vlc.Released += (s, ev) => { };
             }
