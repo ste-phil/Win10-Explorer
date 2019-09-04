@@ -8,11 +8,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
-                  BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
+                  BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5" FallbackColor="#1f1f1f"/>
             <AcrylicBrush x:Key="NavigationViewTopPaneBackground"
-                  BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
+                  BackgroundSource="Backdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5" FallbackColor="#1f1f1f"/>
             <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
-                  BackgroundSource="HostBackdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5"/>
+                  BackgroundSource="HostBackdrop" TintColor="{ThemeResource SystemChromeMediumColor}" TintOpacity=".5" FallbackColor="#1f1f1f"/>
             <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
 
             <!--Style for Button-->
@@ -235,12 +235,18 @@
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.8"
-                                  FallbackColor="#191919"/>
+                                  FallbackColor="#181818"/>
                     <AcrylicBrush x:Key="AppElementBackgroundBrush"
                                   BackgroundSource="HostBackdrop"
                                   TintColor="{ThemeResource SystemChromeMediumColor}"
                                   TintOpacity="0.5"
                                   FallbackColor="#171717"/>
+                    <!--<SolidColorBrush x:Key="AppBackgroundBrush"
+                                  Color="{ThemeResource SystemChromeLowColor}"
+                                  />
+                    <SolidColorBrush x:Key="AppElementBackgroundBrush"
+                                  Color="{ThemeResource SystemChromeMediumColor}"
+                                  />-->
                     <RevealBorderBrush x:Key="DefaultRevealBorderBrush" TargetTheme="Dark" Color="Transparent"></RevealBorderBrush>
                 </ResourceDictionary>
 
