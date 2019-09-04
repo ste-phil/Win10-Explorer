@@ -81,9 +81,6 @@ namespace Explorer.Controls
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
             "ViewModel", typeof (FSEBrowserModel), typeof (FSEBrowser), new PropertyMetadata(null));
 
-        public DialogService DialogService { get; set; } = new DialogService();
-
-
         public FSEBrowser()
         {
             this.InitializeComponent();
