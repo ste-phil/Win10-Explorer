@@ -17,10 +17,11 @@ namespace Explorer.Models
 {
     public class FileBrowserService : IBrowserService
     {
-        private readonly FileSystemRetrieveService retrieveService;
-        private readonly FileSystemOperationService operationSerivce;
+        protected readonly FileSystemRetrieveService retrieveService;
+        protected readonly FileSystemOperationService operationSerivce;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
+        public Features Features => FeatureBuilder.All;
 
         public FileBrowserService(ObservableCollection<FileSystemElement> elements)
         {
@@ -65,7 +66,7 @@ namespace Explorer.Models
             await retrieveService.CreateFolder(folderName);
         }
 
-        public async void DeleteFileSystemElement(FileSystemElement fse)
+        public virtual async void DeleteFileSystemElement(FileSystemElement fse)
         {
             await retrieveService.DeleteFileSystemElement(fse);
         }

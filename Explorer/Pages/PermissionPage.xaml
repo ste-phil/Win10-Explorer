@@ -23,7 +23,7 @@
         <TextBlock Grid.Row="2" Text="You will be redirected to Windows Settings where you need to check the system wide file access" TextAlignment="Center" VerticalAlignment="Bottom" FontSize="20" TextWrapping="Wrap"></TextBlock>
         <Image Grid.Row="3">
             <Image.Source>
-                <BitmapImage UriSource="Assets/PermissionHelp.gif"/>
+                <BitmapImage UriSource="../Assets/PermissionHelp.gif"/>
             </Image.Source>
         </Image>
         <Button Grid.Row="4" Style="{ThemeResource ButtonRevealStyle}" Content="Close App &amp; Open Settings" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="30" Tapped="OpenSettings_Tapped" Background="Transparent"></Button>

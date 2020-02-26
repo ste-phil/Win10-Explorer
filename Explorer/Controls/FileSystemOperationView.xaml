@@ -8,6 +8,7 @@
     xmlns:entities="using:Explorer.Entities"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:ext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:helper="using:Explorer.Helper"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -26,6 +27,7 @@
                 Storyboard.TargetProperty="Height"
                 From="200" To="30" Duration="0:0:0.125"/>
         </Storyboard>
+        <helper:CopyModeToStringConverter x:Key="CopyModeToStringConverter" />
     </UserControl.Resources>
     <StackPanel x:Name="TB" Orientation="Vertical" HorizontalAlignment="Center" Tapped="StackPanel_Tapped">
         <Button Style="{ThemeResource MyButtonRevealStyle}" Background="Transparent" Height="30" Padding="5,0,5,0" HorizontalAlignment="Center">
@@ -60,7 +62,7 @@
                                         BorderThickness="1" CornerRadius="1" Padding="10">
                                     <StackPanel>
                                         <TextBlock TextAlignment="Center">
-                                            <Run Text="Copying"></Run>
+                                            <Run Text="{x:Bind Operation, Mode=OneWay, Converter={StaticResource CopyModeToStringConverter}}"></Run>
                                             <Run Text="{x:Bind SourceItemsString}" FontWeight="Bold"></Run>
                                             <Run Text="to"></Run>
                                             <Run Text="{x:Bind TargetFolder.Name}" FontWeight="Bold"></Run>

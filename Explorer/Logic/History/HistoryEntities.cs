@@ -8,9 +8,9 @@ namespace Explorer.Logic.History
 {
     public interface IFileSystemElementOperation
     {
-        public int ElementId { get; set; }
-        public string Path { get; set; }
-        public string Name { get; set; }
+        int ElementId { get; set; }
+        string Path { get; set; }
+        string Name { get; set; }
     }
 
     public class FileSystemElementCreateOperation : IFileSystemElementOperation

@@ -66,6 +66,7 @@ namespace Explorer.Controls
         public MenuFlyout MultipleItemFlyout { get; set; }
         public MenuFlyout BackgroundFlyout { get; set; }
         public FileSystemElement FocusedItem { get; set; }
+        public bool DragEnabled { get; set; }
 
         public ObservableCollection<FileSystemElement> ItemsSource
         {
@@ -86,9 +87,9 @@ namespace Explorer.Controls
             get { return (ObservableCollection<FileSystemElement>)GetValue(SelectedItemsProperty); }
             set
             {
-                if (ItemsSource != null) ItemsSource.CollectionChanged -= ItemsSource_CollectionChanged;
+                if (ItemsSource != null) ItemsSource.CollectionChanged -= SelectedItems_CollectionChanged;
                 SetValue(SelectedItemsProperty, value);
-                if (value != null) value.CollectionChanged += ItemsSource_CollectionChanged;
+                if (value != null) value.CollectionChanged += SelectedItems_CollectionChanged;
             }
         }
 

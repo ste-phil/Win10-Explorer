@@ -170,7 +170,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="entities:FileSystemElement">
                                 <Border Style="{StaticResource RowDefaultStyle}" 
-                                        CanDrag="True" DragOver="Row_DragOver" DragLeave="Row_DragLeave" DragStarting="Row_DragStarting"
+                                        CanDrag="{Binding DataContext.DragEnabled}" DragOver="Row_DragOver" DragLeave="Row_DragLeave" DragStarting="Row_DragStarting"
                                         AllowDrop="True" Drop="Row_Drop" 
                                         Height="30" AllowFocusOnInteraction="True"
                                         Tag="{x:Bind}" 

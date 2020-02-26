@@ -31,6 +31,7 @@ namespace Explorer.Models
         private MultiDictionary<int, ZipFileElement> elements;
 
         public ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
+        public Features Features => Features.Open;
 
         public ZipBrowserService(ObservableCollection<FileSystemElement> elements)
         {

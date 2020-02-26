@@ -76,20 +76,18 @@ namespace Explorer
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (e.NavigationMode == NavigationMode.Back) return;
-
-            if (e.Parameter == "") 
+            
+            if (e.Parameter is ViewLifetimeControl vlc)
             {
-                ViewModel.OpenTab();
-            }
-            else
-            {
-                var vlc = e.Parameter as ViewLifetimeControl;
                 if (vlc.Context != "") ViewModel.FileBrowserModels.Add(JsonConvert.DeserializeObject<FSEBrowserModel>(vlc.Context));
                 else ViewModel.OpenTab();
 
                 vlc.Released += (s, ev) => { };
             }
-            
+            else
+            {
+                ViewModel.OpenTab();
+            }
 
             base.OnNavigatedTo(e);
         }

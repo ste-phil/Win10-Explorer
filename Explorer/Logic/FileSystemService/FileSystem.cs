@@ -131,8 +131,24 @@ namespace Explorer.Logic.FileSystemService
 
         public static async Task CopyStorageItemsAsync(FileSystemElement folder, List<IStorageItem> storageItems)
         {
+            //var ops = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+
             Stopwatch s = new Stopwatch();
             s.Start();
+
+            //var actions = new Action[storageItems.Count];
+            //var targetFolder = await GetFolderAsync(folder);
+            //for (int i = 0; i < storageItems.Count; i++)
+            //{
+            //    actions[i] = async () => await CopyStorageItemAsync(targetFolder, storageItems[i]);
+            //}
+
+            //Parallel.Invoke(ops, actions);
+
+
+
+
+
 
             var tasks = new Task[storageItems.Count];
             var targetFolder = await GetFolderAsync(folder);
@@ -141,7 +157,7 @@ namespace Explorer.Logic.FileSystemService
                 tasks[i] = CopyStorageItemAsync(targetFolder, storageItems[i]);
             }
             await Task.WhenAll(tasks);
-            
+
             s.Stop();
             Debug.WriteLine("Copy took: " + s.ElapsedMilliseconds + "ms");
         }

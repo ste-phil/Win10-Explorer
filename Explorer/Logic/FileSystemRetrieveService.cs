@@ -156,11 +156,11 @@ namespace Explorer.Logic
         /// </summary>
         /// <param name="fse"></param>
         /// <returns></returns>
-        public async Task DeleteFileSystemElement(FileSystemElement fse)
+        public async Task DeleteFileSystemElement(FileSystemElement fse, bool permanently = false)
         {
             try
             {
-                await FileSystem.DeleteStorageItemAsync(fse);
+                await FileSystem.DeleteStorageItemAsync(fse, permanently);
 
                 ViewItems.Remove(fse);
                 items.Remove(fse);

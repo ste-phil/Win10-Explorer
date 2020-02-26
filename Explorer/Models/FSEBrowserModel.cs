@@ -25,14 +25,17 @@ namespace Explorer.Models
     public delegate void FSEEventHandler(FileSystemElement fse);
     public delegate void FileDragEvent(DataPackage dataPackage, DragUI dragUI);
     public delegate void FileDropEvent(FileSystemElement droppedTo, IEnumerable<IStorageItem> droppeditems);
+    public delegate void BrowserFeaturesEventHandler(Features ops);
+
 
     public class FSEBrowserModel : BaseModel
     {
         public event FSEEventHandler FavoriteAddRequested;
+        public event BrowserFeaturesEventHandler BrowserFeaturesChanged;
 
         //Used for windows share
-        private static DataTransferManager dataTransferManager;
-        private static DataPackage sharedData;
+        public static DataTransferManager DataTransferManager;
+        public static DataPackage SharedData;
 
         private string path;
         private bool pathIncreased;
@@ -102,10 +105,10 @@ namespace Explorer.Models
             PathSuggestions = new ObservableCollection<FileSystemElement>();
 
             //For sharing files, only one object for all fileBrowsers
-            if (dataTransferManager == null)
+            if (DataTransferManager == null)
             {
-                dataTransferManager = DataTransferManager.GetForCurrentView();
-                dataTransferManager.DataRequested += OnShareRequested;
+                DataTransferManager = DataTransferManager.GetForCurrentView();
+                DataTransferManager.DataRequested += OnShareRequested;
             }
 
             ViewModes = new ViewMode[]
@@ -239,6 +242,7 @@ namespace Explorer.Models
         /// <param name="fse"></param>
         public void NavigateTo(FileSystemElement fse)
         {
+            BrowserService.CancelLoading();
             CheckChangeFSEBrowserImplementation(fse);
 
             Path = fse.Path;
@@ -279,6 +283,12 @@ namespace Explorer.Models
             {
                 BrowserService = new ZipBrowserService(FileSystemElements);
             }
+            else if (fse.Path == FileSystem.RecyclingBinFolder.Path)
+            {
+                BrowserService = new RecyclingBrowserService(FileSystemElements);
+            }
+
+            BrowserFeaturesChanged?.Invoke(BrowserService.Features);
         }
 
         public void Search(string search)
@@ -373,13 +383,13 @@ namespace Explorer.Models
         public async void ShareStorageItem()
         {
             DataTransferManager.ShowShareUI();
-            sharedData = new DataPackage();
+            SharedData = new DataPackage();
 
-            if (SelectedItems.Count == 1) sharedData.Properties.Title = SelectedItems[0].Name;
-            else sharedData.Properties.Title = "Sharing multiple items";
+            if (SelectedItems.Count == 1) SharedData.Properties.Title = SelectedItems[0].Name;
+            else SharedData.Properties.Title = "Sharing multiple items";
 
-            sharedData.Properties.Description = "This element will be shared";
-            sharedData.SetStorageItems(await FileSystem.GetStorageItemsAsync(SelectedItems));
+            SharedData.Properties.Description = "This element will be shared";
+            SharedData.SetStorageItems(await FileSystem.GetStorageItemsAsync(SelectedItems));
         }
 
         /// <summary>
@@ -542,7 +552,7 @@ namespace Explorer.Models
         /// <param name="args"></param>
         private void OnShareRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
-            args.Request.Data = sharedData;
+            args.Request.Data = SharedData;
         }
 
         public void DropStorageItem(FileSystemElement droppedTo, IEnumerable<IStorageItem> droppeditems)
@@ -591,6 +601,9 @@ namespace Explorer.Models
 
             switch (key)
             {
+                case VirtualKey.R:
+                    Refresh();
+                    break;
                 case VirtualKey.C:
                     CopyStorageItemSelected();
                     break;

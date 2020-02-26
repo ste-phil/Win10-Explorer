@@ -6,11 +6,11 @@
          xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
          xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
          IgnorableNamespaces="uap mp iot rescap">
-  <Identity Name="ee5efaa6-281e-4c99-80f0-d332a984d1b8" Publisher="CN=Philipp" Version="0.1.3.0" />
-  <mp:PhoneIdentity PhoneProductId="ee5efaa6-281e-4c99-80f0-d332a984d1b8" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="28677PancakesSoftwareForg.FileExplorer" Publisher="CN=C5452D69-7C49-4785-BEA1-F6D93D721D9F" Version="0.1.14.0" />
+  <mp:PhoneIdentity PhoneProductId="a75166c2-b29a-4333-9bd4-6ece6cf52edf" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Explorer</DisplayName>
-    <PublisherDisplayName>Philipp</PublisherDisplayName>
+    <DisplayName>File Explorer</DisplayName>
+    <PublisherDisplayName>Pancake&apos;s Software Forge</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
@@ -21,7 +21,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Explorer.App">
-      <uap:VisualElements DisplayName="Explorer" Square150x150Logo="Assets\Square150x150Logo.png" Description="Explorer" BackgroundColor="transparent" Square44x44Logo="Assets\Square44x44Logo.png">
+      <uap:VisualElements DisplayName="File Explorer" Square150x150Logo="Assets\Square150x150Logo.png" Description="Explorer" BackgroundColor="transparent" Square44x44Logo="Assets\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />

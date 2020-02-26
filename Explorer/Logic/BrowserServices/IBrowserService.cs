@@ -12,9 +12,32 @@ using static Explorer.Logic.FileSystemRetrieveService;
 
 namespace Explorer.Models
 {
+    [Flags]
+    public enum Features
+    {
+        None = 0,
+        Copy = 1,
+        Cut = 2,
+        Paste = 4,
+        Delete = 8,
+        Rename = 16,
+        Favorite = 32,
+        History = 64,
+        Properties = 128,
+        Open = 256,
+        Share = 512,
+        Search = 1024,
+    }
+
+    public static class FeatureBuilder
+    {
+        public static Features All => (Features)2047;
+    }
+
     public interface IBrowserService
     {
         ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
+        Features Features { get; }
 
         void OpenFileSystemElement(FileSystemElement fse);
         void RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions);
@@ -26,7 +49,6 @@ namespace Explorer.Models
         void DeleteFileSystemElement(FileSystemElement fse);
         void CreateFolder(string folderName);
         void CreateFile(string fileName);
-
 
         void CopyFileSystemElement(Collection<FileSystemElement> files);
         void CutFileSystemElement(Collection<FileSystemElement> files);

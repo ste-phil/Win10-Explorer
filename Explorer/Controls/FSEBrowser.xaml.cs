@@ -1,35 +1,22 @@
-﻿using System;
+﻿using Explorer.Entities;
+using Explorer.Helper;
+using Explorer.Logic.FileSystemService;
+using Explorer.Models;
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Explorer.Entities;
-using Explorer.Models;
-using System.Diagnostics;
-using Windows.Storage.FileProperties;
-using System.Threading.Tasks;
-using Windows.UI.Core;
-using Explorer.Logic;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
-using Explorer.Logic.FileSystemService;
 
 namespace Explorer.Controls
 {
     public sealed partial class FSEBrowser : UserControl
     {
-        public event EventHandler<FileSystemElement> RequestedTabOpen;
-        public event FSEEventHandler FavoriteAdded;
-
         public class ViewMode : ObservableEntity
         {
             private ThumbnailMode type;
@@ -62,9 +49,25 @@ namespace Explorer.Controls
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<FileSystemElement> RequestedTabOpen;
+        public event FSEEventHandler FavoriteAdded;
+
+        private MenuFlyout browserMenuFlyout;
+        private MenuFlyout browserMultipleMenuFlyout;
+        private MenuFlyout browserBackgrondMenuFlyout;
+
+        public FSEBrowser()
+        {
+            this.InitializeComponent();
+            ((FrameworkElement)Content).DataContext = this;
+        }
+
+        #region Properties
+        #region Dependency Properties
         public FSEBrowserModel ViewModel
         {
-            get { return (FSEBrowserModel) GetValue(ViewModelProperty); }
+            get { return (FSEBrowserModel)GetValue(ViewModelProperty); }
             set
             {
                 SetValue(ViewModelProperty, value);
@@ -73,19 +76,92 @@ namespace Explorer.Controls
                 {
                     ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
+                    ViewModel.BrowserFeaturesChanged += ViewModel_BrowserFeaturesChanged;
                     Bindings.Update();
                 }
             }
         }
 
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register(
-            "ViewModel", typeof (FSEBrowserModel), typeof (FSEBrowser), new PropertyMetadata(null));
+            "ViewModel", typeof(FSEBrowserModel), typeof(FSEBrowser), new PropertyMetadata(null));
 
-        public FSEBrowser()
+        #endregion
+
+        //public MenuFlyout BrowserMenuFlyout
+        //{
+        //    get => browserMenuFlyout;
+        //    set { browserMenuFlyout = value; OnPropertyChanged(); }
+        //}
+
+        //public MenuFlyout BrowserMultipleMenuFlyout
+        //{
+        //    get => browserMultipleMenuFlyout;
+        //    set { browserMultipleMenuFlyout = value; OnPropertyChanged(); }
+        //}
+
+        //public MenuFlyout BrowserBackgrondMenuFlyout
+        //{
+        //    get => browserBackgrondMenuFlyout;
+        //    set { browserBackgrondMenuFlyout = value; OnPropertyChanged(); }
+        //}
+
+        #endregion
+
+        #region Feature check
+        private void ViewModel_BrowserFeaturesChanged(Features ops)
         {
-            this.InitializeComponent();
-            ((FrameworkElement)this.Content).DataContext = this;
+            var notSupportedFeatureFlags = ((~ops) & FeatureBuilder.All).GetIndividualFlags().ToArray();
+            TableView.ItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserFlyout"]);
+            TableView.MultipleItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserMultipleFlyout"]);
+            TableView.BackgroundFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserBackgroundFlyout"]);
+
+            //TODO: BUILD UI DEPENDENT TO FEATURES
         }
+
+        private MenuFlyout RemoveMenuFlyoutFeatures(Enum[] featuresToRemove, MenuFlyout flyout)
+        {
+            var x = new List<MenuFlyoutItemBase>();
+            foreach (MenuFlyoutItemBase item in flyout.Items)
+            {
+                for (int i = 0; i < featuresToRemove.Count(); i++)
+                {
+                    if ((string)item.Tag == $"Feature_{featuresToRemove[i].ToString()}") x.Add(item);
+                }
+            }
+
+            for (int i = 0; i < x.Count; i++)
+            {
+                flyout.Items.Remove(x[i]);
+            }
+
+
+            //Check if seperators are useless now
+            bool removed = true;
+            while (removed)
+            {
+                removed = false;
+
+                for (int i = 0; i < flyout.Items.Count; i++)
+                {
+                    if (flyout.Items[i] is MenuFlyoutSeparator && (flyout.Items[i + 1] is MenuFlyoutSeparator || i == flyout.Items.Count - 1))
+                    {
+                        flyout.Items.RemoveAt(i);
+                        removed = true;
+                        break;
+                    }
+                }
+            }
+            
+
+            //Add Item to indicate that no features are available
+            if (flyout.Items.Count == 0)
+            {
+                flyout.Items.Add(new MenuFlyoutItem { Text = "No actions are available", Icon = new SymbolIcon(Symbol.Important) });
+            }
+
+            return flyout;
+        }
+        #endregion
 
         private void OpenPowershell_Clicked(object sender, RoutedEventArgs e)
         {
@@ -94,7 +170,7 @@ namespace Explorer.Controls
 
         private void TextBoxPath_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            var chosen = (FileSystemElement) args.ChosenSuggestion;
+            var chosen = (FileSystemElement)args.ChosenSuggestion;
             if (chosen != null)
                 ViewModel.NavigateOrOpen(chosen);
             else
@@ -124,6 +200,16 @@ namespace Explorer.Controls
         private void PathBox_NavigationRequested(object sender, string path)
         {
             ViewModel.NavigateOrOpen(path);
+        }
+
+        private void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChanged?.Invoke(this, e);
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
     }
 }
