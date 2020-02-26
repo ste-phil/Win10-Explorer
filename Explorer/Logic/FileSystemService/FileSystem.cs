@@ -28,21 +28,21 @@ namespace Explorer.Logic.FileSystemService
             get
             {
                 if (recyclingBinFolder == null)
-                    CreateOrOpenRecyclingBin();
+                    recyclingBinFolder = CreateOrOpenRecyclingBin();
 
                 return recyclingBinFolder;
             }
             private set => recyclingBinFolder = value;
         }
 
-        private static async void CreateOrOpenRecyclingBin()
+        private static StorageFolder CreateOrOpenRecyclingBin()
         {
             var array = AppDataFolder.Path.Split('\\');
             var username = array[2];
             string userFolderPath = @"C:\Users\" + username;
 
-            var userFolder = await StorageFolder.GetFolderFromPathAsync(userFolderPath);
-            RecyclingBinFolder = await userFolder.CreateFolderAsync("Recycling Bin", CreationCollisionOption.OpenIfExists);
+            var userFolder = StorageFolder.GetFolderFromPathAsync(userFolderPath).AsTask().Result;
+            return userFolder.CreateFolderAsync("Recycling Bin", CreationCollisionOption.OpenIfExists).AsTask().Result;
         }
 
         public static async Task<Drive[]> GetDrivesAsync()
