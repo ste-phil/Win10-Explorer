@@ -281,7 +281,7 @@ namespace Explorer.Controls
                     FocusRow(ItemsSource[index], true);
 
                     args.Handled = true;                                    //Set event as handled (Prevents ScrollViewer from scrolling down/up)
-                    break;
+                    return;
             }
 
             //Don't find FileSystemElemets which start with key pressed if modifiers have been pressed

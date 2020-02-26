@@ -99,23 +99,23 @@ namespace Explorer.Controls
         #region Feature check
         private void ViewModel_BrowserFeaturesChanged(Features ops)
         {
-            var notSupportedFeatureFlags = ops.GetIndividualFlags().ToArray();
-            TableView.ItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserFlyout);
-            TableView.MultipleItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserMultipleFlyout);
-            TableView.BackgroundFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserBackgroundFlyout);
+            var featureFlags = ops.GetIndividualFlags().ToArray();
+            TableView.ItemFlyout = RemoveMenuFlyoutFeatures(featureFlags, browserFlyout);
+            TableView.MultipleItemFlyout = RemoveMenuFlyoutFeatures(featureFlags, browserMultipleFlyout);
+            TableView.BackgroundFlyout = RemoveMenuFlyoutFeatures(featureFlags, browserBackgroundFlyout);
         }
 
-        private MenuFlyout RemoveMenuFlyoutFeatures(Enum[] featuresToRemove, MenuFlyout flyout)
+        private MenuFlyout RemoveMenuFlyoutFeatures(Enum[] features, MenuFlyout flyout)
         {
             var newFlyout = new MenuFlyout();
 
             //var x = new List<MenuFlyoutItemBase>();
             foreach (MenuFlyoutItemBase item in flyout.Items)
             {
-                for (int i = 0; i < featuresToRemove.Count(); i++)
+                for (int i = 0; i < features.Count(); i++)
                 {
                     var tag = (string)item.Tag;
-                    if (tag == $"Feature_{featuresToRemove[i].ToString()}" || tag == null) 
+                    if (tag == $"Feature_{features[i].ToString()}" || tag == null) 
                         newFlyout.Items.Add(item);
                 }
             }
