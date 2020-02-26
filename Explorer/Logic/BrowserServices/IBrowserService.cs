@@ -39,14 +39,15 @@ namespace Explorer.Models
         ObservableCollection<FileSystemElement> FileSystemElements { get; set; }
         Features Features { get; }
 
-        void OpenFileSystemElement(FileSystemElement fse);
         void RefetchThumbnails(ThumbnailFetchOptions thumbnailOptions);
         void CancelLoading();
         void LoadFolder(FileSystemElement fse, ThumbnailFetchOptions thumbnailOptions);
         void SearchAsync(string search);
-        
+
+        void OpenFileSystemElement(FileSystemElement fse);
+        void OpenFileSystemElementWith(FileSystemElement fse);
         void RenameFileSystemElement(FileSystemElement fse, string newName);
-        void DeleteFileSystemElement(FileSystemElement fse);
+        void DeleteFileSystemElement(FileSystemElement fse, bool permanently = false);
         void CreateFolder(string folderName);
         void CreateFile(string fileName);
 

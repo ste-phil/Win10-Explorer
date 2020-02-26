@@ -19,7 +19,7 @@ namespace Explorer.Models
     {
         public RecyclingBrowserService(ObservableCollection<FileSystemElement> elements) : base(elements) { }
   
-        public override async void DeleteFileSystemElement(FileSystemElement fse)
+        public override async void DeleteFileSystemElement(FileSystemElement fse, bool permanently = false)
         {
             await retrieveService.DeleteFileSystemElement(fse, true);
         }

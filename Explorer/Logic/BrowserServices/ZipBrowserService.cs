@@ -40,14 +40,7 @@ namespace Explorer.Models
             this.elements = new MultiDictionary<int, ZipFileElement>();
         }
 
-        public async void OpenFileSystemElement(FileSystemElement fse)
-        {
-            var zfe = (ZipFileElement) fse;
-            var file = await FileSystem.CreateStorageFile(ApplicationData.Current.TemporaryFolder, zfe.Name, zfe.ElementStream);
-
-            if (fse.DisplayType == "Application") FileSystem.LaunchExeAsync(file.Path);
-            else FileSystem.OpenFileWithDefaultApp(file.Path);
-        }
+        
 
         public void CancelLoading()
         {
@@ -178,12 +171,29 @@ namespace Explorer.Models
             
         }
 
+        public async void OpenFileSystemElement(FileSystemElement fse)
+        {
+            var zfe = (ZipFileElement)fse;
+            var file = await FileSystem.CreateStorageFile(ApplicationData.Current.TemporaryFolder, zfe.Name, zfe.ElementStream);
+
+            if (fse.DisplayType == "Application") await FileSystem.LaunchExeAsync(file.Path);
+            else await FileSystem.OpenFileWithDefaultApp(file.Path);
+        }
+
+        public async void OpenFileSystemElementWith(FileSystemElement fse)
+        {
+            var zfe = (ZipFileElement)fse;
+            var file = await FileSystem.CreateStorageFile(ApplicationData.Current.TemporaryFolder, zfe.Name, zfe.ElementStream);
+
+            await FileSystem.OpenFileWith(file.Path);
+        }
+
         public void RenameFileSystemElement(FileSystemElement fse, string newName)
         {
             
         }
 
-        public void DeleteFileSystemElement(FileSystemElement fse)
+        public void DeleteFileSystemElement(FileSystemElement fse, bool permanently = false)
         {
             
         }

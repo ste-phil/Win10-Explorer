@@ -330,7 +330,7 @@ namespace Explorer.Logic.FileSystemService
             return resultList;
         }
 
-        public static async void LaunchExeAsync(string appPath, string arguments = "")
+        public static async Task LaunchExeAsync(string appPath, string arguments = "")
         {
             Debug.WriteLine("Launching EXE in FullTrustProcess");
             ApplicationData.Current.LocalSettings.Values["LaunchPath"] = appPath;

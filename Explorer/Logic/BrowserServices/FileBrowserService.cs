@@ -35,11 +35,7 @@ namespace Explorer.Models
             await retrieveService.RefetchThumbnails(thumbnailOptions);
         }
 
-        public void OpenFileSystemElement(FileSystemElement fse)
-        {
-            if (fse.DisplayType == "Application") FileSystem.LaunchExeAsync(fse.Path);
-            else FileSystem.OpenFileWithDefaultApp(fse.Path);
-        }
+        
 
         public void CancelLoading()
         {
@@ -66,9 +62,23 @@ namespace Explorer.Models
             await retrieveService.CreateFolder(folderName);
         }
 
-        public virtual async void DeleteFileSystemElement(FileSystemElement fse)
+        public virtual async void DeleteFileSystemElement(FileSystemElement fse, bool permanently = false)
         {
-            await retrieveService.DeleteFileSystemElement(fse);
+            await retrieveService.DeleteFileSystemElement(fse, permanently);
+        }
+
+        public async void OpenFileSystemElement(FileSystemElement fse)
+        {
+            if (fse.DisplayType == "Application") await FileSystem.LaunchExeAsync(fse.Path);
+            else await FileSystem.OpenFileWithDefaultApp(fse.Path);
+        }
+
+        public async void OpenFileSystemElementWith(FileSystemElement fse)
+        {
+            var zfe = (ZipFileElement)fse;
+            var file = await FileSystem.CreateStorageFile(ApplicationData.Current.TemporaryFolder, zfe.Name, zfe.ElementStream);
+
+            await FileSystem.OpenFileWith(file.Path);
         }
 
         public async void RenameFileSystemElement(FileSystemElement fse, string newName)

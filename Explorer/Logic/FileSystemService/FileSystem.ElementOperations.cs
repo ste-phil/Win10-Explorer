@@ -16,13 +16,13 @@ namespace Explorer.Logic.FileSystemService
             return (await folder.TryGetItemAsync(name)) != null;
         }
 
-        public static async void OpenFileWithDefaultApp(string path)
+        public static async Task OpenFileWithDefaultApp(string path)
         {
             var file = await StorageFile.GetFileFromPathAsync(path);
             await Launcher.LaunchFileAsync(file);
         }
 
-        public static async void OpenFileWith(string path)
+        public static async Task OpenFileWith(string path)
         {
             var file = await StorageFile.GetFileFromPathAsync(path);
             await Launcher.LaunchFileAsync(file, new LauncherOptions { DisplayApplicationPicker = true });

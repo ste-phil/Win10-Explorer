@@ -101,7 +101,6 @@ namespace Explorer.Models
             //    CurrentFolder = new FileSystemElement(win.Name, win.Path, win.DateCreated, 0);
             //}
 
-            BrowserService = new FileBrowserService(FileSystemElements);
             PathSuggestions = new ObservableCollection<FileSystemElement>();
 
             //For sharing files, only one object for all fileBrowsers
@@ -242,7 +241,7 @@ namespace Explorer.Models
         /// <param name="fse"></param>
         public void NavigateTo(FileSystemElement fse)
         {
-            BrowserService.CancelLoading();
+            BrowserService?.CancelLoading();
             CheckChangeFSEBrowserImplementation(fse);
 
             Path = fse.Path;
@@ -275,20 +274,22 @@ namespace Explorer.Models
 
         private void CheckChangeFSEBrowserImplementation(FileSystemElement fse)
         {
-            if (!(fse is ZipFileElement) && !fse.IsArchive && BrowserService is ZipBrowserService)
+            if (!(fse is ZipFileElement) && !fse.IsArchive && (BrowserService is ZipBrowserService || BrowserService == null))
             {
                 BrowserService = new FileBrowserService(FileSystemElements);
+                BrowserFeaturesChanged?.Invoke(BrowserService.Features);
             }
             else if (fse.IsArchive && BrowserService is FileBrowserService)
             {
                 BrowserService = new ZipBrowserService(FileSystemElements);
+                BrowserFeaturesChanged?.Invoke(BrowserService.Features);
             }
             else if (fse.Path == FileSystem.RecyclingBinFolder.Path)
             {
                 BrowserService = new RecyclingBrowserService(FileSystemElements);
+                BrowserFeaturesChanged?.Invoke(BrowserService.Features);
             }
 
-            BrowserFeaturesChanged?.Invoke(BrowserService.Features);
         }
 
         public void Search(string search)
@@ -363,7 +364,7 @@ namespace Explorer.Models
 
             var selectedItem = SelectedItems[0];
             if (selectedItem.IsFolder) NavigateTo(selectedItem);
-            else FileSystem.OpenFileWithDefaultApp(selectedItem.Path);
+            else BrowserService.OpenFileSystemElement(selectedItem);
         }
 
         /// <summary>
@@ -374,7 +375,7 @@ namespace Explorer.Models
             if (SelectedItems.Count != 1) return;
 
             var selectedItem = SelectedItems[0];
-            if (!selectedItem.IsFolder) FileSystem.OpenFileWith(selectedItem.Path);
+            if (!selectedItem.IsFolder) BrowserService.OpenFileSystemElementWith(selectedItem);
         }
 
         /// <summary>
@@ -418,9 +419,11 @@ namespace Explorer.Models
         /// </summary>
         public void DeleteStorageItemSelected()
         {
+            var permDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
             while (SelectedItems.Count > 0)
             {
-                BrowserService.DeleteFileSystemElement(SelectedItems[0]);
+                BrowserService.DeleteFileSystemElement(SelectedItems[0], permDelete);
                 Notifications.Show($"Deleted {SelectedItems[0].Name}", Symbol.Delete, "Undo", () => { });
                 SelectedItems.RemoveAt(0);
             }
@@ -447,7 +450,7 @@ namespace Explorer.Models
             //BrowserService.PasteFileSystemElement()
         }
 
-        public async void CreateFolder()
+        public void CreateFolder()
         {
             Dialog = Dialogs.ShowEditDialog("Create Folder", "Create", "Cancel", "", folderName =>
             {
@@ -455,7 +458,7 @@ namespace Explorer.Models
             });
         }
 
-        public async void CreateFile()
+        public void CreateFile()
         {
             Dialog = Dialogs.ShowEditDialog("Create File", "Create", "Cancel", "", fileName =>
             {
@@ -595,6 +598,7 @@ namespace Explorer.Models
                     DeleteStorageItemSelected();
                     break;
             }
+
 
             var ctrlDown = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
             if (!ctrlDown) return;

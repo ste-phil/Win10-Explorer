@@ -49,18 +49,21 @@ namespace Explorer.Controls
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<FileSystemElement> RequestedTabOpen;
         public event FSEEventHandler FavoriteAdded;
 
-        private MenuFlyout browserMenuFlyout;
-        private MenuFlyout browserMultipleMenuFlyout;
-        private MenuFlyout browserBackgrondMenuFlyout;
+        private MenuFlyout browserFlyout;
+        private MenuFlyout browserMultipleFlyout;
+        private MenuFlyout browserBackgroundFlyout;
 
         public FSEBrowser()
         {
             this.InitializeComponent();
             ((FrameworkElement)Content).DataContext = this;
+
+            browserFlyout = (MenuFlyout)Resources["DefaultBrowserFlyout"];
+            browserMultipleFlyout = (MenuFlyout)Resources["DefaultBrowserMultipleFlyout"];
+            browserBackgroundFlyout = (MenuFlyout)Resources["DefaultBrowserBackgroundFlyout"];
         }
 
         #region Properties
@@ -77,6 +80,10 @@ namespace Explorer.Controls
                     ViewModel.FileBrowserWidth = ActualWidth;
                     ViewModel.FavoriteAddRequested += (FileSystemElement fse) => FavoriteAdded?.Invoke(fse);
                     ViewModel.BrowserFeaturesChanged += ViewModel_BrowserFeaturesChanged;
+
+                    //Update UI depending on features
+                    ViewModel_BrowserFeaturesChanged(ViewModel.BrowserService.Features);
+                    
                     Bindings.Update();
                 }
             }
@@ -87,52 +94,36 @@ namespace Explorer.Controls
 
         #endregion
 
-        //public MenuFlyout BrowserMenuFlyout
-        //{
-        //    get => browserMenuFlyout;
-        //    set { browserMenuFlyout = value; OnPropertyChanged(); }
-        //}
-
-        //public MenuFlyout BrowserMultipleMenuFlyout
-        //{
-        //    get => browserMultipleMenuFlyout;
-        //    set { browserMultipleMenuFlyout = value; OnPropertyChanged(); }
-        //}
-
-        //public MenuFlyout BrowserBackgrondMenuFlyout
-        //{
-        //    get => browserBackgrondMenuFlyout;
-        //    set { browserBackgrondMenuFlyout = value; OnPropertyChanged(); }
-        //}
-
         #endregion
 
         #region Feature check
         private void ViewModel_BrowserFeaturesChanged(Features ops)
         {
-            var notSupportedFeatureFlags = ((~ops) & FeatureBuilder.All).GetIndividualFlags().ToArray();
-            TableView.ItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserFlyout"]);
-            TableView.MultipleItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserMultipleFlyout"]);
-            TableView.BackgroundFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, (MenuFlyout)Resources["DefaultBrowserBackgroundFlyout"]);
-
-            //TODO: BUILD UI DEPENDENT TO FEATURES
+            var notSupportedFeatureFlags = ops.GetIndividualFlags().ToArray();
+            TableView.ItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserFlyout);
+            TableView.MultipleItemFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserMultipleFlyout);
+            TableView.BackgroundFlyout = RemoveMenuFlyoutFeatures(notSupportedFeatureFlags, browserBackgroundFlyout);
         }
 
         private MenuFlyout RemoveMenuFlyoutFeatures(Enum[] featuresToRemove, MenuFlyout flyout)
         {
-            var x = new List<MenuFlyoutItemBase>();
+            var newFlyout = new MenuFlyout();
+
+            //var x = new List<MenuFlyoutItemBase>();
             foreach (MenuFlyoutItemBase item in flyout.Items)
             {
                 for (int i = 0; i < featuresToRemove.Count(); i++)
                 {
-                    if ((string)item.Tag == $"Feature_{featuresToRemove[i].ToString()}") x.Add(item);
+                    var tag = (string)item.Tag;
+                    if (tag == $"Feature_{featuresToRemove[i].ToString()}" || tag == null) 
+                        newFlyout.Items.Add(item);
                 }
             }
 
-            for (int i = 0; i < x.Count; i++)
-            {
-                flyout.Items.Remove(x[i]);
-            }
+            //for (int i = 0; i < x.Count; i++)
+            //{
+            //    flyout.Items.Remove(x[i]);
+            //}
 
 
             //Check if seperators are useless now
@@ -141,11 +132,11 @@ namespace Explorer.Controls
             {
                 removed = false;
 
-                for (int i = 0; i < flyout.Items.Count; i++)
+                for (int i = 0; i < newFlyout.Items.Count; i++)
                 {
-                    if (flyout.Items[i] is MenuFlyoutSeparator && (flyout.Items[i + 1] is MenuFlyoutSeparator || i == flyout.Items.Count - 1))
+                    if (newFlyout.Items[i] is MenuFlyoutSeparator && (newFlyout.Items[i + 1] is MenuFlyoutSeparator || i == newFlyout.Items.Count - 1))
                     {
-                        flyout.Items.RemoveAt(i);
+                        newFlyout.Items.RemoveAt(i);
                         removed = true;
                         break;
                     }
@@ -154,12 +145,12 @@ namespace Explorer.Controls
             
 
             //Add Item to indicate that no features are available
-            if (flyout.Items.Count == 0)
+            if (newFlyout.Items.Count == 0)
             {
-                flyout.Items.Add(new MenuFlyoutItem { Text = "No actions are available", Icon = new SymbolIcon(Symbol.Important) });
+                newFlyout.Items.Add(new MenuFlyoutItem { Text = "No actions are available", Icon = new SymbolIcon(Symbol.Important) });
             }
 
-            return flyout;
+            return newFlyout;
         }
         #endregion
 
@@ -200,16 +191,6 @@ namespace Explorer.Controls
         private void PathBox_NavigationRequested(object sender, string path)
         {
             ViewModel.NavigateOrOpen(path);
-        }
-
-        private void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChanged?.Invoke(this, e);
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
     }
 }

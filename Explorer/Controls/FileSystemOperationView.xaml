@@ -48,30 +48,25 @@
             </StackPanel>
         </Button>
 
-        <ScrollViewer Margin="0,30,0,50" Visibility="{x:Bind ViewModel.DetailsVisible, Mode=OneWay}">
-            <ItemsControl ItemsSource="{x:Bind ViewModel.Operations}" >
+        <ScrollViewer Margin="0,30,0,50" Visibility="{x:Bind ViewModel.DetailsVisible, Mode=OneWay}" HorizontalAlignment="Stretch">
+            <ItemsControl ItemsSource="{x:Bind ViewModel.Operations}" HorizontalAlignment="Stretch">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="entities:FileSystemOperation">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
 
-                            <controls:DropShadowPanel Grid.Column="0" HorizontalAlignment="Center" Margin="5">
-                                <Border Background="{ThemeResource AppElementBackgroundBrush}" BorderBrush="{ThemeResource SystemBaseMediumColor}" 
-                                        BorderThickness="1" CornerRadius="1" Padding="10">
-                                    <StackPanel>
-                                        <TextBlock TextAlignment="Center">
-                                            <Run Text="{x:Bind Operation, Mode=OneWay, Converter={StaticResource CopyModeToStringConverter}}"></Run>
-                                            <Run Text="{x:Bind SourceItemsString}" FontWeight="Bold"></Run>
-                                            <Run Text="to"></Run>
-                                            <Run Text="{x:Bind TargetFolder.Name}" FontWeight="Bold"></Run>
-                                        </TextBlock>
-                                        <ProgressBar IsIndeterminate="True" Margin="0,10,0,0"></ProgressBar>
-                                    </StackPanel>
-                                </Border>
-                            </controls:DropShadowPanel>
-                        </Grid>
+                        <controls:DropShadowPanel HorizontalAlignment="Center" Margin="5">
+                            <Border Background="{ThemeResource AppElementBackgroundBrush}" BorderBrush="{ThemeResource SystemBaseMediumColor}" 
+                                    BorderThickness="1" CornerRadius="1" Padding="10">
+                                <StackPanel>
+                                    <TextBlock TextAlignment="Center">
+                                        <Run Text="{x:Bind Operation, Mode=OneWay, Converter={StaticResource CopyModeToStringConverter}}"></Run>
+                                        <Run Text="{x:Bind SourceItemsString}" FontWeight="Bold"></Run>
+                                        <Run Text="to"></Run>
+                                        <Run Text="{x:Bind TargetFolder.Name}" FontWeight="Bold"></Run>
+                                    </TextBlock>
+                                    <ProgressBar IsIndeterminate="True" Margin="0,10,0,0"></ProgressBar>
+                                </StackPanel>
+                            </Border>
+                        </controls:DropShadowPanel>
                         <!--<Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>

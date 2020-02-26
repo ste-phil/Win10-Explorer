@@ -6,7 +6,7 @@
          xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
          xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
          IgnorableNamespaces="uap mp iot rescap">
-  <Identity Name="28677PancakesSoftwareForg.FileExplorer" Publisher="CN=C5452D69-7C49-4785-BEA1-F6D93D721D9F" Version="0.1.14.0" />
+  <Identity Name="28677PancakesSoftwareForg.FileExplorer" Publisher="CN=C5452D69-7C49-4785-BEA1-F6D93D721D9F" Version="0.1.19.0" />
   <mp:PhoneIdentity PhoneProductId="a75166c2-b29a-4333-9bd4-6ece6cf52edf" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>File Explorer</DisplayName>
