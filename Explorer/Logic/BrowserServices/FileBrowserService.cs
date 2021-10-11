@@ -75,10 +75,7 @@ namespace Explorer.Models
 
         public async void OpenFileSystemElementWith(FileSystemElement fse)
         {
-            var zfe = (ZipFileElement)fse;
-            var file = await FileSystem.CreateStorageFile(ApplicationData.Current.TemporaryFolder, zfe.Name, zfe.ElementStream);
-
-            await FileSystem.OpenFileWith(file.Path);
+            await FileSystem.OpenFileWith(fse.Path);
         }
 
         public async void RenameFileSystemElement(FileSystemElement fse, string newName)
